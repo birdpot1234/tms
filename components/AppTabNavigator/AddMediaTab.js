@@ -37,6 +37,15 @@ class AddMediaTab extends Component {
     this.worksub();
     this.sucesswork();
   }
+  static navigationOptions = {
+    tabBarLabel: "่เคลม",
+    tabBarIcon: ({ tintColor }) => (
+      <Icon name="ios-construct" style={{
+        color:
+          tintColor
+      }} />
+    ),
+  }
 
   _RELOAD_MAIN2 = () => {
     this.props.client.resetStore();
