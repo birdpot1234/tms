@@ -65,7 +65,7 @@ class AddMediaTab extends Component {
     console.log('worksub')
 
     this.props.client.query({
-      query: worksub,
+      query: tsc_worklist,
       variables: {
         "MessengerID": global.NameOfMess
       }
@@ -73,7 +73,7 @@ class AddMediaTab extends Component {
       console.log("workSub.................")
       console.log(result.data.worksub)
       this.setState({
-        showWork: result.data.worksub
+        showWork: result.data.tsc_worklist
       })
     }).catch((err) => {
       console.log(err)
@@ -139,14 +139,14 @@ console.log(inb)
     console.log("queryZone")
 
     this.props.client.query({
-      query: queryZONE,
+      query: TSC_select_Zone,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.queryZONE)
+      console.log(result.data.TSC_select_Zone)
       this.setState({
-        showZone: result.data.queryZONE
+        showZone: result.data.TSC_select_Zone
       })
     }).catch((err) => {
       console.log(err)
@@ -430,7 +430,7 @@ console.log('INV',delInv)
 
                                       <View style={{ position: 'absolute', right: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}>
-                                          <Text style={{ fontWeight: 'bold', fontSize: 13, color: 'orange', paddingHorizontal: 5 }}>{l.SUM} ฿ </Text>
+                                          {/* <Text style={{ fontWeight: 'bold', fontSize: 13, color: 'orange', paddingHorizontal: 5 }}>{l.SUM} ฿ </Text> */}
                                           <Button transparent
                                             onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}
                                           >
@@ -660,6 +660,18 @@ const worksub = gql`
       }
   }
 `
+const tsc_worklist = gql`
+    query tsc_worklist($MessengerID:String!){
+      tsc_worklist(MessengerID: $MessengerID){
+            invoiceNumber
+            customerName
+          DELIVERYNAME
+          Zone
+          addressShipment
+          
+      }
+  }
+`
 const checkBillRework = gql`
     query checkBillRework($invoiceNumber:String!){
       checkBillRework(invoiceNumber: $invoiceNumber){
@@ -678,6 +690,13 @@ const Rework = gql`
 const queryZONE = gql`
   query queryZONE($MessengerID:String!){
             queryZONE(MessengerID: $MessengerID){
+            Zone
+          }
+          }
+        `
+const TSC_select_Zone = gql`
+  query TSC_select_Zone($MessengerID:String!){
+    TSC_select_Zone(MessengerID: $MessengerID){
             Zone
           }
           }
