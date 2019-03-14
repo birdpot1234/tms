@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView, TouchableOpacity, AppRegistry,TouchableHighlight,CheckBox,ActivityIndicator } from 'react-native'
+import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView, TouchableOpacity, AppRegistry,TouchableHighlight,CheckBox } from 'react-native'
 import { gql, withApollo, compose } from 'react-apollo'
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Input, Item, Grid, Col } from 'native-base';
 import SignatureCapture from 'react-native-signature-capture';
 import Moment from 'moment';
 import mainservice from '../../services/mainService'
-//import Geolocation from 'react-native-geolocation-service';
-class SubmitJob extends Component {
+class Submit_TSC extends Component {
 
     static navigationOptions = {
         header: null
@@ -22,36 +21,12 @@ class SubmitJob extends Component {
             sig_status:false,
             partname:null,
             status_CHECKBOX: false,
-            status_typetran:false,
-            submitjob:false,
-            date:Moment(new Date).format('DD-MM-YYYY'),
+            date:Moment(new Date).format('d-MM-YYYY'),
             time:Moment(new Date).format('h-mm-ss'),
-            load:false
         }
         this.props.client.resetStore();
     }
 
-    submitedit = () => {
-        console.log("submitedit")
-        this.props.client.query({
-            query: submitedit,
-            variables: {
-                "invoiceNumber": this.props.navigation.state.params.id
-            }
-        }).then((result) => {
-            if (result.data.submitedit.status) {
-               this.submitwork("A2")
-               // this.submit_inv()
-               // console.log('A2')
-            } else {
-                this.submitwork("A1")
-              
-               // console.log('A1')
-            }
-        }).catch((err) => {
-            console.log(err)
-        });
-    }
 
     submit_inv =() =>{
         var www = "http://www.dplus-system.com:3401/upload/"
@@ -74,66 +49,37 @@ class SubmitJob extends Component {
         });
     }
     submitwork = (s) => {
-        var payType =null
-        payType = this.props.navigation.state.params.PAYMMODE
-        CheckBoxTranfer = (this.state.status_CHECKBOX)?"true":"false"
-        
-
-        //payType = (this.state.status_CHECKBOX)?"TRANSFER":this.props.navigation.state.params.PAYMMODE
-        tranType = (this.state.status_typetran)?"Transport":"Truck"
+       // var payType =null
+       // payType = (this.state.status_CHECKBOX)?"Transfer":"Cash"
         this.props.client.mutate({
-            mutation: submitwork_DL,
+            mutation: submit_TSC,
             variables: {
-                "status": s,
-                "invoiceNumber": this.props.navigation.state.params.id,
-                "paymentType":payType,
-                "tranType":tranType,
-                "CheckBoxTranfer":CheckBoxTranfer
+                "TSC": this.props.navigation.state.params.id,
+                "status_work": s
             }
         }).then((result) => {
-          //  this.submit_inv()
-            this.submiitdetail(s)
+            console.log(result.data.submit_TSC.status)
+            if(!result.data.submit_TSC.status)
+            {
+                Alert.alert(
+                    "ส่งไม่สำเร็จ",
+                    "กรุณากดส่งใหม่อีกครั้ง",
+                )
+            }
+            else{
+                this.tracking(s)
+            }
+           // this.submiitdetail(s)
         }).catch((err) => {
             console.log("err of submitwork", err)
         });
     }
 
-    submiitdetail = (s) => {
-        console.log("submiitdetail")
-        this.props.client.mutate({
-            mutation: submiitdetail,
-            variables: {
-                "invoiceNumber": this.props.navigation.state.params.id
-            }
-        }).then((result) => {
-            // navigator.geolocation.getCurrentPosition(
-            //     (position) => {
-            //         console.log("wokeeey");
-            //         console.log(position);
-            //         this.setState({
-            //             latitude: position.coords.latitude,
-            //             longitude: position.coords.longitude,
-            //             error: null,
-            //         }, () => this.tracking(s));
-            //     },
-            //     (error) => this.setState({ error: error.message }),
-            //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-            // );
-           // console.log("Tracking ", result.data.tracking.status)
-            //this.props.navigation.state.params.refresion()
-            //this.props.navigation.goBack()
-            this.tracking(s)
-        }).catch((err) => {
-            console.log("err of submiitdetail", err)
-        });
-    }
-
-
     tracking = (s) => {
         console.log("tracking")
 
         this.props.client.mutate({
-            mutation: tracking,
+            mutation: tracking_CN,
             variables: {
                 "invoice": this.props.navigation.state.params.id,
                 "status": s,
@@ -142,55 +88,24 @@ class SubmitJob extends Component {
                 "long": this.state.longitude,
             }
         }).then((result) => {
-            console.log("Tracking ", result.data.tracking.status)
-            this.setState({
-                submitjob: false,
-                load:true
-            })
-            this.props.navigation.state.params.refresion()
-            this.props.navigation.goBack()
+            console.log("Tracking ", result.data.tracking_CN.status)
+            if(!result.data.tracking_CN.status)
+            {
+                Alert.alert(
+                    "ส่งไม่สำเร็จ",
+                    "กรุณากดส่งใหม่อีกครั้ง",
+                )
+            }
+            else{
+                this.props.navigation.state.params.refresion()
+                this.props.navigation.goBack()
+            }
+      
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
-            this.setState({
-                submitjob: false,
-                load:true
-            })
         });
     }
-    showlog = (im) => {
-        console.log('555555')
-        console.log(im)
-
     
-    }
-    getlocation =()=>{
-        console.log('getlocation')
-            // GET_LOCATE() {
-                 navigator.geolocation.getCurrentPosition(
-            (position) => {
-                Alert.alert(
-                    ""+position.coords.latitude,
-                    ""+position.coords.longitude,
-                    [
-                      
-                        // { text: "ยืนยัน", onPress: () => this.saveSign() }
-                        { text: "ok", onPress: () => console.log('ok') }
-                    ]
-                )
-                 console.log('eiei')
-                 console.log( position);
-                // console.log(position.coords.longitude);
-                // this.setState({
-                //     latitude: position.coords.latitude,
-                //     longitude: position.coords.longitude,
-                //     error: null,
-                // });
-            },
-            (error) => this.setState({ error: error.message }),
-            { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 },
-        );
-    // }
-    }
  
     pic =()=>{
         const part = 'file:///storage/emulated/0/saved_signature/signature.png'
@@ -213,10 +128,7 @@ class SubmitJob extends Component {
            Accept: 'application/json',
            'Content-Type': 'multipart/form-data',
          },
-        //  body: JSON.stringify({
-        //    inv: 'eiei',
-        //    productImage: resw,
-        //  }),
+      
         
         body: form,
        }).then((response) => response.json())
@@ -229,12 +141,7 @@ class SubmitJob extends Component {
            });
        
        }
-    // insert_inv =(fileName)=>{
-    //     var intsert_inv = null
-    //     for(){
-            
-    //     }
-    // }
+  
     
     
  
@@ -255,18 +162,6 @@ class SubmitJob extends Component {
                 </Body>
                 <Right />
             </Header>
-            <View style={[styles.container, styles.horizontal]}>
-                    {
-
-                        this.state.load ?
-                            <ActivityIndicator size="small" color="#00ff00" />
-                            :
-
-
-                            <View />
-
-                    }
-                </View>
 
             {/* <Content style={{ height: 200 }}> */}
             <View style={{ flex: 1, flexDirection: "column" }}>
@@ -282,23 +177,9 @@ class SubmitJob extends Component {
                     showTitleLabel={false}
                     viewMode={"portrait"}/>
 
-                {/* <View style={{ flex: 1, flexDirection: "row" }}>
-                    <TouchableHighlight style={styles.buttonStyle}
-                        onPress={() => { this.saveSign() } } >
-                        <Text>Save</Text>
-                    </TouchableHighlight>
-
-                    <TouchableHighlight style={styles.buttonStyle}
-                        onPress={() => { this.resetSign() } } >
-                        <Text>Reset</Text>
-                    </TouchableHighlight>
-
-                </View> */}
 
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
-                       
-                       
+            {/* <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
                         <View style={{ marginLeft: 20 }}>
                             <CheckBox
                                 value={this.state.status_CHECKBOX}
@@ -306,27 +187,10 @@ class SubmitJob extends Component {
                                     this.setState({ status_CHECKBOX: !this.state.status_CHECKBOX })
                                    
                                 }} />
-                              
                         </View>
                         <Text>ชำระแบบโอน</Text>
-                        
-                              
-                        
-                        <View style={{ marginLeft: 20 }}>
-                            <CheckBox
-                                value={this.state.status_typetran}
-                                onValueChange={() => {
-                                    this.setState({ status_typetran: !this.state.status_typetran })
-                                   
-                                }} />
-                        </View>
-                        <Text>ส่งขนส่ง</Text>
-                    </View>
-     {/* <View style={{ flexDirection: 'row', Left: 10, alignItems: 'center',width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5  }}>
-                         <View style={{ marginRight:  10 }}>
-                         <Text style={{ fontWeight: 'bold', fontSize: 18, color: 'orange', paddingHorizontal: 5 }}>เครดิต </Text>
-                        </View>
-                        </View> */}
+                    </View> */}
+
 
             {/* </Content> */}
 
@@ -335,7 +199,7 @@ class SubmitJob extends Component {
                     flex: 1,
                     flexDirection: 'column',
                 }}>
-                    <TouchableOpacity onPress={() => this.showlog()} >
+                    <TouchableOpacity onPress={() => navigate('')} >
                         <View style={{
                             width: Dimensions.get('window').width / 2, height: 70, backgroundColor: '#FFFD66'
                             , justifyContent: 'center', alignItems: 'center'
@@ -373,7 +237,7 @@ class SubmitJob extends Component {
                         </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity disabled={this.state.submitjob} onPress={() =>
+                    <TouchableOpacity onPress={() =>
                         Alert.alert(
                             "ยืนยันการส่งงาน",
                             "คุณต้องการยืนยันการส่งงานหรือไม่?",
@@ -402,14 +266,11 @@ class SubmitJob extends Component {
     }
 
     saveSign() {
-        this.setState({
-            submitjob: true,
-        })
         if(this.state.sig_status)
         {
             console.log('In save sign')
             this.signComponent.saveImage();
-          this.submitedit()
+          this.submitwork('A1')
        
     
         }
@@ -420,11 +281,7 @@ class SubmitJob extends Component {
                
               )
         }
-        
-        //console.log(this.refs["sign"])
-       // const base64String  = `data:image/png;base64,${result.encoded}`;
-       // this.setState({image:base64String })
-       // this.showlog(1)
+
     }
   
     resetSign = () => {
@@ -434,9 +291,7 @@ class SubmitJob extends Component {
     }
 
     _onSaveEvent=(result) =>{
-        //result.encoded - for the base64 encoded png
-        //result.pathName - for the file path name
-        //const base64String  = `data:image/png;base64,${result.encoded}`;
+       
         const partname = result.pathName;
         console.log(partname);
         
@@ -475,7 +330,7 @@ const styles = StyleSheet.create({
 });
  
 //AppRegistry.registerComponent('SubmitJob', () => SubmitJob);
-const GraphQL = compose(SubmitJob)
+const GraphQL = compose(Submit_TSC)
 export default withApollo(GraphQL)
 
 const submitwork = gql`
@@ -492,13 +347,6 @@ const submit_inv = gql`
         }
     }
 `
-const submitwork_DL = gql`
-    mutation submitwork_DL($status:String!, $invoiceNumber:String!,$paymentType:String!,$tranType:String!,$CheckBoxTranfer:String!){
-        submitwork_DL(status: $status, invoiceNumber: $invoiceNumber,paymentType: $paymentType,tranType: $tranType,CheckBoxTranfer:$CheckBoxTranfer){
-            status
-        }
-    }
-`
 const submiitdetail =gql`
     mutation submiitdetail($invoiceNumber:String!){
         submiitdetail(invoiceNumber: $invoiceNumber){
@@ -510,6 +358,13 @@ const submiitdetail =gql`
 const submitedit = gql`
     query submitedit($invoiceNumber:String!){
         submitedit(invoiceNumber: $invoiceNumber){
+            status
+        }
+    }
+`
+const submit_TSC = gql`
+    mutation submit_TSC($TSC:String!,$status_work:String!){
+        submit_TSC(TSC: $TSC,status_work: $status_work){
             status
         }
     }
@@ -534,3 +389,22 @@ const tracking = gql`
         }
     }
 `
+const tracking_CN = gql`
+    mutation tracking_CN(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!
+    ){
+        tracking_CN(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long
+        ){
+            status
+        }
+    }
+ `

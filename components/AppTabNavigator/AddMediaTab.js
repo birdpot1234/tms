@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Dimensions, RefreshControl, CheckBox, Alert, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, Dimensions, RefreshControl, CheckBox, Alert, TouchableOpacity,Image } from 'react-native'
 import { Icon, Container, Header, Left, Body, Title, Right, Tab, Tabs, TabHeading, Button, Subtitle, ListItem, Content, Badge, Accordion, Footer, ActionSheet } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
 import Swipeout from 'react-native-swipeout'
@@ -21,48 +21,54 @@ class AddMediaTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showWork: [],
-      showZone: [],
-      show_SUC: [],
-      refreshing_2: false,
-      CF_ALL_INVOICE: [],
-      stack_IVOICE: [],
+      showWork_CN: [],
+      showZone_CN: [],
+      show_SUC_CN: [],
+      refreshing_2_CN: false,
+      CF_ALL_INVOICE_CN: [],
+      stack_IVOICE_CN: [],
       status_CHECKBOX: false,
-      activeRowKey:null,
-      indexRow:null,
-      status_checkBillRework:null,
+      activeRowKey_CN:null,
+      indexRow_CN:null,
+      status_checkBillRework_CN:null,
     }
-    // this.props.client.resetStore();
-    this.queryZONE();
-    this.worksub();
-    this.sucesswork();
+  //  this.props.client.resetStore();
+    this.queryZONE_CN();
+    this.worksub_CN();
+    this.sucesswork_CN();
   }
-  static navigationOptions = {
-    tabBarLabel: "่เคลม",
-    tabBarIcon: ({ tintColor }) => (
-      <Icon name="ios-construct" style={{
-        color:
-          tintColor
-      }} />
-    ),
-  }
+   
+  // static navigationOptions = {
+  //   tabBarLabel: "่เคลม",
+  //   tabBarIcon: ({ tintColor }) => (
+  //     <Icon name="ios-construct" style={{
+  //       color:
+  //         tintColor
+  //     }} />
+  //   ),
+  // }
 
   _RELOAD_MAIN2 = () => {
     this.props.client.resetStore();
-    this.setState({ refreshing_2: true });
-    this.queryZONE();
-    this.worksub();
-    this.sucesswork();
-    this.setState({ CF_ALL_INVOICE: [], stack_IVOICE: [] })
-    this.setState({ refreshing_2: false });
+    this.setState({ refreshing_2_CN: true });
+    this.queryZONE_CN();
+    this.worksub_CN();
+    this.sucesswork_CN();
+    this.setState({ CF_ALL_INVOICE_CN: [], stack_IVOICE_CN: [] })
+    this.setState({ refreshing_2_CN: false });
+    this.setState({CF_ALL_INVOICE:false})
   }
 
   checkDATA = (e) => {
     return (e == null) || (e == false)
   }
+  logcath =()=>{
 
-  worksub = () => {
-    console.log('worksub')
+    const { navigate } = this.props.navigation
+    navigate('AddCN',{id:''})
+  }
+  worksub_CN = () => {
+    console.log('worksub_CN')
 
     this.props.client.query({
       query: tsc_worklist,
@@ -70,29 +76,29 @@ class AddMediaTab extends Component {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log("workSub.................")
-      console.log(result.data.worksub)
+      console.log("worksub_CN.................")
+      console.log("CNNN",result.data.tsc_worklist)
       this.setState({
-        showWork: result.data.tsc_worklist
+        showWork_CN: result.data.tsc_worklist
       })
     }).catch((err) => {
       console.log(err)
     });
   }
-  checkBillRework = (inb) => {
+checkBillRework = (inb) => {
 
-console.log(inb)
+    console.log(inb)
     this.props.client.query({
-      query: checkBillRework,
+      query: checkBillRework_sp,
       variables: {
         "invoiceNumber": inb
       }
     }).then((result) => {
-      console.log(result.data.checkBillRework.status)
+      console.log(result.data.checkBillRework_sp.status)
       this.setState({
-        status_checkBillRework: result.data.checkBillRework.status
+        status_checkBillRework_CN: result.data.checkBillRework_sp.status
       })
-      if(!result.data.checkBillRework.status)
+      if(!result.data.checkBillRework_sp.status)
       {
         Alert.alert(
           'ไม่สามารถถอยบิลนี้ได้ ',
@@ -117,10 +123,12 @@ console.log(inb)
       console.log(err)
     });
   }
+
+
   AlertBillRework = (inb) => {
   
     this.props.client.mutate({
-      mutation: Rework,
+      mutation: Rework_sp,
       variables: {
        
         "invoiceNumber": inb
@@ -133,10 +141,14 @@ console.log(inb)
 
 
   }
+  _RELOAD_TO_GOBACK = () => {
+    this.props.navigation.state.params.refresion()
+    this.props.navigation.goBack()
+}
 
 
-  queryZONE = () => {
-    console.log("queryZone")
+  queryZONE_CN = () => {
+    console.log("queryZONE_CN")
 
     this.props.client.query({
       query: TSC_select_Zone,
@@ -146,64 +158,88 @@ console.log(inb)
     }).then((result) => {
       console.log(result.data.TSC_select_Zone)
       this.setState({
-        showZone: result.data.TSC_select_Zone
+        showZone_CN: result.data.TSC_select_Zone
       })
     }).catch((err) => {
       console.log(err)
     });
   }
 
-  sucesswork = () => {
-    console.log("sucesswork")
+  sucesswork_CN = () => {
+    console.log("sucesswork_CN")
 
     this.props.client.query({
-      query: sucesswork,
+      query: sucesswork_CN,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.sucesswork)
+      console.log(result.data.sucesswork_CN)
       this.setState({
-        show_SUC: result.data.sucesswork
+        show_SUC_CN: result.data.sucesswork_CN
       })
     }).catch((err) => {
       console.log(err)
     });
   }
-
   submitwork = (s, in_V, n) => {
-    console.log(s)
     this.props.client.mutate({
-      mutation: submitwork,
-      variables: {
-        "status": s,
-        "invoiceNumber": in_V
-      }
+        mutation: submit_TSC,
+        variables: {
+            "TSC": in_V,
+            "status_work": s
+           
+        }
     }).then((result) => {
-      this.submiitdetail(s, in_V, n)
+        console.log(result.data.submit_TSC.status)
+        if(!result.data.submit_TSC.status)
+        {
+            Alert.alert(
+                "ส่งไม่สำเร็จ",
+                "กรุณากดส่งใหม่อีกครั้ง",
+            )
+        }
+        else{
+            this.tracking(s,in_V, n)
+        }
+       // this.submiitdetail(s)
     }).catch((err) => {
-      console.log("err of submitwork", err)
+        console.log("err of submitwork", err)
     });
-  }
+}
+  // submitwork = (s, in_V, n) => {
+  //   console.log(s)
+  //   this.props.client.mutate({
+  //     mutation: submitwork,
+  //     variables: {
+  //       "status": s,
+  //       "invoiceNumber": in_V
+  //     }
+  //   }).then((result) => {
+  //     this.submiitdetail(s, in_V, n)
+  //   }).catch((err) => {
+  //     console.log("err of submitwork", err)
+  //   });
+  // }
 
-  submiitdetail = (s, in_V, n) => {
-    this.props.client.mutate({
-      mutation: submiitdetail,
-      variables: {
-        "invoiceNumber": in_V
-      }
-    }).then((result) => {
-      this.tracking(s, in_V, n)
-    }).catch((err) => {
-      console.log("err of submiitdetail", err)
-    });
-  }
+  // submiitdetail = (s, in_V, n) => {
+  //   this.props.client.mutate({
+  //     mutation: submiitdetail,
+  //     variables: {
+  //       "invoiceNumber": in_V
+  //     }
+  //   }).then((result) => {
+  //     this.tracking(s, in_V, n)
+  //   }).catch((err) => {
+  //     console.log("err of submiitdetail", err)
+  //   });
+  // }
 
   tracking = (s, in_V, n) => {
     console.log("tracking")
 
     this.props.client.mutate({
-      mutation: tracking,
+      mutation: tracking_CN,
       variables: {
         "invoice": in_V,
         "status": s,
@@ -213,9 +249,19 @@ console.log(inb)
       }
     }).then((result) => {
       if (n == 0) {
-        console.log("Tracking ", result.data.tracking.status)
+      
       } else if (n == 1) {
-        this._RELOAD_MAIN2()
+        if(!result.data.tracking_CN.status)
+        {
+            Alert.alert(
+                "ส่งไม่สำเร็จ",
+                "กรุณากดส่งใหม่อีกครั้ง",
+            )
+        }
+        else{
+          this._RELOAD_MAIN2()
+        }
+       
       }
     }).catch((err) => {
       console.log("ERR OF TRACKING", err)
@@ -224,13 +270,13 @@ console.log(inb)
   checksubmitbill = () => {
     const { navigate } = this.props.navigation
     console.log("tracking")
-    console.log(this.state.showWork.length)
+    console.log(this.state.showWork_CN.length)
 
-    if(this.state.showWork.length>0)
+    if(this.state.showWork_CN.length>0)
     {
       Alert.alert(
         'ไม่สามารถสรุปยอดได้ ',
-        'คุณยังมีงานค้างส่งอีก :'+this.state.showWork.length+'  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
+        'คุณยังมีงานค้างส่งอีก :'+this.state.showWork_CN.length+'  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
        
       )
     }
@@ -241,9 +287,9 @@ console.log(inb)
   }
   OnhandSelect =(inb)=>{
     this.setState({
-      indexRow:inb,
+      indexRow_CN:inb,
     })
-    const inb_text = this.state.indexRow
+    const inb_text = this.state.indexRow_CN
 
     console.log(inb)
   }
@@ -256,23 +302,23 @@ console.log(inb)
     const swipeSetting = {
       autoClose : true,
       onClose:(secId,rowId,direction)=>{
-        if(this.state.activeRowKey != null)
+        if(this.state.activeRowKey_CN != null)
         {
           this.setState({
-            activeRowKey:null
+            activeRowKey_CN:null
           })
         }
       },
       onOpen:(secId,rowId,direction) =>{
         console.log(rowId)
         this.setState({
-          activeRowKey: ''
+          activeRowKey_CN: ''
         })
       },
       right:[
         {
           onPress:() =>{
-             const delInv = this.state.activeRowKey
+             const delInv = this.state.activeRowKey_CN
             Alert.alert(
               'ถอยงาน',
               'คุณยืนยันที่จะถอยงานใช่หรือไม่',
@@ -305,7 +351,7 @@ console.log('INV',delInv)
             </Button>
           </Left>
           <Body>
-            <Title>CN</Title>
+            <Title>งานพิเศษ</Title>
           </Body>
           <Right />
         </Header>
@@ -315,24 +361,25 @@ console.log('INV',delInv)
             <Content
               refreshControl={
                 <RefreshControl
-                  refreshing={this.state.refreshing_2}
+                  refreshing={this.state.refreshing_2_CN}
                   onRefresh={this._RELOAD_MAIN2}
                 />
               }
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
+        
+             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
                 <CheckBox
                   value={this.state.status_CHECKBOX}
                   onValueChange={() => {
                     this.setState({ status_CHECKBOX: !this.state.status_CHECKBOX })
-                    this.state.showWork.map((i, k) => {
-                      let n = this.state.CF_ALL_INVOICE;
-                      let s = this.state.stack_IVOICE;
+                    this.state.showWork_CN.map((i, k) => {
+                      let n = this.state.CF_ALL_INVOICE_CN;
+                      let s = this.state.stack_IVOICE_CN;
                       n[k] = !this.state.status_CHECKBOX
                       s[k] = i.invoiceNumber
                       this.setState({
-                        CF_ALL_INVOICE: n,
-                        stack_IVOICE: s
+                        CF_ALL_INVOICE_CN: n,
+                        stack_IVOICE_CN: s
                       })
                     })
                   }} />
@@ -341,11 +388,11 @@ console.log('INV',delInv)
 
               {
                 (() => {
-                  if (this.state.showWork.length > 0) {
+                  if (this.state.showWork_CN.length > 0) {
                     return (
                       <View>
                         {
-                          this.state.showZone.map((val, j) => (
+                          this.state.showZone_CN.map((val, j) => (
                             <Accordion
                               dataArray={[{ test: "test" }]}
                               renderHeader={(expanded) => (
@@ -360,59 +407,59 @@ console.log('INV',delInv)
                                     : <Icon style={{ fontSize: 18 }} name="add-circle" />}
                                 </View>
                               )}
-                              renderContent={() => this.state.showWork.map((l, i) => {
+                              renderContent={() => this.state.showWork_CN.map((l, i) => {
                                 if (l.Zone == val.Zone) {
                                   return (
                                     <View style={styles.detailContent}>
                                       <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
                                         <CheckBox
-                                          value={this.state.CF_ALL_INVOICE[i]}
+                                          value={this.state.CF_ALL_INVOICE_CN[i]}
                                           onValueChange={() => {
-                                            if (this.state.CF_ALL_INVOICE[i] == true) {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
+                                            if (this.state.CF_ALL_INVOICE_CN[i] == true) {
+                                              let n = this.state.CF_ALL_INVOICE_CN.slice();
+                                              let s = this.state.stack_IVOICE_CN.slice();
                                               n[i] = false
                                               s[i] = l.invoiceNumber
                                               this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s
+                                                CF_ALL_INVOICE_CN: n,
+                                                stack_IVOICE_CN: s
                                               }, () => {
-                                                console.log("if 1 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
+                                                console.log("if 1 CF", this.state.CF_ALL_INVOICE_CN)
+                                                console.log("if 1 CF", this.state.stack_IVOICE_CN)
                                               })
 
                                             }
-                                            else if (this.state.CF_ALL_INVOICE[i] == false) {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
+                                            else if (this.state.CF_ALL_INVOICE_CN[i] == false) {
+                                              let n = this.state.CF_ALL_INVOICE_CN.slice();
+                                              let s = this.state.stack_IVOICE_CN.slice();
                                               n[i] = true
                                               s[i] = l.invoiceNumber
                                               this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s
+                                                CF_ALL_INVOICE_CN: n,
+                                                stack_IVOICE_CN: s
                                               }, () => {
-                                                console.log("if 2 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
+                                                console.log("if 2 CF", this.state.CF_ALL_INVOICE_CN)
+                                                console.log("if 1 CF", this.state.stack_IVOICE_CN)
                                               })
 
                                             }
                                             else {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
+                                              let n = this.state.CF_ALL_INVOICE_CN.slice();
+                                              let s = this.state.stack_IVOICE_CN.slice();
                                               n[i] = true
                                               s[i] = l.invoiceNumber
                                               this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s
+                                                CF_ALL_INVOICE_CN: n,
+                                                stack_IVOICE_CN: s
                                               }, () => {
-                                                console.log("if 3 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
+                                                console.log("if 3 CF", this.state.CF_ALL_INVOICE_CN)
+                                                console.log("if 1 CF", this.state.stack_IVOICE_CN)
                                               })
 
                                             }
 
                                           }} />
-                                        <TouchableOpacity style={{ position: 'absolute', left: "8%", right: 0, justifyContent: 'center' }} onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}>
+                                        <TouchableOpacity style={{ position: 'absolute', left: "8%", right: 0, justifyContent: 'center' }} onPress={() => navigate('DetailCN', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.customerName,detail_cn:l.comment, refresion: this._RELOAD_MAIN2 })}>
                                           {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={styles.storeLabel}>{l.invoiceNumber}</Text>
                                     <Text style={{ paddingHorizontal: 3 }}>{l.DELIVERYNAME}</Text>
@@ -429,17 +476,19 @@ console.log('INV',delInv)
 
 
                                       <View style={{ position: 'absolute', right: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}>
+                                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigate('DetailCN', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.customerName,detail_cn:l.comment, refresion: this._RELOAD_MAIN2 })}>
                                           {/* <Text style={{ fontWeight: 'bold', fontSize: 13, color: 'orange', paddingHorizontal: 5 }}>{l.SUM} ฿ </Text> */}
                                           <Button transparent
-                                            onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}
+                                            onPress={() => navigate('DetailCN', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.customerName,detail_cn:l.comment, refresion: this._RELOAD_MAIN2 })}
                                           >
                                             <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
                                           </Button>
                                         </TouchableOpacity>
                                       </View>
                                     </View>
+                                  
                                   )
+                                  
                                 }
                               })}
                             />
@@ -458,11 +507,22 @@ console.log('INV',delInv)
                   }
                 })()
               }
+              
 
 
             </Content>
+            <View style={{ flexDirection: "row",marginLeft: 5 , justifyContent: "space-between", alignItems: "center"}}  >
+              <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
+                
+                  
+                <Text style={{marginTop:7}}></Text>
+                </View>
+                <TouchableOpacity onPress={() => navigate('AddCN', { id:'',refresion: this._RELOAD_MAIN2  })}>
+                { <Icon style={{ fontSize: 60,color: "green"}} name="add-circle" />}
+                </TouchableOpacity>
+                 </View>
             <TouchableOpacity onPress={() => {
-              if (this.state.CF_ALL_INVOICE.every(this.checkDATA)) {
+              if (this.state.CF_ALL_INVOICE_CN.every(this.checkDATA)) {
                 Alert.alert(
                   'ไม่สามารถส่งงานได้',
                   'กรุณาเลือกงานที่จะส่ง'
@@ -481,49 +541,21 @@ console.log('INV',delInv)
                             title: "รายงานการส่ง"
                           },
                           buttonIndex => {
-                            this.state.CF_ALL_INVOICE.map((val, i) => {
-                              if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE.length)) {
-                                this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 0)
-                                // navigator.geolocation.getCurrentPosition(
-                                //   (position) => {
-                                //     console.log("wokeeey");
-                                //     console.log(position);
-                                //     this.setState({
-                                //       latitude: position.coords.latitude,
-                                //       longitude: position.coords.longitude,
-                                //       error: null,
-                                //     }, () => {
-                                //       this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 0)
-                                //     })
-                                //   },
-                                //   (error) => this.setState({ error: error.message }),
-                                //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-                                // );
+                            this.state.CF_ALL_INVOICE_CN.map((val, i) => {
+                              if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE_CN.length)) {
+                                this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE_CN[i], 0)
+                        
                               }
-                              else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE.length)) {
-                                this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 1)
-                                // navigator.geolocation.getCurrentPosition(
-                                //   (position) => {
-                                //     console.log("wokeeey");
-                                //     console.log(position);
-                                //     this.setState({
-                                //       latitude: position.coords.latitude,
-                                //       longitude: position.coords.longitude,
-                                //       error: null,
-                                //     }, () => {
-                                //       this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 1)
-                                //     })
-                                //   },
-                                //   (error) => this.setState({ error: error.message }),
-                                //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-                                // );
+                              else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE_CN.length)) {
+                                this.submitwork(BUTTONS[buttonIndex].status, this.state.stack_IVOICE_CN[i], 1)
+                            
                               }
                             });
 
                           }
                         )
                     },
-                    { text: "สำเร็จ", onPress: () => navigate("SubmitALLJob", { check_box: this.state.CF_ALL_INVOICE, in_V: this.state.stack_IVOICE, refresionTO: this._RELOAD_MAIN2 }) }
+                    { text: "สำเร็จ", onPress: () => navigate("SubmitAll_TSC", { check_box: this.state.CF_ALL_INVOICE_CN, in_V: this.state.stack_IVOICE_CN, refresionTO: this._RELOAD_MAIN2 }) }
                   ]
                 )
               }
@@ -533,6 +565,7 @@ console.log('INV',delInv)
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
+                 
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>ยืนยันการส่งงาน</Text>
                 </View>
@@ -546,37 +579,37 @@ console.log('INV',delInv)
             <Content
               refreshControl={
                 <RefreshControl
-                  refreshing={this.state.refreshing_2}
+                  refreshing={this.state.refreshing_2_CN}
                   onRefresh={this._RELOAD_MAIN2}
                 />
               }
             >
               {
-                this.state.show_SUC.map(k => (
+                this.state.show_SUC_CN.map(k => (
                
                            <ListItem style={{ paddingTop: 5 }}>
                     
                     <View  >
                
-                    <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
+                    <TouchableOpacity onPress={() => this.checkBillRework(k.tsc_document)}>
                       <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
                      
-                        <Text style={styles.storeLabel}>{k.invoiceNumber}</Text>
+                        <Text style={styles.storeLabel}>{k.tsc_document}</Text>
                     
                       </View>
                       <View style={{ paddingLeft: 0, flexDirection: 'row', paddingEnd: 0 }}>
-                        <Text style={{ fontSize: 12 }}>{k.DELIVERYNAME}</Text>
+                        <Text style={{ fontSize: 12 }}>{k.CustomerName}</Text>
                       </View>
                         
                     </TouchableOpacity>
                     </View>
                     <View style={{ position: 'absolute', right: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                      <Text style={{ fontSize: 13, color: 'orange', paddingHorizontal: 30 }}>{k.SUM} ฿ </Text>
+                      <Text style={{ fontSize: 13, color: 'orange', paddingHorizontal: 30 }}></Text>
                       </TouchableOpacity>
                       {
                         (() => {
-                          if (k.status == "A1") {
+                          if (k.status_finish == "A1") {
                             return (
                               <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
                                 <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
@@ -586,7 +619,7 @@ console.log('INV',delInv)
                                 </Badge>
                               </View>
                             )
-                          } else if (k.status == "A2") {
+                          } else if (k.status_finish == "A2") {
                             return (
 
                               <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5  }} >
@@ -621,7 +654,7 @@ console.log('INV',delInv)
 
 
             {/* <TouchableOpacity onPress={() => navigate('SumBill')}> */}
-            <TouchableOpacity onPress={() => this.checksubmitbill()}>
+            {/* <TouchableOpacity onPress={() => this.checksubmitbill()}>
               <Footer style={{
                 backgroundColor: '#ff6c00',
                 justifyContent: 'center',
@@ -632,7 +665,7 @@ console.log('INV',delInv)
 
 
               </Footer>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </Tab>
 
         </Tabs>
@@ -648,9 +681,9 @@ const GraphQL = compose(AddMediaTab)
 export default withApollo(GraphQL)
 
 
-const worksub = gql`
-    query worksub($MessengerID:String!){
-            worksub(MessengerID: $MessengerID){
+const worksub_CN = gql`
+    query worksub_CN($MessengerID:String!){
+            worksub_CN(MessengerID: $MessengerID){
             invoiceNumber
             customerName
           DELIVERYNAME
@@ -668,28 +701,30 @@ const tsc_worklist = gql`
           DELIVERYNAME
           Zone
           addressShipment
+          detail_cn
+          comment
           
       }
   }
 `
-const checkBillRework = gql`
-    query checkBillRework($invoiceNumber:String!){
-      checkBillRework(invoiceNumber: $invoiceNumber){
+const checkBillRework_sp = gql`
+    query checkBillRework_sp($invoiceNumber:String!){
+      checkBillRework_sp(invoiceNumber: $invoiceNumber){
             status
       }
   }
 `
-const Rework = gql`
-    mutation Rework($invoiceNumber:String!){
-      Rework(invoiceNumber: $invoiceNumber){
+const Rework_sp = gql`
+    mutation Rework_sp($invoiceNumber:String!){
+      Rework_sp(invoiceNumber: $invoiceNumber){
             status
           }
           }
       `
 
-const queryZONE = gql`
-  query queryZONE($MessengerID:String!){
-            queryZONE(MessengerID: $MessengerID){
+const queryZONE_CN = gql`
+  query queryZONE_CN($MessengerID:String!){
+            queryZONE_CN(MessengerID: $MessengerID){
             Zone
           }
           }
@@ -702,13 +737,13 @@ const TSC_select_Zone = gql`
           }
         `
 
-const sucesswork = gql`
-  query sucesswork($MessengerID:String!){
-            sucesswork(MessengerID: $MessengerID){
-            invoiceNumber
-          status
-          DELIVERYNAME
-          SUM
+const sucesswork_CN = gql`
+  query sucesswork_CN($MessengerID:String!){
+            sucesswork_CN(MessengerID: $MessengerID){
+              tsc_document
+              status_finish
+              CustomerName
+          
       }
   }
 `
@@ -749,6 +784,32 @@ const tracking = gql`
           }
           }
       `
+const tracking_CN = gql`
+    mutation tracking_CN(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!
+    ){
+        tracking_CN(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long
+        ){
+            status
+        }
+    }
+ `
+ const submit_TSC = gql`
+    mutation submit_TSC($TSC:String!,$status_work:String!){
+        submit_TSC(TSC: $TSC,status_work: $status_work){
+            status
+        }
+    }
+`
 
 
 const styles = StyleSheet.create({
@@ -773,5 +834,19 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     height: 50,
     justifyContent: 'center'
+  }, TouchableOpacityStyle:{
+  
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+ 
+  }, FloatingButtonStyle: {
+  
+    resizeMode: 'contain',
+    width: 50,
+    height: 50,
   }
 })

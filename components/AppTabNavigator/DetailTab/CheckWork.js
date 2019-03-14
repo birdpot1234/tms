@@ -76,14 +76,16 @@ class CheckWork extends Component {
 
     datailwork = () => {
         this.props.client.query({
-            query: datailwork,
+            query: selectDetailWork_DL,
             variables: {
                 "invoiceNumber": this.props.navigation.state.params.id
             }
         }).then((result) => {
+            console.log()
             this.setState({
-                ShowData: result.data.datailwork
+                ShowData: result.data.selectDetailWork_DL
             })
+            console.log(this.state.ShowData)
             // console.log(this.state.ShowData)
         }).catch((err) => {
             console.log(err)
@@ -92,13 +94,13 @@ class CheckWork extends Component {
 
     datailsum = () => {
         this.props.client.query({
-            query: datailsum,
+            query: selectsum_DL,
             variables: {
                 "invoiceNumber": this.props.navigation.state.params.id
             }
         }).then((result) => {
             this.setState({
-                ShowSUM: result.data.datailsum
+                ShowSUM: result.data.selectsum_DL
             })
             // console.log(this.state.ShowSUM)
         }).catch((err) => {
@@ -109,15 +111,19 @@ class CheckWork extends Component {
     confirmworksome = () => {
         // const { navigate } = this.props.navigation
         console.log("confirmworksome")
+console.log(this.props.navigation.state.params.id)
 
         this.props.client.mutate({
-            mutation: confirmworksome,
+            mutation: confirmworksome_DL,
             variables: {
-                "invoiceNumber": this.props.navigation.state.params.id
+                "invoiceNumber": this.props.navigation.state.params.id,
+                "numBox":this.props.navigation.state.params.NumBox,
+                "MessengerID":global.NameOfMess
             }
         }).then((result) => {
-            if (result.data.confirmworksome.status) {
+            if (result.data.confirmworksome_DL.status) {
                 this.tracking()
+                console.log(result.data.confirmworksome_DL.status)
             } else {
 
                 Alert.alert(
@@ -138,16 +144,17 @@ class CheckWork extends Component {
         // console.log(this.props.navigation.state.params.id)
 
         this.props.client.mutate({
-            mutation: tracking,
+            mutation: tracking_DL,
             variables: {
                 "invoice": this.props.navigation.state.params.id,
                 "status": "5",
                 "messengerID": global.NameOfMess,
                 "lat": this.state.latitude,
                 "long": this.state.longitude,
+                "box":this.props.navigation.state.params.NumBox
             }
         }).then((result) => {
-            console.log("Tracking ", result.data.tracking.status)
+            console.log("Tracking ", result.data.tracking_DL.status)
             this.props.navigation.state.params.refresion()
             this.props.navigation.goBack()
         }).catch((err) => {
@@ -300,9 +307,51 @@ const datailwork = gql`
     }
 `
 
+const tracking_DL = gql`
+    mutation tracking_DL(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!,
+        $box:String!
+    ){
+        tracking_DL(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long,
+            box:$box
+        ){
+            status
+        }
+    }
+`
+
+const selectDetailWork_DL = gql`
+    query selectDetailWork_DL($invoiceNumber:String!){
+        selectDetailWork_DL(invoiceNumber: $invoiceNumber){
+            invoiceNumber
+            itemCode
+            itemName
+            qty
+            amount
+            priceOfUnit
+            
+        }
+    }
+`
 const datailsum = gql`
     query datailsum($invoiceNumber:String!){
         datailsum(invoiceNumber: $invoiceNumber){
+            SUM
+        }
+    }
+`
+const selectsum_DL = gql`
+    query selectsum_DL($invoiceNumber:String!){
+        selectsum_DL(invoiceNumber: $invoiceNumber){
             SUM
         }
     }
@@ -314,7 +363,13 @@ const confirmworksome = gql`
         }
     }
 `
-
+const confirmworksome_DL = gql`
+    mutation confirmworksome_DL($invoiceNumber:String!,$numBox:String!,$MessengerID:String!){
+        confirmworksome_DL(invoiceNumber: $invoiceNumber,numBox:$numBox,MessengerID:$MessengerID){
+            status
+        }
+    }
+`
 const tracking = gql`
     mutation tracking(
         $invoice:String!,

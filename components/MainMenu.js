@@ -56,6 +56,18 @@ class MainMenu extends Component {
     // }
 
     user = () => {
+        console.log('user')
+        navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log("wokeeey");
+                        console.log(position);
+                      
+                    },
+                    (error) => this.setState({ error: error.message }),
+                    { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 },
+                );
+            
+   
         const IMEI = require('react-native-imei');
 
         this.props.client.query({
@@ -66,6 +78,7 @@ class MainMenu extends Component {
         }).then((result) => {
             // console.log(result.data.beforeloginQuery[0].IDMess)
             this.setState({ mess: result.data.beforeloginQuery[0].IDMess })
+            console.log(IMEI.getImei())
         }).catch((err) => {
             console.log(err)
         });
@@ -219,7 +232,8 @@ class MainMenu extends Component {
             // console.log("NUM", this.state.showINVOICE_ID.length)
             if (n == 1) {
                 if (this.state.showINVOICE_ID.length > 0) {
-                    this.billTOapp(n);
+                //    this.billTOapp(n);
+                   navigate('HomeTab');
                 } else {
                     navigate('HomeTab');
                 }
@@ -246,47 +260,16 @@ class MainMenu extends Component {
             }
 
         }).then((result) => {
-            // this.state.showINVOICE_ID.map(l => {
-            //     this.detailtoapp(l.INVOICEID);
-            // });// จะปิด ทิ้ง
+           
             this.detailtoapp_v2()
             if (n == 1) {
-                //this.againInsertAppDetail()
+             
              
                 navigate('HomeTab');
             } else if (n == 2) {
                 this.checkroundout();
             }
-            // navigator.geolocation.getCurrentPosition(
-            //     (position) => {
-            //         console.log("wokeeey");
-            //         console.log(position);
-            //         this.setState({
-            //             latitude: position.coords.latitude,
-            //             longitude: position.coords.longitude,
-            //             error: null,
-            //         }, () => {
-            //             console.log(global.NameOfMess)
-            //             console.log("result", result.data.billTOapp)
-            //             this.state.showINVOICE_ID.map(l => {
-            //                 this.detailtoapp(l.INVOICEID);
-            //             });
-
-            //             if (n == 1) {
-            //                 navigate('HomeTab');
-            //             } else if (n == 2) {
-            //                 this.checkroundout();
-            //             }
-            //         });
-            //     },
-            //     (error) => this.setState({ error: error.message }),
-            //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-            // );
-            // if (n == 1) {
-            //                     navigate('HomeTab');
-            //                 } else if (n == 2) {
-            //                     this.checkroundout();
-            //                 }
+     
         }).catch((err) => {
             console.log("error of billTOapp", err)
         });
@@ -509,7 +492,7 @@ class MainMenu extends Component {
                                 }}>
                                     <Image source={require('../assets/icon/shuffle.png')}
                                         style={{ width: 65, height: 65 }} />
-                                    <Text style={{ marginTop: 3, fontSize: 20, color: '#0099CC' }}>เคลม</Text>
+                                    <Text style={{ marginTop: 3, fontSize: 20, color: '#0099CC' }}>งานพิเศษ</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigate('ProfileTab')}
@@ -520,7 +503,7 @@ class MainMenu extends Component {
                                 }}>
                                     <Image source={require('../assets/icon/newspaper.png')}
                                         style={{ width: 65, height: 65 }} />
-                                    <Text style={{ marginTop: 3, fontSize: 20, color: '#0099CC' }}>ข่าวสาร</Text>
+                                    <Text style={{ marginTop: 3, fontSize: 20, color: '#0099CC' }}>BlackList</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>

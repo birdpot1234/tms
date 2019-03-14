@@ -30,7 +30,9 @@ const client = new ApolloClient({
 export default class App extends React.Component {
 
   state = {
-    loaded: false
+    loaded: false,
+    
+
   }
 
   constructor() {

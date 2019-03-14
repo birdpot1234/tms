@@ -11,7 +11,7 @@ class DetailBill extends Component {
       showDetailBill: [],
       showinvoicebill: []
     }
-    this.props.client.resetStore();
+   // this.props.client.resetStore();
     this.detailsummoney();
     this.checkinvoicebill();
   }

@@ -4,9 +4,7 @@ import { gql, withApollo, compose } from 'react-apollo'
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Input, Item, Grid, Col } from 'native-base';
 import SignatureCapture from 'react-native-signature-capture';
 import Moment from 'moment';
-
-var strSubmit = '';
-class SubmitALLJob extends Component {
+class SubmitAll_TSC extends Component {
 
     static navigationOptions = {
         header: null
@@ -20,13 +18,11 @@ class SubmitALLJob extends Component {
             error: null,
             sig_status:false,
             status_CHECKBOX: false,
-            status_typetran:false,
-            date:Moment(new Date).format('DD-MM-YYYY'),
+            date:Moment(new Date).format('d-MM-YYYY'),
             time:Moment(new Date).format('h-mm-ss'),
             statuspic:false,
             inv:null,
             load:false,
-            submitjob:false
         }
         
         this.props.client.resetStore();
@@ -50,50 +46,43 @@ class SubmitALLJob extends Component {
     
     }
 
-    submitedit = (INVOICE,PAYMMODE, i) => {
-        if(this.state.statuspic==false){
-            this.signComponent.saveImage();
-            this.setState({
-                statuspic:true,
-                load:true
-            })
-        }
-     
+    submitedit = (INVOICE, i) => {
+        console.log(i)
+        console.log('In save sign')
+        console.log('INV',INVOICE);
+        console.log(i)
+        
         var name = global.NameOfMess+"_"+this.state.date+"_"+this.state.time
         var filename = name+'.png'
       
-        // if(!this.state.statuspic){
-        //    // this.signComponent.saveImage();
-        //      this.setState({
-        //         statuspic:true,
-        //         load:true,
-        //         submitjob:true
-        //      })
-        //      this.saveSign()
+        if(!this.state.statuspic){
+           // this.signComponent.saveImage();
+             this.setState({
+                statuspic:true,
+              //  load:true,
+             })
+             this.saveSign()
 
-        // }
-       
-        console.log("submitedit")
-        this.props.client.query({
-            query: submitedit,
-            variables: {
-                "invoiceNumber": INVOICE
-            }
-        }).then((result) => {
-            if (result.data.submitedit.status) {
-               this.submitwork("A2", INVOICE, i,PAYMMODE,filename)
-              // this.submit_inv(INVOICE,filename)
-          
-            } else {
-              this.submitwork("A1", INVOICE, i,PAYMMODE,filename)
-              //this.submit_inv(INVOICE,filename)
+        }
+        this.submitwork("A1", INVOICE, i)
+        this.submit_inv(INVOICE,filename)
+     //   this.submitwork("A1", INVOICE, i)
+     //   this.submit_inv(INVOICE,filename)
+        // console.log("submitedit")
+        // this.props.client.query({
+        //     query: submitedit_CN,
+        //     variables: {
+        //         "invoiceNumber": INVOICE
+        //     }
+        // }).then((result) => {
+     
+        //       this.submitwork("A1", INVOICE, i)
+        //       this.submit_inv(INVOICE,filename)
             
-            }
-        }).catch((err) => {
-            console.log(err)
-        });
+        // }).catch((err) => {
+        //     console.log(err)
+        // });
     }
-   
     submit_inv =(INVOICE,filename) =>{
         var www = "http://www.dplus-system.com:3401/upload/"
         var url = www+filename
@@ -112,85 +101,53 @@ class SubmitALLJob extends Component {
             console.log("err of submitwork", err)
         });
     }
-    submitwork = (s, INVOICE, i,PAYMMODE,filename) => {
-        const { navigate } = this.props.navigation
-        var payType =null
-        var www = "http://www.dplus-system.com:3401/upload/"
-        var url = www+filename
-      //  payType = (this.state.status_CHECKBOX)?"TRANSFER":this.props.navigation.state.params.PAYMMODE
-       // payType = (this.state.status_CHECKBOX)?"TRANSFER":PAYMMODE
-       payType = PAYMMODE
-       CheckBoxTranfer = (this.state.status_CHECKBOX)?"true":"false"
-        tranType = (this.state.status_typetran)?"Transport":"Truck"
-        this.props.client.mutate({
-            mutation: submitwork_DLV2,
-            variables: {
-                "status": s,
-                "invoiceNumber": INVOICE,
-                "paymentType":payType,
-                "tranType":tranType,
-                "CheckBoxTranfer":CheckBoxTranfer,
-                "filename":url
-            }
-        }).then((result) => {
-            //this.submiitdetail(s, INVOICE, i)
-   
-            if (i == 1) {
-                console.log("refresionTO")
-                this.saveSign()
-       
-            {navigate('Search',{refresionTO:this.props.navigation.state.params.refresionTO()})}
-            }
-        }).catch((err) => {
-            console.log("err of submitwork", err)
-        });
-    }
-    submitwork2 = (s, INVOICE, i) => {
-        var payType =null
-        payType = (this.state.status_CHECKBOX)?"Transfer":"Cash"
-        this.props.client.mutate({
-            mutation: submitwork2,
-            variables: {
-                "status": s,
-                "invoiceNumber": INVOICE,
-                "paymentType":payType,
-                "MessengerID":global.NameOfMess
-            }
-        }).then((result) => {
-            //this.submiitdetail(s, INVOICE, i)
+    submitwork = (s, INVOICE, i) => {
+        // var payType =null
+        // payType = (this.state.status_CHECKBOX)?"Transfer":"Cash"
+         this.props.client.mutate({
+             mutation: submit_TSC,
+             variables: {
+                 "TSC": INVOICE,
+                 "status_work": s
+             }
+         }).then((result) => {
             this.tracking(s, INVOICE, i)
-        }).catch((err) => {
-            console.log("err of submitwork", err)
-        });
-    }
+            // const { navigate } = this.props.navigation
+            // console.log(result.data.submit_TSC.status)
+            //  if(!result.data.submit_TSC.status)
+            //  {
+            //      Alert.alert(
+            //          "ส่งไม่สำเร็จ",
+            //          "กรุณากดส่งใหม่อีกครั้ง",
+            //      )
+            //  }
+            //  else{
+                 //console.log('edit success',INVOICE)
+             //   this.tracking(s, INVOICE, i)
+                // if (i == 0) {
+                //     console.log("Tracking ", result.data.submit_TSC.status)
+                // } else if (i == 1) {
+                //     //console.log("refresionTO",i)
+                //     {navigate('AddMediaTab',{refresionTO:this.props.navigation.state.params.refresionTO()})}
+                //     // onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}
+                //     // this.props.navigation.state.params.refresionTO()
+                //     // this.props.navigation.goBack()
+                // }
+                //this.props.navigation.state.params.refresionTO()
+                //this.props.navigation.goBack()
+           //  }
+            // this.submiitdetail(s)
+         }).catch((err) => {
+             console.log("err of submitwork", err)
+         });
+     }
 
-    submiitdetail = (s, INVOICE, i) => {
-        console.log("submiitdetail")
-        this.props.client.mutate({
-            mutation: submiitdetail,
-            variables: {
-                "invoiceNumber": INVOICE
-            }
-        }).then((result) => {
-            this.tracking(s, INVOICE, i)
-        //   if (i == 0) {
-        //  //   console.log("Tracking ", result.data.tracking.status)
-        // } else if (i == 1) {
-        //     console.log("refresionTO")
-        //     this.props.navigation.state.params.refresionTO()
-        //     this.props.navigation.goBack()
-        // }
-        }).catch((err) => {
-            console.log("err of submiitdetail", err)
-        });
-    }
-
-
-    tracking = (s, INVOICE, i) => {
+ 
+    tracking = (s,INVOICE, i) => {
         console.log("tracking")
-        const { navigate } = this.props.navigation
+
         this.props.client.mutate({
-            mutation: tracking,
+            mutation: tracking_CN,
             variables: {
                 "invoice": INVOICE,
                 "status": s,
@@ -199,23 +156,59 @@ class SubmitALLJob extends Component {
                 "long": this.state.longitude,
             }
         }).then((result) => {
-            if (i == 0) {
-                console.log("Tracking ", result.data.tracking.status)
-            } else if (i == 1) {
-                console.log("refresionTO")
-               // {navigate('Search')}
-               this.setState({
-                submitjob: false,
-             
-            })
-                 {navigate('Search',{refresionTO:this.props.navigation.state.params.refresionTO()})}
-                /// this.props.navigation.state.params.refresionTO()
-                 //this.props.navigation.goBack()
+            const { navigate } = this.props.navigation
+            console.log("Tracking ", result.data.tracking_CN.status)
+            if(!result.data.tracking_CN.status)
+            {
+                Alert.alert(
+                    "ส่งไม่สำเร็จ",
+                    "กรุณากดส่งใหม่อีกครั้ง",
+                )
             }
+            else{
+                if (i == 0) {
+                    console.log("Tracking ", result.data.submit_TSC.status)
+                } else if (i == 1) {
+                    this.setState({
+                       
+                        load:true,
+                     })
+                    {navigate('AddMediaTab',{refresionTO:this.props.navigation.state.params.refresionTO()})}
+                    
+                }
+            }
+      
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
         });
     }
+  
+
+
+    // tracking = (s, INVOICE, i) => {
+    //     console.log("tracking")
+
+    //     this.props.client.mutate({
+    //         mutation: tracking,
+    //         variables: {
+    //             "invoice": INVOICE,
+    //             "status": s,
+    //             "messengerID": global.NameOfMess,
+    //             "lat": this.state.latitude,
+    //             "long": this.state.longitude,
+    //         }
+    //     }).then((result) => {
+    //         if (i == 0) {
+    //             console.log("Tracking ", result.data.tracking.status)
+    //         } else if (i == 1) {
+    //             console.log("refresionTO")
+    //             this.props.navigation.state.params.refresionTO()
+    //             this.props.navigation.goBack()
+    //         }
+    //     }).catch((err) => {
+    //         console.log("ERR OF TRACKING", err)
+    //     });
+    // }
     pic =()=>{
 
         const part = 'file:///storage/emulated/0/saved_signature/signature.png'
@@ -314,10 +307,7 @@ class SubmitALLJob extends Component {
                 </View> */}
 
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
-            
-         
-                 
+            {/* <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
                         <View style={{ marginLeft: 20 }}>
                             <CheckBox
                                 value={this.state.status_CHECKBOX}
@@ -327,37 +317,7 @@ class SubmitALLJob extends Component {
                                 }} />
                         </View>
                         <Text>ชำระแบบโอน</Text>
-                        
-                        <View style={{ marginLeft: 20 }}>
-                            <CheckBox
-                                value={this.state.status_typetran}
-                                onValueChange={() => {
-                                    this.setState({ status_typetran: !this.state.status_typetran })
-                                   
-                                }} />
-                        </View>
-                        <Text>ส่งขนส่ง</Text>
-                          
-                    </View>
-                    {/* <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
-                        <View style={{ marginLeft: 20 }}>
-                            <CheckBox
-                                value={this.state.status_typetran}
-                                onValueChange={() => {
-                                    this.setState({ status_typetran: !this.state.status_typetran })
-                                   
-                                }} />
-                        </View>
-                        <Text>ส่งขนส่ง</Text>
                     </View> */}
-
-                         {/* <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}> */}
-                         {/* <View style={{ flexDirection: 'row', Left: 10, alignItems: 'center',width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5  }}>
-                         <View style={{ marginRight:  10 }}>
-                         <Text style={{ fontWeight: 'bold', fontSize: 18, color: 'orange', paddingHorizontal: 5 }}>เครดิต </Text>
-                        </View>
-                        </View> */}
-                    {/* </View> */}
 
                 <Footer style={{ height: 140 }}>
                     <View style={{
@@ -402,7 +362,7 @@ class SubmitALLJob extends Component {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity disabled={this.state.submitjob} onPress={() =>
+                        <TouchableOpacity onPress={() =>
                             Alert.alert(
                                 "ยืนยันการส่งงาน",
                                 "คุณต้องการยืนยันการส่งงานหรือไม่?",
@@ -420,43 +380,13 @@ class SubmitALLJob extends Component {
                                             else{
                                             this.props.navigation.state.params.check_box.map((val, i) => {
                                                 if ((val == true) && ((i + 1) != this.props.navigation.state.params.check_box.length)) {
-                                                    // navigator.geolocation.getCurrentPosition(
-                                                    //     (position) => {
-                                                    //         console.log("wokeeey");
-                                                    //         console.log(position);
-                                                    //         this.setState({
-                                                    //             latitude: position.coords.latitude,
-                                                    //             longitude: position.coords.longitude,
-                                                    //             error: null,
-                                                    //         }, () => {
-                                                    //            // this.saveSign(this.props.navigation.state.params.in_V[i], 0)
-                                                    //             this.submitedit(this.props.navigation.state.params.in_V[i], 0)
-                                                    //         });
-                                                    //     },
-                                                    //     (error) => this.setState({ error: error.message }),
-                                                    //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-                                                    // );
-                                                    console.log(this.props.navigation.state.params.in_V[i], 0)
-                                                    this.submitedit(this.props.navigation.state.params.in_V[i],this.props.navigation.state.params.PAYMMODE[i], 0)
+                                                   // console.log(this.props.navigation.state.params.in_V[i])
+                                                    this.submitedit(this.props.navigation.state.params.in_V[i], 0)
                                                 }
                                                 else if ((val == true) && ((i + 1) == this.props.navigation.state.params.check_box.length)) {
-                                                    // navigator.geolocation.getCurrentPosition(
-                                                    //     (position) => {
-                                                    //         console.log("wokeeey");
-                                                    //         console.log(position);
-                                                    //         this.setState({
-                                                    //             latitude: position.coords.latitude,
-                                                    //             longitude: position.coords.longitude,
-                                                    //             error: null,
-                                                    //         }, () => {
-                                                    //             this.submitedit(this.props.navigation.state.params.in_V[i], 1)
-                                                    //         });
-                                                    //     },
-                                                    //     (error) => this.setState({ error: error.message }),
-                                                    //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-                                                    // );
-                                                    //console.log(this.props.navigation.state.params.in_V[i], 0)
-                                                    this.submitedit(this.props.navigation.state.params.in_V[i],this.props.navigation.state.params.PAYMMODE[i],1)
+                                                  
+                                                    this.submitedit(this.props.navigation.state.params.in_V[i], 1)
+                                                    //console.log(this.props.navigation.state.params.in_V[i])
                                                 }
                                             });
                                         }
@@ -497,7 +427,7 @@ class SubmitALLJob extends Component {
     }
 
     resetSign = () => {
-      //  this.signComponent.resetImage();
+        this.signComponent.resetImage();
       
         this.setState({ sig_status: false})
     }
@@ -537,33 +467,12 @@ const styles = StyleSheet.create({
  
 
 
-const GraphQL = compose(SubmitALLJob)
+const GraphQL = compose(SubmitAll_TSC)
 export default withApollo(GraphQL)
 
 const submitwork = gql`
     mutation submitwork($status:String!, $invoiceNumber:String!,$paymentType:String!){
         submitwork(status: $status, invoiceNumber: $invoiceNumber, paymentType: $paymentType){
-            status
-        }
-    }
-`
-const submitwork_DL = gql`
-    mutation submitwork_DL($status:String!, $invoiceNumber:String!,$paymentType:String!,$tranType:String!,$CheckBoxTranfer:String!){
-        submitwork_DL(status: $status, invoiceNumber: $invoiceNumber,paymentType: $paymentType,tranType: $tranType,CheckBoxTranfer:$CheckBoxTranfer){
-            status
-        }
-    }
-`
-const submitwork_DLV2 = gql`
-    mutation submitwork_DLV2($status:String!, $invoiceNumber:String!,$paymentType:String!,$tranType:String!,$CheckBoxTranfer:String!,$filename:String!){
-        submitwork_DLV2(status: $status, invoiceNumber: $invoiceNumber,paymentType: $paymentType,tranType: $tranType,CheckBoxTranfer:$CheckBoxTranfer,filename:$filename){
-            status
-        }
-    }
-`
-const submitwork_DLV3 = gql`
-    mutation submitwork_DLV3($status:String!, $invoiceNumber:String!,$paymentType:String!,$tranType:String!,$CheckBoxTranfer:String!,$filename:String!){
-        submitwork_DLV3(status: $status, invoiceNumber: $invoiceNumber,paymentType: $paymentType,tranType: $tranType,CheckBoxTranfer:$CheckBoxTranfer,filename:$filename){
             status
         }
     }
@@ -598,6 +507,20 @@ const submitedit = gql`
         }
     }
 `
+const submitedit_CN = gql`
+    query submitedit_CN($invoiceNumber:String!){
+        submitedit_CN(invoiceNumber: $invoiceNumber){
+            status
+        }
+    }
+`
+const submit_TSC = gql`
+    mutation submit_TSC($TSC:String!,$status_work:String!){
+        submit_TSC(TSC: $TSC,status_work: $status_work){
+            status
+        }
+    }
+`
 
 const tracking = gql`
     mutation tracking(
@@ -618,3 +541,22 @@ const tracking = gql`
         }
     }
 `
+const tracking_CN = gql`
+    mutation tracking_CN(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!
+    ){
+        tracking_CN(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long
+        ){
+            status
+        }
+    }
+ `

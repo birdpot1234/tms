@@ -20,9 +20,19 @@ class EditItem extends Component {
             latitude: 1,
             longitude: 1,
             error: null,
+            testset:[],
+            cn_amount:[],
+            cn_add :0,
         };
         this.props.client.resetStore();
         this.subDetail();
+        this. setest();
+    }
+    setest = ()=>{
+        this.setState({
+            cn_add:0,
+            testset:"bird"
+        })
     }
 
     subDetail = () => {
@@ -33,7 +43,8 @@ class EditItem extends Component {
             }
         }).then((result) => {
             this.setState({
-                showWorkEdit: result.data.subDetail
+                showWorkEdit: result.data.subDetail,
+               // testset:"bird"
             })
         }).catch((err) => {
             console.log("ERR OF EDIT WORK", err)
@@ -212,6 +223,7 @@ class EditItem extends Component {
                                             placeholderTextColor="gray"
                                             underlineColorAndroid='white'
                                             value={this.state.inputvalue[i]}
+                                          //value = {this.state.testset}
                                             onChangeText={
                                                 (text) => {
                                                     if (parseInt(text) > l.qty || parseInt(text) < 0) {
@@ -253,7 +265,10 @@ class EditItem extends Component {
                             ))
                         }
                     </View>
+             
+                
                 </Content>
+         
 
                 <View>
                     <Modal isVisible={this.state.visibleModal === 1}>

@@ -3,6 +3,7 @@ import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, 
 
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Input, Item, Grid, Col, Badge } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
+import NumberFormat from 'react-number-format'
 //  import {CurrencyFormat} from 'react-currency-format';
 
 class SumBill extends Component {
@@ -16,6 +17,8 @@ class SumBill extends Component {
             showmoneyfile: [],
             showbillbySale:[],
             showbillbyTransfer:[],
+            countSpecail_success:'',
+            countSpecail_fail:'',
         }
         this.props.client.resetStore();
         this.summoney();
@@ -24,6 +27,8 @@ class SumBill extends Component {
         this.billbytransfer();
         this.insertFinishDetail();
         this.DelFinish();
+        this.countspecailjob();
+
     }
     billbySale = () => {
         console.log("summoney")
@@ -43,7 +48,7 @@ class SumBill extends Component {
         });
     }
     insertFinishDetail = () => {
-        console.log("summoney")
+        console.log("summoney")//ทำการลบ
 
         this.props.client.mutate({
             mutation: submiitdetail_new,
@@ -74,14 +79,14 @@ class SumBill extends Component {
         console.log("billbytransfer")
 
         this.props.client.query({
-            query: SumBillbyTranfer,
+            query: WaitTranfer_DL,
             variables: {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
-            console.log(result.data.SumBillbyTranfer)
+            console.log(result.data.WaitTranfer_DL)
             this.setState({
-                showbillbyTransfer: result.data.SumBillbyTranfer
+                showbillbyTransfer: result.data.WaitTranfer_DL
             })
         }).catch((err) => {
             console.log(err)
@@ -93,14 +98,14 @@ class SumBill extends Component {
         console.log("summoney")
 
         this.props.client.query({
-            query: summoney,
+            query: summoney_cash,
             variables: {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
-            console.log(result.data.summoney)
+            console.log(result.data.summoney_cash)
             this.setState({
-                showsummoney: result.data.summoney
+                showsummoney: result.data.summoney_cash
             })
         }).catch((err) => {
             console.log(err)
@@ -123,7 +128,27 @@ class SumBill extends Component {
             console.log(err)
         });
     }
+    countspecailjob = () => {
+        console.log("summoneyfail")
 
+        this.props.client.query({
+            query: countspecailjob,
+            variables: {
+                "MessengerID": global.NameOfMess
+            }
+        }).then((result) => {
+            console.log(result.data.countspecailjob[0].CountSuccess)
+            this.setState({
+                countSpecail_success: result.data.countspecailjob[0].CountSuccess,
+                countSpecail_fail:result.data.countspecailjob[0].CountFail,
+           
+            
+            })
+         //   console.log(this.state.countSpecail_success)
+        }).catch((err) => {
+            console.log(err)
+        });
+    }
     checkinvoicereport = () => {
         const { navigate } = this.props.navigation
         this.props.client.query({
@@ -136,7 +161,17 @@ class SumBill extends Component {
             this.setState({ showinvoicedetail_ID: result.data.checkinvoicereport })
             console.log("NUM", this.state.showinvoicedetail_ID.length)
             if (this.state.showinvoicedetail_ID.length > 0) {
-                this.reportsubmitwork();
+           
+                Alert.alert(
+                    "ยืนยันการเคลียร์งาน",
+                    "ควรเคลียร์เงินกับทางบัญชีก่อนการกดเคลียร์",
+                    [
+                        { text: "ยกเลิก", onPress: () => console.log("Cancle") },
+                         //{ text: "ยืนยัน", onPress: () => this.saveSign() }
+                         { text: "ยืนยัน", onPress: () => this.Clear() }
+                    ]
+                )
+                
             } else {
                 Alert.alert(
                     "เคลียร์งานไม่สำเร็จ",
@@ -152,8 +187,30 @@ class SumBill extends Component {
             console.log("err of checkinvoicereport", err)
         });
     }
-
-
+   
+    Clear = () => {
+        const { navigate } = this.props.navigation
+        console.log("Clear")
+        this.reportsubmitwork()
+        this.TMS_report()
+    }
+    TMS_report = () => {
+        const { navigate } = this.props.navigation
+        console.log("reportsubmitwork")
+        this.props.client.mutate({
+            mutation: TMS_report,
+            variables: {
+                "MessengerID": global.NameOfMess
+            }
+        }).then((result) => {
+            console.log(global.NameOfMess)
+            console.log("result", result.data.TMS_report)
+           
+           
+        }).catch((err) => {
+            console.log("error of reportsubmitwork", err)
+        });
+    }
     reportsubmitwork = () => {
         const { navigate } = this.props.navigation
         console.log("reportsubmitwork")
@@ -240,30 +297,52 @@ class SumBill extends Component {
                                         <Text style={{ fontWeight: 'bold' }}>สรุปยอดเงินที่ต้องโอน  </Text>
                                     </View>
 
-                                    <View style={{ margin: 30, marginTop: 5, justifyContent: 'center' }}>
+                                 <View style={{ margin: 30, marginTop: 5, justifyContent: 'center' }}>
 
                                         <View style={{ flexDirection: 'row' }}>
                                             <Text style={{ width: Dimensions.get('window').width / 3 }} >ยอดงเงินตามบิลจริง : </Text>
                                             <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
                                                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Badge success style={{ height: 19,alignItems: 'center', justifyContent: 'center' }} >
+                                                    <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
                                                         <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill}</Text>
                                                     </Badge>
                                                 </View>
                                             </View>
-                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'orange' }} >{l.amountBill} ฿ </Text>
+                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'gray' }} >{l.amountBill==null?0:l.amountBill} ฿ </Text>
                                         </View>
-
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text style={{ width: Dimensions.get('window').width / 3 }} >ยอดเงินที่เก็บได้ : </Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ width: Dimensions.get('window').width / 3 }} >ยอดเครดิต : </Text>
                                             <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
                                                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Badge warning style={{ height: 19,alignItems: 'center', justifyContent: 'center' }} >
-                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill}</Text>
+                                                    <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center',backgroundColor: 'violet' }} >
+                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill_CREDIT}</Text>
                                                     </Badge>
                                                 </View>
                                             </View>
-                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'orange' }} >{l.amountActual} ฿ </Text>
+                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'gray' }} >{l.amountActual_CREDIT==null?0:l.amountActual_CREDIT} ฿</Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ width: Dimensions.get('window').width / 3 }} >ยอดโอนเข้าบริษัท : </Text>
+                                            <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
+                                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center',backgroundColor: 'gray' }} >
+                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill_TRANSFER}</Text>
+                                                    </Badge>
+                                                </View>
+                                            </View>
+                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'gray' }} >{l.amountActual_TRANSFER==null?0:l.amountActual_TRANSFER}฿</Text>
+                                        </View>
+                                  
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ width: Dimensions.get('window').width / 3 }} >ยอดเงินสดฝากขนส่ง : </Text>
+                                            <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
+                                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Badge warning style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
+                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill_TRAN} </Text>
+                                                    </Badge>
+                                                </View>
+                                            </View>
+                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'gray' }} >{l.amountActual_TRAN==null?0:l.amountActual_TRAN} ฿ </Text>
                                         </View>
 
                                         <View style={{ flexDirection: 'row' }}>
@@ -274,68 +353,123 @@ class SumBill extends Component {
                                                         <View style={{ flexDirection: 'row' }}>
                                                             <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
                                                                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                                                    <Badge style={{ height: 19,alignItems: 'center', justifyContent: 'center' }} >
+                                                                    <Badge style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
                                                                         <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{V.CountBill}</Text>
                                                                     </Badge>
                                                                 </View>
                                                             </View>
-                                                            <Text style={{ fontSize: 15, color: 'orange', width: Dimensions.get('window').width / 3 }}>{V.amountActual} ฿ </Text>
+                                                            <Text style={{ fontSize: 15, color: 'grayr', width: Dimensions.get('window').width / 3 }}>{V.amountActual==null?0:V.amountActual} ฿ </Text>
                                                         </View>
                                                     ))
                                                 }
                                             </View>
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ width: Dimensions.get('window').width / 3,color: 'orange' }} >ยอดเงินสดที่เก็บได้ : </Text>
+                                            <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
+                                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Badge warning style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
+                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{l.CountBill_CASH} </Text>
+                                                    </Badge>
+                                                </View>
+                                            </View>
+                                            <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'orange' }} >{l.amountActual==null?0:l.amountActual} ฿ </Text>
                                         </View>
 
                                     </View>
 
                                     <View style={{ margin: 10, marginTop: 5, justifyContent: 'center' }}>
                                         <View style={{ flexDirection: 'row' }}>
-                                            <Text style={{ width: Dimensions.get('window').width / 1.5, fontWeight: 'bold' }} >ยอดเงินที่ต้องโอนเข้าบัญชีของบริษัท : </Text>
-                                            <Text style={{ width: Dimensions.get('window').width / 1.5, fontSize: 16.5, color: 'orange', fontWeight: 'bold' }} >{l.amountActual} ฿ </Text>
+                                            <Text style={{ width: Dimensions.get('window').width / 1.5, fontWeight: 'bold' }} >ยอดเงินสดที่ต้องเครีย : </Text>
+                                            <Text style={{ width: Dimensions.get('window').width / 1.5, fontSize: 16.5, color: 'orange', fontWeight: 'bold' }} >{l.amountActual ==null?0:l.amountActual} ฿ </Text>
                                         </View>
                                     </View>
-                                    <View style={{ flexDirection: 'row', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}>
+                                
+                               
+                                    {/* <View style={{ flexDirection: 'row', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}> */}
 
-                                        <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text>วันที่</Text>
-                                        </View>
+                                        {/* <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}> */}
+                                            {/* <Text>วันที่</Text> */}
+                                        {/* </View> */}
 
-                                        {/* <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text>Sale</Text>
-                                        </View> */}
-                                        <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text>ยอด</Text>
+                                    
+                                        {/* <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}> */}
+                                            {/* <Text>ยอด</Text> */}
 
-                                        </View>
+                                        {/* </View> */}
 
-                                    </View>
-                                    <View>
+                                    {/* </View> */}
+                                    {/* <View> */}
                                     {
-                                            this.state.showbillbySale.map((l, i) => (
+                                           // this.state.showbillbySale.map((l, i) => (
 
-                                                <View>
-                                                    <View style={{ flexDirection: 'row' }}>
-                                                        <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center' ,alignItems: 'center' }}>
-                                                            <Text style={{ paddingLeft: 5 }}> {l.inv_Date}</Text>
-                                                        </View>
-                                                        {/* <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
-                                                            <Text style={{ fontWeight: 'bold' }}>{l.SaleID}</Text>
-                                                        </View> */}
-                                                        <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center',  alignItems: 'center'  }}>
+                                                // <View>
+                                                //     <View style={{ flexDirection: 'row' }}>
+                                                //         <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center' ,alignItems: 'center' }}>
+                                                //             <Text style={{ paddingLeft: 5 }}> {l.inv_Date}</Text>
+                                                //         </View>
+                                                //         {/* <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
+                                                //             <Text style={{ fontWeight: 'bold' }}>{l.SaleID}</Text>
+                                                //         </View> */}
+                                                //         <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center',  alignItems: 'center'  }}>
 
-                                                            <Text style={{ paddingLeft: 5 ,fontWeight: 'bold', color: 'orange'}}>{l.amountActual} ฿</Text>
-                                                            {/* <CurrencyFormat value={l.amountActual} displayType={'text'} thousandSeparator={true} prefix={'$'} renderText={value => <div>{value}</div>} /> */}
+                                                //             <Text style={{ paddingLeft: 5 ,fontWeight: 'bold', color: 'orange'}}>{l.amountActual} ฿</Text>
+                                                //             {/* <CurrencyFormat value={l.amountActual} displayType={'text'} thousandSeparator={true} prefix={'$'} renderText={value => <div>{value}</div>} /> */}
 
-                                                        </View>
+                                                //         </View>
 
-                                                    </View>
+                                                //     </View>
 
-                                                </View>
+                                                // </View>
 
-                                            ))
+                                          //  ))
                                         }
-                                    </View>
-                                    {
+                                    {/* </View> */}
+            
+                <View>
+                 <View style={{ margin: 10, marginTop: 10, justifyContent: 'center' }}>
+                      <View style={{ flexDirection: 'row' }}>
+                          <Text style={{ width: Dimensions.get('window').width / 1.5, fontWeight: 'bold' }} >สรุปงานพิเศษ </Text>
+                         
+                      </View>
+                  </View>
+                         <View style={{ margin: 30, marginTop: 5, justifyContent: 'center' }}>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text style={{ width: Dimensions.get('window').width / 3 }} >งานพิเศษส่งสำเร็จ : </Text>
+                                                    <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
+                                                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                            <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
+                                                                <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{this.state.countSpecail_success}</Text>
+                                                            </Badge>
+                                                        </View>
+                                                    </View>
+                                                    {/* <Text style={{ width: Dimensions.get('window').width / 3, fontSize: 15, color: 'orange' }} >{l.amountBill==null?0:l.amountBill} ฿ </Text> */}
+                         </View>
+                         <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ width: Dimensions.get('window').width / 3 }} >งานพิเศษส่งไม่สำเร็จ : </Text>
+                                            <View >
+                                                
+                                                 
+                                                        <View style={{ flexDirection: 'row' }}>
+                                                            <View style={{ width: Dimensions.get('window').width / 4, alignItems: 'center', justifyContent: 'center' }}>
+                                                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                                    <Badge style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
+                                                                        <Text style={{ fontSize: 12, color: 'white', fontWeight: 'bold' }}>{this.state.countSpecail_fail}</Text>
+                                                                    </Badge>
+                                                                </View>
+                                                            </View>
+                                                            {/* <Text style={{ fontSize: 15, color: 'orange', width: Dimensions.get('window').width / 3 }}>{V.amountActual==null?0:V.amountActual} ฿ </Text> */}
+                                                        </View>
+                                                    
+                                                
+                                            </View>
+                        </View>
+
+                  </View>
+                         
+
+                  </View>
+                  {
                 (() => {
                   if (this.state.showbillbyTransfer.length > 0) {
                     return (
@@ -343,7 +477,7 @@ class SumBill extends Component {
                 <View>
                  <View style={{ margin: 10, marginTop: 10, justifyContent: 'center' }}>
                       <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ width: Dimensions.get('window').width / 1.5, fontWeight: 'bold' ,color:'red'}} >ยอดรอการโอน </Text>
+                          <Text style={{ width: Dimensions.get('window').width / 1.5, fontWeight: 'bold' ,color:'red'}} >ยอดเงินสดรอการโอน </Text>
                          
                       </View>
                   </View>
@@ -405,6 +539,10 @@ class SumBill extends Component {
                   }
                 })()
               }
+                    
+                  
+              
+              
                                     <View style={{  alignItems: 'center',margin: 30, marginTop: 20, borderColor: 'gray', borderWidth: 0.5   }}>
                                         <Text>หมายเลขบัญชี : 748-2-73551-1 ธนาคารกสิกรไทย </Text>
                                         <Text>บจก ดีพลัส อินเตอร์เทรด</Text>
@@ -465,6 +603,23 @@ query summoney($MessengerID:String!){
     amountBill
     amountActual
     CountBill
+}
+}
+`
+const summoney_cash = gql`
+query summoney_cash($MessengerID:String!){
+    summoney_cash(MessengerID: $MessengerID){
+        amountBill
+        amountActual
+        CountBill
+        CountBill_CASH
+        CountBill_CREDIT
+        CountBill_TRAN
+        CountBill_TRANSFER
+        amountActual_TRANSFER
+        amountActual_CREDIT
+        amountActual_TRAN
+       
 }
 }
 `
@@ -551,6 +706,38 @@ query SumBillbyTranfer($MessengerID:String!){
             }
             }
         `
+const WaitTranfer_DL = gql`
+query WaitTranfer_DL($MessengerID:String!){
+    WaitTranfer_DL(MessengerID: $MessengerID){
+                        amountBill
+                        amountActual
+                        inv_Date
+                        SaleID
+                        Sale_Name
+                        MessengerID
+                        CustomerID
+                        CustomerName
+                        invoiceNumber
+            }
+            }
+        `
+const countspecailjob = gql`
+query countspecailjob($MessengerID:String!){
+    countspecailjob(MessengerID: $MessengerID){
+                       
+                        CountSuccess
+                        CountFail
+
+            }
+            }
+        `
+const TMS_report = gql`
+    mutation TMS_report($MessengerID:String!){
+        TMS_report(MessengerID: $MessengerID){
+                    status
+                }
+                }
+            `
 
 const styles = StyleSheet.create({
 

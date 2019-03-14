@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, TouchableOpacity, RefreshControl, CheckBox,ActivityIndicator } from 'react-native'
-import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, List, ListItem, Item } from 'native-base';
+import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, List, ListItem, Item,TabHeading,Tab, Tabs } from 'native-base';
 // import { List, ListItem } from 'react-native-elements';
 import { gql, withApollo, compose } from 'react-apollo'
 import mainService from '../services/mainService'
@@ -22,14 +22,19 @@ class HomeTab extends Component {
             error: null,
             CF_ALL_INVOICE: [],
             stack_IVOICE: [],
+            stack_box:[],
             status_CHECKBOX: false,
             load:true,
-           
+            specialJob:[],
+            specialJobGreen:[],
+       
         }
         // this.props.client.resetStore();
         //this.checkwork();
         this.worklist_query();
         this.selectwork();
+        this.special_query();
+        this.special_pass();
       //  mainService.load(v => this.setState({load:true}))
     }
 
@@ -37,46 +42,62 @@ class HomeTab extends Component {
         return (e == null) || (e == false)
     }
 
-    // checkwork = () => {
-    //     console.log('checkworkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk------------------------------')
-    //     const { navigate } = this.props.navigation
 
-    //     this.props.client.query({
-    //         query: selectpendingwork,
-    //         variables: {
-    //             "MessengerID": global.NameOfMess
-    //         }
-    //     }).then((result) => {
-    //         // this.setState({
-    //         //     showTable: result.data.querywork
-    //         // }).
-    //         //result.data.selectpendingwork.status =false
-    //         console.log(result.data.selectpendingwork.status)
-    //         if(result.data.selectpendingwork.status){
-    //             Alert.alert(
-    //                 'คุณยังมีงานที่ยังค้างการส่ง',
-    //                 'คุณต้องการเคลียงานเก่า?',
-    //                 [
-    
-                    
-    //                     { text: 'ใช่', onPress: () => navigate("Search") },
-    //                 ]
-    //             )
-    //             navigate("Search")
-    //         }
-          
-           
-    //          console.log("8888888888888881111111111111111111111111111999999999999999999"+result.data.selectpendingwork)
-
-    //     }).catch((err) => {
-    //         console.log(err)
-    //     });
-       
-    // }
     checkpending = (selection) => {
       
         const { navigate } = this.props.navigation
-        console.log('checkwork222222222222222222222222222222222222222222222222222222')
+        console.log('selection',selection)
+       // console.log('checkwork222222222222222222222222222222222222222222222222222222')
+        this.props.client.query({
+            query: selectpendingwork,
+            variables: {
+                "MessengerID": global.NameOfMess
+            }
+        }).then((result) => {
+       
+            console.log(result.data.selectpendingwork.status)
+            if(result.data.selectpendingwork.status){
+                Alert.alert(
+                    'คุณยังมีงานที่ยังค้างการส่งหรือยังไม่สรุปยอด',
+                    'คุณต้องการเคลียงานเก่า?',
+                    [
+    
+                    
+                        { text: 'ใช่', onPress: () => navigate("Search") },
+                    ]
+                )
+                navigate("Search")
+            }
+            else{
+                this.setState({
+                    load: true
+                })
+
+               // this.GET_LOCATE()
+                if(selection ==0)
+                {
+                  //  console.log("000000000000000000000000000000000000000")
+                    this.GET_LOCATE()
+                    
+                }
+                else{
+             
+                    this.checkinvoice()
+                }
+              
+                
+            }
+          
+        }).catch((err) => {
+            console.log(err)
+        });
+       
+    }
+    checkpending_SC = (selection) => {
+      
+        const { navigate } = this.props.navigation
+        console.log('selection',selection)
+       // console.log('checkwork222222222222222222222222222222222222222222222222222222')
         this.props.client.query({
             query: selectpendingwork,
             variables: {
@@ -103,22 +124,18 @@ class HomeTab extends Component {
                 })
                 if(selection ==0)
                 {
-                    console.log("000000000000000000000000000000000000000")
-                    this.GET_LOCATE()
+                  //  console.log("000000000000000000000000000000000000000")
+                    this.GET_LOCATE_SC()
                     
                 }
                 else{
-                    console.log("111111111111111111111111111111111111111")
-
+             
                     this.checkinvoice()
                 }
               
                 
             }
           
-           
-             console.log("8888888888888881111111111111111111111111111999999999999999999"+result.data.selectpendingwork)
-
         }).catch((err) => {
             console.log(err)
         });
@@ -133,93 +150,191 @@ class HomeTab extends Component {
         }, () => {
             this.state.CF_ALL_INVOICE.map((val, i) => {
                 if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE.length)) {
-                    this.tracking(this.state.stack_IVOICE[i], 0)
+                    this.tracking(this.state.stack_IVOICE[i],this.state.stack_box[i], 0)
                 }
                 else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE.length)) {
-                    this.tracking(this.state.stack_IVOICE[i], 1)
+                    this.tracking(this.state.stack_IVOICE[i],this.state.stack_box[i], 1)
                 }
             });
         });
-        // navigator.geolocation.getCurrentPosition(
-        //     (position) => {
-        //         console.log("wokeeey");
-        //         console.log(position);
-        //         this.setState({
-        //             latitude: position.coords.latitude,
-        //             longitude: position.coords.longitude,
-        //             error: null,
-        //         }, () => {
-        //             this.state.CF_ALL_INVOICE.map((val, i) => {
-        //                 if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE.length)) {
-        //                     this.tracking(this.state.stack_IVOICE[i], 0)
-        //                 }
-        //                 else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE.length)) {
-        //                     this.tracking(this.state.stack_IVOICE[i], 1)
-        //                 }
-        //             });
-        //         });
-        //     },
-        //     (error) => this.setState({ error: error.message }),
-        //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-        // );
+   
     }
+    GET_LOCATE_SC = () => {
+        // console.log("componentDidMount")
 
-    worklist_query = () => {
+        this.setState({
+            latitude: 1,
+            longitude: 1,
+            error: null,
+        }, () => {
+            this.state.CF_ALL_INVOICE.map((val, i) => {
+                if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE.length)) {
+                    this.tracking_SC(this.state.stack_IVOICE[i], 0)
+                }
+                else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE.length)) {
+                    this.tracking_SC(this.state.stack_IVOICE[i], 1)
+                }
+            });
+        });
+   
+    }
+    worklist_query = () => { 
         console.log('worklist_query')
 
         this.props.client.query({
-            query: querywork,
+            query: querywork_DL,
             variables: {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
             this.setState({
-                showTable: result.data.querywork
+                showTable: result.data.querywork_DL
             })
-             console.log("8888888888888888888888888888888888888888888888888888888888888888888888888"+result)
+             //console.log("8888888888888888888888888888888888888888888888888888888888888888888888888"+result)
         }).catch((err) => {
             console.log(err)
         });
     }
 
+
     selectwork = () => {
         console.log('selectwork')
 
         this.props.client.query({
-            query: selectwork,
+            query: selectWork_DL,
             variables: {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
             this.setState({
-                showTableGreen: result.data.selectwork,
+                showTableGreen: result.data.selectWork_DL,
                 load:false
             })
         }).catch((err) => {
             console.log(err)
         });
     }
+    special_query = () => {
+        console.log('special_query')
 
+        this.props.client.query({
+            query: selectDataWork_SC,
+            variables: {
+                "MessengerID": global.NameOfMess
+            }
+        }).then((result) => {
+            this.setState({
+                specialJob: result.data.selectDataWork_SC
+            })
+            // console.log("8888888888888888888888888888888888888888888888888888888888888888888888888"+result)
+        }).catch((err) => {
+            console.log(err)
+        });
+    }
+    special_pass = () => {
+        console.log('special_pass')
+
+        this.props.client.query({
+            query: selectWork_SC,
+            variables: {
+                "MessengerID": global.NameOfMess
+            }
+        }).then((result) => {
+            this.setState({
+                specialJobGreen: result.data.selectWork_SC
+            })
+            console.log('Greenjob',result.data.selectWork_SC)
+          //   console.log("8888888888888888888888888888888888888888888888888888888888888888888888888"+result)
+        }).catch((err) => {
+            console.log(err)
+        });
+    }
     _Re_worklist_query = () => {
         this.props.client.resetStore();
-        console.log('_Re_worklist_query')
+     //   console.log('_Re_worklist_query')
         this.setState({ refreshing_1: true });
         this.worklist_query();
         this.selectwork();
-        this.setState({ CF_ALL_INVOICE: [], stack_IVOICE: [] })
+        this.special_query();
+        this.special_pass();
+        this.setState({ CF_ALL_INVOICE: [], stack_IVOICE: [],stack_box:[] })
         this.setState({ refreshing_1: false });
     }
 
-    confirmworksome = (inV, i) => {
-        console.log("confirmworksome")
-
+    confirmworksome = (inV,box, i) => {
+        //console.log("confirmworksome")
+     
         this.props.client.mutate({
-            mutation: confirmworksome,
+            mutation: confirmworksomeAll_DL,
             variables: {
-                "invoiceNumber": inV
+                "invoiceNumber": inV,
+                "numBox":box,
+                "MessengerID":global.NameOfMess
             }
         }).then((result) => {
-            if (!result.data.confirmworksome.status) {
+            if (!result.data.confirmworksomeAll_DL.status) {
+                Alert.alert(
+                    'ตรวจงานไม่สำเร็จ',
+                    'มีการตรวจงานไปแล้ว',
+                    [
+                        { text: 'ตกลง', onPress: () => console.log("ok") },
+                    ]
+                )
+            } else {
+                if (i == 0) {
+                    console.log("insert app_workapp succ",inV,box)
+                } else if (i == 1) {
+                    console.log("insert app_workapp succ",inV,box)
+                 //   this.CheckUpdateBillToApp(inV,box,i)
+                    this._Re_worklist_query();
+                }
+            }
+
+        }).catch((err) => {
+            console.log(err)
+        });
+    }
+    CheckUpdateBillToApp = (inV,box,i) => {
+        //console.log("confirmworksome")
+     console.log("checkUpdate",inV,box,i)
+        this.props.client.mutate({
+            mutation: checkUpdateBilltoApp_DL,
+            variables: {
+                "invoiceNumber": inV,
+                "numBox":box,
+                "MessengerID":global.NameOfMess
+            }
+        }).then((result) => {
+            if (!result.data.checkUpdateBilltoApp_DL.status) {
+                Alert.alert(
+                    'ตรวจงานไม่สำเร็จ',
+                    'มีการตรวจงานไปแล้ว',
+                    [
+                        { text: 'ตกลง', onPress: () => console.log("ok") },
+                    ]
+                )
+            } else {
+          
+                    console.log("insert app_workapp succ",inV,box,i)
+                    this._Re_worklist_query();
+                
+            }
+
+        }).catch((err) => {
+            console.log(err)
+        });
+    }
+
+    confirmworksome_SC = (inV, i) => {
+        //console.log("confirmworksome")
+        console.log('confirmworksome_SC',inV)
+        this.props.client.mutate({
+            mutation: receive_SC,
+            variables: {
+                "TSC": inV
+            }
+        }).then((result) => {
+            if (!result.data.receive_SC.status) {
                 Alert.alert(
                     'ตรวจงานไม่สำเร็จ',
                     'มีการตรวจงานไปแล้ว',
@@ -239,11 +354,30 @@ class HomeTab extends Component {
             console.log(err)
         });
     }
-
-    tracking = (inV, i) => {
+    tracking = (inV,box, i) => {
         console.log("tracking")
+        console.log("result",inV,box,i)
         this.props.client.mutate({
-            mutation: tracking,
+            mutation: tracking_DL,
+            variables: {
+                "invoice": inV,
+                "status": "5",
+                "messengerID": global.NameOfMess,
+                "lat": this.state.latitude,
+                "long": this.state.longitude,
+                "box":box
+            }
+        }).then((result) => {
+            this.confirmworksome(inV,box, i)
+            console.log("insert tracking",inV,box)
+        }).catch((err) => {
+            console.log("ERR OF TRACKING", err)
+        });
+    }
+    tracking_SC = (inV, i) => {
+        console.log("trackingSC",inV)
+        this.props.client.mutate({
+            mutation: tracking_CN,
             variables: {
                 "invoice": inV,
                 "status": "5",
@@ -252,7 +386,7 @@ class HomeTab extends Component {
                 "long": this.state.longitude,
             }
         }).then((result) => {
-            this.confirmworksome(inV, i)
+            this.confirmworksome_SC(inV, i)
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
         });
@@ -282,7 +416,7 @@ class HomeTab extends Component {
         }).then((result) => {
             this.setState({ showINVOICE_ID: result.data.checkinvoice })
             if (this.state.showINVOICE_ID.length > 0) {
-                this.billTOapp();
+              //  this.billTOapp();
             } else {
                 this.roundout();
             }
@@ -313,33 +447,6 @@ class HomeTab extends Component {
                 ]
             )
 
-            // navigator.geolocation.getCurrentPosition(
-            //     (position) => {
-            //         console.log("wokeeey");
-            //         console.log(position);
-            //         this.setState({
-            //             latitude: position.coords.latitude,
-            //             longitude: position.coords.longitude,
-            //             error: null,
-            //         }, () => {
-            //             console.log(global.NameOfMess)
-            //             console.log("result", result.data.billTOapp)
-            //             this.state.showINVOICE_ID.map(l => {
-            //                 this.detailtoapp(l.INVOICEID);
-            //             });
-            //             Alert.alert(
-            //                 "คุณมีรายการอื่นที่ยังไม่ได้ตรวจ",
-            //                 "ต้องการกลับไปตรวจหรือออกรอบเลย",
-            //                 [
-            //                     { text: "ยกเลิก", onPress: () => this._Re_worklist_query() },
-            //                     { text: "ยืนยัน", onPress: () => this.roundout()}
-            //                 ]
-            //             )
-            //         });
-            //     },
-            //     (error) => this.setState({ error: error.message }),
-            //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-            // );
         }).catch((err) => {
             console.log("error of billTOapp", err)
         });
@@ -398,54 +505,7 @@ class HomeTab extends Component {
         });
     }
 
-    //--------------------------------------------------------------------------------------------------------------
-    // ยืนยันงานทั้งหมด แบบเก่า
-    /*confirmwork = () => {
-        console.log("confirmwork")
-
-        this.props.client.mutate({
-            mutation: confirmwork,
-            variables: {
-                "MessengerID": global.NameOfMess
-            }
-        }).then((result) => {
-            if (result.data.confirmwork.status) {
-                this._Re_worklist_query()
-            } else {
-                Alert.alert(
-                    'ตรวจงานไม่สำเร็จ',
-                    'มีการตรวจงานนี้ไปแล้ว',
-                    [
-                        { text: 'ตกลง', onPress: ()  => console.log("ok") },
-                    ]
-                )
-            }
-        }).catch((err) => {
-            console.log(err)
-        });
-    }
-
-    Trackingstatus4 = () => {
-        console.log("Trackingstatus4")
-
-        this.props.client.mutate({
-            mutation: Trackingstatus4,
-            variables: {
-                "status": "5",
-                "location": "NULL",
-                "messengerID": global.NameOfMess,
-                "lat": this.state.latitude,
-                "long": this.state.longitude,
-            }
-        }).then((result) => {
-            console.log("Result of Trackingstatus4", result.data.Trackingstatus4)
-            this.confirmwork()
-        }).catch((err) => {
-            console.log(err)
-        });
-    }*/
-    //--------------------------------------------------------------------------------------------------------------
-
+    
     render() {
 
         const { navigate } = this.props.navigation
@@ -468,7 +528,8 @@ class HomeTab extends Component {
 
                     </Right>
                 </Header>
-             
+        <Tabs locked>
+          <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}><Icon name="md-cart" /><Text style={{ color: 'white' }}>  งานปกติ</Text></TabHeading>}>
                 <Content refreshControl={
                     <RefreshControl
                         refreshing={this.state.refreshing_1}
@@ -489,11 +550,18 @@ class HomeTab extends Component {
                                     this.state.showTable.map((i, k) => {
                                         let n = this.state.CF_ALL_INVOICE;
                                         let s = this.state.stack_IVOICE;
+                                        let b = this.state.stack_box;
                                         n[k] = !this.state.status_CHECKBOX
                                         s[k] = i.invoiceNumber
+                                        b[k] = i.NumBox
                                         this.setState({
                                             CF_ALL_INVOICE: n,
-                                            stack_IVOICE: s
+                                            stack_IVOICE: s,
+                                            stack_box:b
+                                        }, () => {
+                                            console.log("if all CF", this.state.CF_ALL_INVOICE)
+                                            console.log("if all CF", this.state.stack_IVOICE)
+                                            console.log("if all CF",this.state.stack_box)
                                         })
                                     })
                                 }} />
@@ -525,42 +593,54 @@ class HomeTab extends Component {
                                             if (this.state.CF_ALL_INVOICE[i] == true) {
                                                 let n = this.state.CF_ALL_INVOICE.slice();
                                                 let s = this.state.stack_IVOICE.slice();
+                                                let b = this.state.stack_box.slice();
                                                 n[i] = false
                                                 s[i] = l.invoiceNumber
+                                                b[i] = l.NumBox
                                                 this.setState({
                                                     CF_ALL_INVOICE: n,
-                                                    stack_IVOICE: s
+                                                    stack_IVOICE: s,
+                                                    stack_box:b
                                                 }, () => {
                                                     console.log("if 1 CF", this.state.CF_ALL_INVOICE)
                                                     console.log("if 1 CF", this.state.stack_IVOICE)
+                                                    console.log("if 1 CF",this.state.stack_box)
                                                 })
 
                                             }
                                             else if (this.state.CF_ALL_INVOICE[i] == false) {
                                                 let n = this.state.CF_ALL_INVOICE.slice();
                                                 let s = this.state.stack_IVOICE.slice();
+                                                let b = this.state.stack_box.slice();
                                                 n[i] = true
                                                 s[i] = l.invoiceNumber
+                                                b[i] = l.NumBox
                                                 this.setState({
                                                     CF_ALL_INVOICE: n,
-                                                    stack_IVOICE: s
+                                                    stack_IVOICE: s,
+                                                    stack_box:b
                                                 }, () => {
                                                     console.log("if 2 CF", this.state.CF_ALL_INVOICE)
                                                     console.log("if 1 CF", this.state.stack_IVOICE)
+                                                    console.log("if 1 CF",this.state.stack_box)
                                                 })
 
                                             }
                                             else {
                                                 let n = this.state.CF_ALL_INVOICE.slice();
                                                 let s = this.state.stack_IVOICE.slice();
+                                                let b = this.state.stack_box.slice();
                                                 n[i] = true
                                                 s[i] = l.invoiceNumber
+                                                b[i] = l.NumBox
                                                 this.setState({
                                                     CF_ALL_INVOICE: n,
-                                                    stack_IVOICE: s
+                                                    stack_IVOICE: s,
+                                                    stack_box:b
                                                 }, () => {
                                                     console.log("if 3 CF", this.state.CF_ALL_INVOICE)
                                                     console.log("if 1 CF", this.state.stack_IVOICE)
+                                                    console.log("if 1 CF",this.state.stack_box)
                                                 })
 
                                             }
@@ -569,7 +649,7 @@ class HomeTab extends Component {
                                     <Body>
                                         <View style={{ left: 0, right: 0, top: 0, bottom: 0, }}>
                                             <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
-                                                onPress={() => navigate('CheckWork', { id: l.invoiceNumber, refresion: this._Re_worklist_query })}
+                                                onPress={() => navigate('CheckWork', { id: l.invoiceNumber,NumBox:l.NumBox, refresion: this._Re_worklist_query })}
                                             >
                                                 <Text style={styles.storeLabel}>{i + 1}).{l.invoiceNumber}</Text>
                                                 <Text note>{l.DELIVERYNAME}</Text>
@@ -579,8 +659,8 @@ class HomeTab extends Component {
                                     </Body>
                                     <Right>
                                         <Button transparent
-                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber, refresion: this._Re_worklist_query })}>
-                                        
+                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber,NumBox:l.NumBox, refresion: this._Re_worklist_query })}>
+                                            <Text style={styles.storeLabel}>{l.NumBox}/{l.QtyBox}</Text>
                                             <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
                                         </Button>
                                     </Right>
@@ -594,7 +674,7 @@ class HomeTab extends Component {
                                 <ListItem noIndent style={{ backgroundColor: "#A9FC93" }}>
                                     <Body>
                                         <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
-                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber, refresion: this._Re_worklist_query })}
+                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber,NumBox:l.NumBox, refresion: this._Re_worklist_query })}
                                         >
                                             <Text style={styles.storeLabel}>{i + 1}).{l.invoiceNumber}</Text>
                                             <Text note>{l.DELIVERYNAME}</Text>
@@ -602,7 +682,8 @@ class HomeTab extends Component {
                                     </Body>
                                     <Right>
                                         <Button transparent
-                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber, refresion: this._Re_worklist_query })}>
+                                            onPress={() => navigate('CheckWork', { id: l.invoiceNumber,NumBox:l.NumBox, refresion: this._Re_worklist_query })}>
+                                            <Text style={styles.storeLabel}>{l.NumBox}/{l.QtyBox}</Text>
                                             <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
                                         </Button>
                                     </Right>
@@ -652,7 +733,7 @@ class HomeTab extends Component {
 
                                 </TouchableOpacity>
                             )
-                        } else if (this.state.showTable.length == 0) {
+                        } else if (this.state.showTable.length == 0&&this.state.specialJob.length == 0) {
                             return (
                                 <TouchableOpacity
                                     onPress={
@@ -681,7 +762,236 @@ class HomeTab extends Component {
                         }
                     })()
                 }
+                </Tab>
 
+                {/* --------------------------Tab Job Special--------------------------------------------------------- */}
+                <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}><Icon name="md-checkbox-outline" /><Text style={{ color: 'white' }}>  งานพิเศษ</Text></TabHeading>}>
+                <Content refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing_1}
+                        onRefresh={this._Re_worklist_query}
+                    />
+                }>
+                    {/* <View style={[styles.container, styles.horizontal]}>
+                        <ActivityIndicator size="large" color="#0000ff" /> */}
+
+                 
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5, marginBottom: 5 }}>
+                        <View style={{ marginLeft: 20 }}>
+                            <CheckBox
+                                value={this.state.status_CHECKBOX}
+                                onValueChange={() => {
+                                    this.setState({ status_CHECKBOX: !this.state.status_CHECKBOX })
+                                    this.state.specialJob.map((i, k) => {
+                                        let n = this.state.CF_ALL_INVOICE;
+                                        let s = this.state.stack_IVOICE;
+                                        n[k] = !this.state.status_CHECKBOX
+                                        s[k] = i.tsc_document
+                                        this.setState({
+                                            CF_ALL_INVOICE: n,
+                                            stack_IVOICE: s
+                                        })
+                                    })
+                                }} />
+                        </View>
+                        <Text>เลือกทั้งหมด</Text>
+                    </View>
+                    
+                    <View style={[styles.container, styles.horizontal]}>
+                        {
+                         
+                            this.state.load ?
+                                <ActivityIndicator size="small" color="#00ff00" />
+                                :
+                               <View style={{top:0}}>
+                               </View>
+                  
+             
+                              
+                        }
+                    </View>
+
+                    <View>
+                        {
+                            this.state.specialJob.map((l, i) => (
+                                <ListItem noIndent >
+                                    <CheckBox
+                                        value={this.state.CF_ALL_INVOICE[i]}
+                                        onValueChange={() => {
+                                            if (this.state.CF_ALL_INVOICE[i] == true) {
+                                                let n = this.state.CF_ALL_INVOICE.slice();
+                                                let s = this.state.stack_IVOICE.slice();
+                                                n[i] = false
+                                                s[i] = l.tsc_document
+                                                this.setState({
+                                                    CF_ALL_INVOICE: n,
+                                                    stack_IVOICE: s
+                                                }, () => {
+                                                    console.log("if 1 CF", this.state.CF_ALL_INVOICE)
+                                                    console.log("if 1 CF", this.state.stack_IVOICE)
+                                                })
+
+                                            }
+                                            else if (this.state.CF_ALL_INVOICE[i] == false) {
+                                                let n = this.state.CF_ALL_INVOICE.slice();
+                                                let s = this.state.stack_IVOICE.slice();
+                                                n[i] = true
+                                                s[i] = l.tsc_document
+                                                this.setState({
+                                                    CF_ALL_INVOICE: n,
+                                                    stack_IVOICE: s
+                                                }, () => {
+                                                    console.log("if 2 CF", this.state.CF_ALL_INVOICE)
+                                                    console.log("if 1 CF", this.state.stack_IVOICE)
+                                                })
+
+                                            }
+                                            else {
+                                                let n = this.state.CF_ALL_INVOICE.slice();
+                                                let s = this.state.stack_IVOICE.slice();
+                                                n[i] = true
+                                                s[i] = l.tsc_document
+                                                this.setState({
+                                                    CF_ALL_INVOICE: n,
+                                                    stack_IVOICE: s
+                                                }, () => {
+                                                    console.log("if 3 CF", this.state.CF_ALL_INVOICE)
+                                                    console.log("if 1 CF", this.state.stack_IVOICE)
+                                                })
+
+                                            }
+
+                                        }} />
+                                    <Body>
+                                        <View style={{ left: 0, right: 0, top: 0, bottom: 0, }}>
+                                            <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
+                                                onPress={() => navigate('RecieveWork', { id: l.tsc_document,cusname:l.customerName,Zone:l.Zone,address:l.address_shipment,task_detail:l.task_detail,
+                                                    user_request_name:l.user_request_name,user_request_tel:l.user_request_tel,receive_date:l.receive_date,receive_time_first:l.receive_time_first,
+                                                    send_to:l.send_to,send_time_first:l.send_time_first,send_tel:l.send_tel,task_group:l.task_group,task_group_document:l.task_group_document,task_group_quantity:l.task_group_quantity,receive_from:l.receive_from,
+                                                    comment:l.comment,send_date:l.send_date,refresion: this._Re_worklist_query })}
+                                            >
+                                                <Text style={styles.storeLabel}>{i + 1}).{l.tsc_document}</Text>
+                                                <Text note>{l.customerName}</Text>
+                                                
+                                            </TouchableOpacity>
+                                        </View>
+                                    </Body>
+                                    <Right>
+                                        <Button transparent
+                                            onPress={() => navigate('RecieveWork', { id: l.tsc_document,cusname:l.customerName,Zone:l.Zone,address:l.address_shipment,task_detail:l.task_detail,
+                                                user_request_name:l.user_request_name,user_request_tel:l.user_request_tel,receive_date:l.receive_date,receive_time_first:l.receive_time_first,
+                                                send_to:l.send_to,send_time_first:l.send_time_first,send_tel:l.send_tel,task_group:l.task_group,task_group_document:l.task_group_document,task_group_quantity:l.task_group_quantity,receive_from:l.receive_from,
+                                                comment:l.comment,send_date:l.send_date,refresion: this._Re_worklist_query })}>
+                                        
+                                            <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
+                                        </Button>
+                                    </Right>
+                                </ListItem>
+                            ))
+                        }
+                    </View>
+                    <View>
+                        {
+                            this.state.specialJobGreen.map((l, i) => (
+                                <ListItem noIndent style={{ backgroundColor: "#A9FC93" }}>
+                                    <Body>
+                                        <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
+                                            onPress={() => navigate('RecieveWork', { id: l.tsc_document,cusname:l.customerName,Zone:l.Zone,address:l.address_shipment,task_detail:l.task_detail,
+                                                user_request_name:l.user_request_name,user_request_tel:l.user_request_tel,receive_date:l.receive_date,receive_time_first:l.receive_time_first,
+                                                send_to:l.send_to,send_time_first:l.send_time_first,send_tel:l.send_tel,task_group:l.task_group,task_group_document:l.task_group_document,task_group_quantity:l.task_group_quantity,receive_from:l.receive_from,
+                                                comment:l.comment,send_date:l.send_date, refresion: this._Re_worklist_query})}
+                                        >
+                                            <Text style={styles.storeLabel}>{i + 1}).{l.tsc_document}</Text>
+                                            <Text note>{l.customerName}</Text>
+                                        </TouchableOpacity>
+                                    </Body>
+                                    <Right>
+                                        <Button transparent
+                                             onPress={() => navigate('RecieveWork', { id: l.tsc_document,cusname:l.customerName,Zone:l.Zone,address:l.address_shipment,task_detail:l.task_detail,
+                                                user_request_name:l.user_request_name,user_request_tel:l.user_request_tel,receive_date:l.receive_date,receive_time_first:l.receive_time_first,
+                                                send_to:l.send_to,send_time_first:l.send_time_first,send_tel:l.send_tel,task_group:l.task_group,task_group_document:l.task_group_document,task_group_quantity:l.task_group_quantity,receive_from:l.receive_from,
+                                                comment:l.comment,send_date:l.send_date, refresion: this._Re_worklist_query})}>
+                                            <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
+                                        </Button>
+                                    </Right>
+                                </ListItem>
+                            ))
+                        }
+                    </View>
+
+                </Content>
+
+                {
+                    (() => {
+                        console.log("this.state.showTable", this.state.specialJob.length)
+                        if (this.state.specialJob.length > 0) {
+                            return (
+                                <TouchableOpacity
+                                    onPress={
+                                        () => {
+                                            console.log(this.state.CF_ALL_INVOICE)
+                                            if (this.state.CF_ALL_INVOICE.every(this.checkDATA)) {
+                                                Alert.alert(
+                                                    'ไม่สามารถตรวจงานได้',
+                                                    'กรุณาเลือกงาน'
+                                                )
+                                            } else {
+                                                Alert.alert(
+                                                    'ตรวจงานทั้งหมด',
+                                                    'คุณต้องการตรวจงานทั้งหมด?',
+                                                    [
+
+                                                        { text: 'ไม่', onPress: () => console.log("no") },
+                                                        { text: 'ใช่', onPress: () => this.checkpending_SC(0) },
+                                                    ]
+                                                )
+                                            }
+
+                                        }
+                                    }
+                                >
+                                    <Footer style={{
+                                        backgroundColor: '#ff6c00',
+                                        justifyContent: 'center',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>ตรวจงานทั้งหมด</Text>
+                                    </Footer>
+
+                                </TouchableOpacity>
+                            )
+                        } else if (this.state.specialJob.length == 0 && this.state.showTable.length ==0) {
+                            return (
+                                <TouchableOpacity
+                                    onPress={
+                                        () => {
+                                            Alert.alert(
+                                                'ยืนยันการออกรอบ',
+                                                'คุณต้องการออกรอบเลยหรือไม่?',
+                                                [
+
+                                                    { text: 'ยกเลิก', onPress: () => console.log("no") },
+                                                    { text: 'ยืนยัน', onPress: () => { this.checkpending_SC(1) } },
+                                                ]
+                                            )
+                                        }
+                                    }
+                                >
+                                    <Footer style={{
+                                        backgroundColor: '#33CC33',
+                                        justifyContent: 'center',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>ส่งงาน</Text>
+                                    </Footer>
+                                </TouchableOpacity>
+                            )
+                        }
+                    })()
+                }
+                </Tab>
+                </Tabs>
             </Container >
          
           
@@ -704,6 +1014,67 @@ const querywork = gql`
                 }
             }
         `
+const querywork_DL = gql`
+    query querywork_DL($MessengerID:String!){
+        querywork_DL(MessengerID: $MessengerID){
+            invoiceNumber
+            customerName
+            DELIVERYNAME
+            QtyBox
+            NumBox
+                }
+            }
+        `
+const selectDataWork_SC = gql`
+    query selectDataWork_SC($MessengerID:String!){
+        selectDataWork_SC(MessengerID: $MessengerID){
+                    tsc_document
+                    customerName
+                    Zone
+                    address_shipment
+                    task_detail
+                    user_request_name
+                    user_request_tel
+                    receive_from
+                    receive_date
+                    receive_time_first
+                    send_to
+                    send_time_first
+                    send_tel
+                    task_group
+                    task_group_document
+                    task_group_quantity
+                    comment
+                    send_date
+                }
+            }
+        `
+const selectWork_SC = gql`
+    query selectWork_SC($MessengerID:String!){
+        selectWork_SC(MessengerID: $MessengerID){
+                    tsc_document
+                    customerName
+                    Zone
+                    address_shipment
+                    task_detail
+                    user_request_name
+                    user_request_tel
+                    receive_from
+                    receive_date
+                    receive_time_first
+                    send_to
+                    send_time_first
+                    send_tel
+                    task_group
+                    task_group_document
+                    task_group_quantity
+                    comment
+                    send_date
+                    
+                }
+            }
+        `
+        
 const selectpendingwork = gql`
         query selectpendingwork($MessengerID:String!){
             selectpendingwork(MessengerID: $MessengerID){
@@ -720,10 +1091,41 @@ const selectwork = gql`
                 }
             }
         `
-
+const selectWork_DL = gql`
+        query selectWork_DL($MessengerID:String!){
+            selectWork_DL(MessengerID: $MessengerID){
+                                invoiceNumber
+                                customerName
+                                DELIVERYNAME
+                                QtyBox
+                                NumBox
+                    }
+                }
+            `
 const confirmworksome = gql`
     mutation confirmworksome($invoiceNumber:String!){
         confirmworksome(invoiceNumber: $invoiceNumber){
+            status
+        }
+    }
+`
+const confirmworksomeAll_DL = gql`
+    mutation confirmworksomeAll_DL($invoiceNumber:String!,$numBox:String!,$MessengerID:String!){
+        confirmworksomeAll_DL(invoiceNumber: $invoiceNumber,numBox:$numBox,MessengerID:$MessengerID){
+            status
+        }
+    }
+`
+const checkUpdateBilltoApp_DL = gql`
+    mutation checkUpdateBilltoApp_DL($invoiceNumber:String!,$numBox:String!,$MessengerID:String!){
+        checkUpdateBilltoApp_DL(invoiceNumber: $invoiceNumber,numBox:$numBox,MessengerID:$MessengerID){
+            status
+        }
+    }
+`
+const confirmworksome_DL = gql`
+    mutation confirmworksome_DL($invoiceNumber:String!,$numBox:String!,$MessengerID:String!){
+        confirmworksome_DL(invoiceNumber: $invoiceNumber,numBox:$numBox,MessengerID:$MessengerID){
             status
         }
     }
@@ -780,6 +1182,46 @@ const tracking = gql`
         }
     }
 `
+const tracking_DL = gql`
+    mutation tracking_DL(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!,
+        $box:String!
+    ){
+        tracking_DL(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long,
+            box:$box
+        ){
+            status
+        }
+    }
+`
+const tracking_CN = gql`
+    mutation tracking_CN(
+        $invoice:String!,
+        $status:String!,
+        $messengerID:String!,
+        $lat:Float!,
+        $long:Float!
+    ){
+        tracking_CN(
+            invoice: $invoice,
+            status: $status,
+            messengerID: $messengerID,
+            lat: $lat,
+            long: $long
+        ){
+            status
+        }
+    }
+ `
 
 const roundout = gql`
     mutation roundout($MessengerID:String!){
@@ -788,6 +1230,13 @@ const roundout = gql`
         }
     }
 `
+const receive_SC = gql`
+        mutation receive_SC($TSC:String!){
+                receive_SC(TSC: $TSC){
+                        status
+                   }
+                    }
+                `
 
 //-----------------------------------------------------------------------------------------------
 // const confirmwork = gql`

@@ -1,89 +1,66 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View,TouchableOpacity,Dimensions,TouchableHighlight,Modal } from 'react-native'
+import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView } from 'react-native'
 
-import {Icon,Container,Header,Left,Body,Title,Right,Button, Content} from 'native-base';
+import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Separator, ListItem } from 'native-base';
+import { gql, withApollo, compose } from 'react-apollo'
 
 class ProfileTab extends Component {
     
   constructor(props) {
     super(props);
     this.state = {
-        showTable: [],
-        showTableGreen: [],
-        refreshing_1: false,
-        latitude: null,
-        longitude: null,
-        error: null,
-        CF_ALL_INVOICE: [],
-        stack_IVOICE: [],
-        status_CHECKBOX: false,
-        modalVisible: false,
-
-       
+      showDetailBill_A: [],
+      showinvoicebill_A: []
     }
-    // this.props.client.resetStore();
-    //this.checkwork();
-    //this.worklist_query();
-  //  this.getPay();
-    console.log('8879787848156115184161351568456846146136')
-}
-// getPay = async () => {
-    
-//   const res = await fetch(`http://localhost:3400/orders`);
-//   const data = await res.json();
-//   console.log(data)
-//   console.log('9999999999999999999999999999777777777777777777777777777778888888888888888888888')
+   // this.props.client.resetStore();
+    this.detailsummoney();
+    this.checkinvoicebill();
+  }
 
-//       // this.setState({
-//       //     TyroABC: data.response ? data.response[0].VIA_BTC_ABC: '',
-      
-//       //  })
-//       //  console.log('ssss');
+  detailsummoney = () => {
+    console.log("detailsummoney")
 
-// }
- getMoviesFromApiAsync() {
-  return fetch('http://www.dplus-system.com:3400/orders')
-    .then((response) => response.json())
-    .then((responseJson) => {
-    console.log('1111')
-    })
-    .catch((error) => {
-      console.error(error);
+    this.props.client.query({
+      query: DTblacklist,
+      variables: {
+        "MessengerID": global.NameOfMess
+      }
+    }).then((result) => {
+      console.log(result.data.DTblacklist)
+      this.setState({
+        showDetailBill_A: result.data.DTblacklist
+      })
+    }).catch((err) => {
+      console.log(err)
     });
-}
-setModalVisible(visible) {
-  this.setState({modalVisible: visible});
-}
+  }
 
-geti(){
- return fetch('http://www.dplus-system.com:3401/products', {
-  method: 'POST',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    name: 'eiei',
-    price: '500',
-  }),
-}).then((response) => response.json())
-    .then((responseJson) => {
-      console.log('eiei')
-    })
-    .catch((error) => {
-      console.error(error);
+  checkinvoicebill = () => {
+    console.log("queryZone")
+
+    this.props.client.query({
+      query: blacklist,
+      variables: {
+        "MessengerID": global.NameOfMess
+      }
+    }).then((result) => {
+      console.log(result.data.blacklist)
+      this.setState({
+        showinvoicebill_A: result.data.blacklist
+      })
+    }).catch((err) => {
+      console.log(err)
     });
+  }
 
-}
 
-
-    static navigationOptions = {
-        tabBarLabel: "ข่าว",
-        tabBarIcon: ({ tintColor }) => (
-            <Icon name="ios-list-box" style={{ color:
-            tintColor }} />
-        )
-    }
+    // static navigationOptions = {
+    //     tabBarLabel: "BlackList",
+    //     tabBarIcon: ({ tintColor }) => (
+    //         <Icon name="ios-list-box" style={{ color:
+    //         tintColor }} />
+    //     )
+    // }
     
   render() {
     const { navigate } = this.props.navigation
@@ -98,26 +75,56 @@ geti(){
             </Button>
           </Left>
             <Body>
-              <Title>ข่าวสาร</Title>
+              <Title>รายชื่อลูกค้าไม่โอนเงินตามกำหนด</Title>
             </Body>
             <Right />
           </Header>
-    
-          {/* <Swipeout right={swipeBtns}
-        autoClose='true'
-        backgroundColor= 'transparent'>
-        <TouchableHighlight
-          underlayColor='rgba(192,192,192,1,0.6)'
-          onPress={this.viewNote.bind(this, rowData)} >
+          
+          <Content >
           <View>
-            <View style={styles.rowContainer}>
-              <Text style={styles.note}> {rowData} </Text>
-            </View>
-            <Separator />
+            {
+              this.state.showinvoicebill_A.map(val => (
+                <View>
+                  <Separator bordered>
+                    <Text style={styles.storeLabel}>{" "}{val.CustomerName}</Text>
+                  </Separator>
+
+                  <View>
+                    {
+                      this.state.showDetailBill_A.map(l => {
+                        if (l.CustomerID == val.CustomerID) {
+                          return (
+                            <View style={styles.detailContent}>
+                              <View style={{ backgroundColor: 'white',paddingLeft: 0 }}>
+                                {/* <View style={{  justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderBottomColor: 'gray', borderBottomWidth: 0.5  }}> */}
+                                  <View style={{paddingLeft:5, flexDirection: 'row' }}>
+                                    <Text style={{fontSize:14}} >{l.invoiceNumber}</Text>
+                                  </View>
+                                 
+                              
+                                {/* </View> */}
+                              </View>
+                            </View>
+
+                          )
+                        }
+                      })
+                    }
+                  </View>
+                </View>
+
+
+              )
+              )
+            }
+
           </View>
-        </TouchableHighlight>
-      </Swipeout> */}
-      
+         
+         
+               
+
+            </Content>
+     
          
         </Container>
     );
@@ -125,13 +132,62 @@ geti(){
 
   
 }
-export default ProfileTab;
+const GraphQL = compose(ProfileTab)
+export default withApollo(ProfileTab)
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center"
-    },
+
+const detailsummoney = gql`
+query detailsummoney($MessengerID:String!){
+  detailsummoney(MessengerID: $MessengerID){
+    invoiceNumber
+    qty
+    amount
+    itemName
     
+  }
+}
+`
+const checkinvoicebill = gql`
+  query checkinvoicebill($MessengerID:String!){
+    checkinvoicebill(MessengerID: $MessengerID){
+      invoiceNumber
+      }
+  }
+`
+const DTblacklist = gql`
+query DTblacklist($MessengerID:String!){
+  DTblacklist(MessengerID: $MessengerID){
+    CustomerID
+    CustomerName
+    MessNO
+    enableCredit
+    invoiceNumber
+  }
+}
+`
+const blacklist = gql`
+query blacklist($MessengerID:String!){
+  blacklist(MessengerID: $MessengerID){
+    CustomerID
+    CustomerName
+    MessNO
+    enableCredit
+    
+  }
+}
+`
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  storeLabel: {
+    fontSize: 18,
+    color: 'black'
+  },
+  detailContent: {
+    marginLeft:5
+  }
 })
