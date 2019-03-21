@@ -1,8 +1,14 @@
-package com.transportdplusproject;
+package com.transportdplusproject.DL;
 
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rssignaturecapture.RSSignatureCapturePackage;
+import com.airbnb.android.react.maps.MapsPackage;
+import codes.simen.IMEI.IMEI;
+import com.rssignaturecapture.RSSignatureCapturePackage;
+import com.airbnb.android.react.maps.MapsPackage;
+import codes.simen.IMEI.IMEI;
 //import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import codes.simen.IMEI.IMEI;
@@ -14,6 +20,8 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 import com.rssignaturecapture.RSSignatureCapturePackage;
+import com.transportdplusproject.DL.BuildConfig;
+
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
@@ -26,7 +34,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-         //   new RSSignatureCapturePackage(),
             new MapsPackage(),
             new IMEI(),
             new RSSignatureCapturePackage()

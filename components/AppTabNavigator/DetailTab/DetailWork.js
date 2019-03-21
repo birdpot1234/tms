@@ -1,29 +1,25 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView, TouchableOpacity,Linking,ActivityIndicator } from 'react-native'
+import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native'
 import { gql, withApollo, compose } from 'react-apollo'
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Input, Item, Grid, Col, ActionSheet, Badge } from 'native-base';
 import Communications from 'react-native-communications';
 import buttomcustomer from '../testComponent/customButton'
 import customButton from '../testComponent/customButton';
 import Geocoder from 'react-native-geocoding';
-// var BUTTONS = [
-//     { text: "ลูกค้ากดผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B1" },
-//     { text: "ร้านปิด", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B2" },
-//     { text: "Order ซ้ำ", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B3" },
-//     { text: "สินค้าผิด", icon: "md-arrow-dropright", iconColor: "#fa213b", status: "B4" },
-//     { text: "เซลล์ key ผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B5" },
-//     { text: "ลูกค้าสั่งร้านอื่นมาแล้ว", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B6" },
-//     { text: "เซลล์บอกราคาลูกค้าผิด", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B7" },
-//     { text: "Cancel", icon: "close", iconColor: "#25de5b" }
-// ];
-//var CANCEL_INDEX = 9;
+import { normalize } from '../../../functions/normalize';
+import font from '../../../resource/font';
+var BUTTONS = [
+    { text: "ลูกค้ากดผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B1" },
+    { text: "ร้านปิด", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B2" },
+    { text: "Order ซ้ำ", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B3" },
+    { text: "สินค้าผิด", icon: "md-arrow-dropright", iconColor: "#fa213b", status: "B4" },
+    { text: "เซลล์ key ผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B5" },
+    { text: "ลูกค้าสั่งร้านอื่นมาแล้ว", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B6" },
+    { text: "เซลล์บอกราคาลูกค้าผิด", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B7" },
+    { text: "Cancel", icon: "close", iconColor: "#25de5b" }
+];
 
 class DetailWork extends Component {
-
-    static navigationOptions = {
-        header: null
-    }
-
     constructor(props) {
         super(props);
         this.state = {
@@ -34,21 +30,23 @@ class DetailWork extends Component {
             ShowMomey: [],
             showTel: "",
             statusEdit: 0,
-            BUTTONS:[],
-            CANCEL_INDEX:null,
-            Amount_CNZ:0,
-            SumAmount:0,
-            load:false,
+            BUTTONS: [],
+            CANCEL_INDEX: null,
+            Amount_CNZ: 0,
+            SumAmount: 0,
+            load: false,
         }
-        this.props.client.resetStore();
-        this.log();
+    }
+
+    componentDidMount = () => {
         this.subDetail();
         this.summoneydetail();
         this.submitedit();
-        this.reason();
+
         this.AmountCN();
         this.CN_Price();
     }
+
 
     _RELOAD_DETAILWORK = () => {
         this.props.client.resetStore();
@@ -63,31 +61,7 @@ class DetailWork extends Component {
         this.props.navigation.state.params.refresion()
         this.props.navigation.goBack()
     }
-    log = () => {
-            console.log('15615115315151515135135151513')
-    }
 
-    reason = () => {
-        console.log('worksub')
-    
-        this.props.client.query({
-          query: reasonfail,
-          variables: {
-            "MessengerID": global.NameOfMess
-          }
-        }).then((result) => {
-          console.log("workSub.................")
-          console.log(result.data.reasonfail)
-          this.setState({
-            BUTTONS: result.data.reasonfail,
-            CANCEL_INDEX:result.data.reasonfail.length-1
-
-          })
-          console.log(this.state.BUTTONS)
-        }).catch((err) => {
-          console.log(err)
-        });
-      }
     subDetail = () => {
         this.props.client.query({
             query: subDetail,
@@ -95,34 +69,45 @@ class DetailWork extends Component {
                 "invoiceNumber": this.props.navigation.state.params.id
             }
         }).then((result) => {
-            this.setState({
-                showDetailWork: result.data.subDetail
-            })
-            // console.log( result.data.subDetail)
+            this.setState({ showDetailWork: result.data.subDetail })
         }).catch((err) => {
             console.log(err)
         });
     }
 
-    submitwork = (s) => {
-        if(s =='B8')
-    {
 
-      this.props.client.mutate({
-        mutation: Blacklist,
-        variables: {
-          "status": s,
-          "invoice": this.props.navigation.state.params.id,
-          "messengerID":global.NameOfMess
-        }
-      }).then((result) => {
-        console.log(result.data.Blacklist.status)
-      }).catch((err) => {
-        console.log("err of submitwork", err)
-      });
-    
-
+    summoneydetail = () => {
+        this.props.client.query({
+            query: summoneydetail,
+            variables: {
+                "invoiceNumber": this.props.navigation.state.params.id
+            }
+        }).then((result) => {
+            this.setState({
+                ShowMomey: result.data.summoneydetail
+            })
+        }).catch((err) => {
+            console.log(err)
+        });
     }
+
+
+    submitwork = (s) => {
+        if (s == 'B8') {
+            this.props.client.mutate({
+                mutation: Blacklist,
+                variables: {
+                    "status": s,
+                    "invoice": this.props.navigation.state.params.id,
+                    "messengerID": global.NameOfMess
+                }
+            }).then((result) => {
+                console.log(result.data.Blacklist.status)
+            }).catch((err) => {
+                console.log("err of submitwork", err)
+            });
+        }
+
         this.props.client.mutate({
             mutation: submitwork,
             variables: {
@@ -143,39 +128,21 @@ class DetailWork extends Component {
                 "invoiceNumber": this.props.navigation.state.params.id
             }
         }).then((result) => {
-            this.tracking(s, 1)
-            // navigator.geolocation.getCurrentPosition(
-            //     (position) => {
-            //         console.log("wokeeey");
-            //         console.log(position);
-            //         this.setState({
-            //             latitude: position.coords.latitude,
-            //             longitude: position.coords.longitude,
-            //             error: null,
-            //         }, () => this.tracking(s, 1));
-            //     },
-            //     (error) => this.setState({ error: error.message }),
-            //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-            // );
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    let { latitude, longitude } = position.coords
+                    this.tracking(s, 1, latitude, longitude)
+                },
+                (error) => {
+                    console.log(error)
+                    this.tracking(s, 1, -1, -1)
+                }
+            );
         }).catch((err) => {
             console.log("err of submiitdetail", err)
         });
     }
-    summoneydetail = () => {
-        this.props.client.query({
-            query: summoneydetail,
-            variables: {
-                "invoiceNumber": this.props.navigation.state.params.id
-            }
-        }).then((result) => {
-            this.setState({
-                ShowMomey: result.data.summoneydetail
-            })
-            // console.log(this.state.ShowSUM)
-        }).catch((err) => {
-            console.log(err)
-        });
-    }
+
     AmountCN = () => {
         this.props.client.query({
             query: AmountCN,
@@ -183,14 +150,12 @@ class DetailWork extends Component {
                 "Invoice": this.props.navigation.state.params.id
             }
         }).then((result) => {
-            this.setState({
-                SumAmount: result.data.AmountCN[0].Sum_Amount
-            })
-            // console.log(this.state.ShowSUM)
+            this.setState({ SumAmount: result.data.AmountCN[0].Sum_Amount })
         }).catch((err) => {
             console.log(err)
         });
     }
+
     CN_Price = () => {
         this.props.client.query({
             query: CN_Price,
@@ -198,57 +163,26 @@ class DetailWork extends Component {
                 "Invoice": this.props.navigation.state.params.id
             }
         }).then((result) => {
-            this.setState({
-                Amount_CNZ: result.data.CN_Price[0].Amount_CN
-            })
-            // console.log(this.state.ShowSUM)
+            this.setState({ Amount_CNZ: result.data.CN_Price[0].Amount_CN })
         }).catch((err) => {
             console.log(err)
         });
     }
-    telCustomer = () => {
-        this.props.client.query({
-            query: telCustomer,
-            variables: {
-                "invoiceNumber": this.props.navigation.state.params.id,
-                "MessengerID": global.NameOfMess
-            }
-        }).then((result) => {
-            this.setState({
-                showTel: result.data.telCustomer[0].telCustomer
-            }, () => {
-                Communications.phonecall(this.state.showTel, true)
-            })
 
-            // console.log( result.data.telCustomer)
-        }).catch((err) => {
-            console.log(err)
-        });
-    }
-    tracking = (s, n) => {
-        console.log("tracking")
-
+    tracking = (s, n, latitude, longitude) => {
         this.props.client.mutate({
             mutation: tracking,
             variables: {
                 "invoice": this.props.navigation.state.params.id,
                 "status": s,
                 "messengerID": global.NameOfMess,
-                "lat": this.state.latitude,
-                "long": this.state.longitude,
+                "lat": latitude,
+                "long": longitude,
             }
-        }).then((result) => {
+        }).then(() => {
             if (n == 1) {
                 this.props.navigation.state.params.refresion()
                 this.props.navigation.goBack()
-            }
-            else if (n == 2) {
-
-                this.telCustomer();
-
-            }
-            else {
-                console.log("Tracking ", result.data.tracking.status)
             }
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
@@ -262,345 +196,249 @@ class DetailWork extends Component {
                 "invoiceNumber": this.props.navigation.state.params.id,
             }
         }).then((result) => {
-            if (result.data.submitedit.status) {
-                this.setState({
-                    statusEdit: 1
-                })
-            } else {
-                this.setState({
-                    statusEdit: 0
-                })
-            }
-
+            this.setState({
+                statusEdit: result.data.submitedit.status ? 1 : 0
+            })
         }).catch((err) => {
             console.log("err of submitedit", err)
         });
     }
-    checkfordel = ()=>{
+
+    checkfordel = () => {
         this.props.client.query({
-            query: 	countinv_DL,
+            query: countinv_DL,
             variables: {
                 "invoiceNumber": this.props.navigation.state.params.id,
                 "MessengerID": global.NameOfMess,
             }
         }).then((result) => {
-             if (result.data.countinv_DL[0].count_inv>1) {
+            if (result.data.countinv_DL[0].count_inv > 1) {
                 this.delinvoice()
-             } else {
+            } else {
                 Alert.alert(
                     "ไม่สามารถลบได้",
-                    "ลบไม่ได้เนื่องจากบิลนี้มีเพียง "+result.data.countinv_DL[0].count_inv+" บิล",
+                    "ลบไม่ได้เนื่องจากบิลนี้มีเพียง " + result.data.countinv_DL[0].count_inv + " บิล",
                     [
-                        
                         { text: "OK", onPress: () => console.log('') }
                     ]
                 )
-             }
-          //  console.log(result.data.countinv_DL[0].count_inv)
-
+            }
         }).catch((err) => {
             console.log("err of submitedit", err)
         });
     }
-    delinvoice =() =>{
-        console.log('del',this.props.navigation.state.params.id)
-        console.log('id',this.props.navigation.state.params.index)
+
+    delinvoice = () => {
         this.props.client.mutate({
             mutation: delinvoice,
             variables: {
                 "invoiceNumber": this.props.navigation.state.params.id,
                 "id": this.props.navigation.state.params.index,
-              
             }
-        }).then((result) => {
-          
-                this.props.navigation.state.params.refresion()
-                this.props.navigation.goBack()
-            
-              //  this.telCustomer();
-
-         
+        }).then(() => {
+            this.props.navigation.state.params.refresion()
+            this.props.navigation.goBack()
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
         });
     }
+
     getToken(address) {
-        this.setState({
-           
-            load:true
-           
-         })
         return fetch('http://dplus-system.com:3499/tms/api/token')
-          .then((response) => response.json())
-          .then((responseJson) => {
-           console.log(responseJson.res.status.status_desc[0].APIKey);
-           this.getMap(address,responseJson.res.status.status_desc[0].APIKey)
-          })
-          .catch((error) => {
-            Alert.alert(
-                "กรุณาลองใหม่อีกครั้ง",
-                "",
-                [
-                
-                    { text: "รับทราบ", onPress: () => this.errorMap() }
-                ]
-            )
-          });
-      }
-    errorMap=()=>{
-        this.setState({
-           
-            load:false
-           
-         })
-         
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson.res.status.status_desc[0].APIKey);
+                this.getMap(address, responseJson.res.status.status_desc[0].APIKey)
+            })
+            .catch((error) => {
+                Alert.alert("กรุณาลองใหม่อีกครั้ง", "", [{ text: "รับทราบ", onPress: () => this.errorMap() }])
+            });
     }
-      
-    getMap=(address,apiKey)=>{
+
+    getMap = (address, apiKey) => {
         Geocoder.init(apiKey); // use a valid API key
         Geocoder.from(address)
-		.then(json => {
-            var location = json.results[0].geometry.location;
-            console.log(address)
-            console.log(location);
-            this.setState({
-           
-                load:false
-               
-             })
-            Linking.openURL('geo:37.7749,-122.4194?q='+location.lat+','+location.lng+' ')
-
-            
-		})
-        .catch(error => 
-           // console.warn("error",error)
-          
-                Alert.alert(
-                 "ที่อยู่จัดส่งไม่ชัดเจน",
-                 "กรุณาแจ้ง IT ตรวจสอบ",
-                 [
-                 
-                     { text: "รับทราบ", onPress: () => this.errorMap() }
-                 ]
-             )
-     )
+            .then(json => {
+                var location = json.results[0].geometry.location;
+                Linking.openURL('geo:37.7749,-122.4194?q=' + location.lat + ',' + location.lng + ' ')
+            })
+            .catch(error =>
+                Alert.alert("ที่อยู่จัดส่งไม่ชัดเจน", "กรุณาแจ้ง IT ตรวจสอบ", [{ text: "รับทราบ", onPress: () => this.errorMap() }])
+            )
     }
 
+    onConfirm = async () => {
+        try {
+            let { customerID, Cusname } = this.props.navigation.state.params
+            const { navigate } = this.props.navigation
+            navigate("SubmitJob", {
+                id: this.props.navigation.state.params.id,
+                refresion: this._RELOAD_TO_GOBACK,
+                PAYMMODE: this.props.navigation.state.params.PAYMMODE,
+                customerID,
+                Cusname,
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     render() {
-
         const { navigate } = this.props.navigation
-
         return (
-
             <Container>
-                <Header style={{ backgroundColor: '#66c2ff' }}>
-                    <Left>
-                        <Button transparent
-                            onPress={() => { navigate('Search') }}>
-                            <Icon name='arrow-back' />
-                        </Button>
-                    </Left>
-                    <Body>
-                        <Title>รายละเอียด</Title>
-                    </Body>
-                    <Right />
-                </Header>
-                <View style={[styles.container, styles.horizontal]}>
-                    {
-
-                        this.state.load ?
-                            <ActivityIndicator size="small" color="#00ff00" />
-                            :
-
-
-                            <View />
-
-                    }
-                </View>
-
-
                 <Content>
+                    <View style={{ margin: normalize(10) }}>
+                        <Text style={{ fontFamily: font.semi, color: 'black', fontSize: normalize(17) }}>รหัสบิล: {this.props.navigation.state.params.id}</Text>
+                        <Text style={{ fontSize: normalize(17), fontFamily: font.medium }}>ห้าง : <Text style={{ fontFamily: font.light }}>{this.props.navigation.state.params.Zone}</Text></Text>
+                        <Text style={{ fontFamily: font.semi, fontSize: normalize(17), color: '#4682b4' }}>ชื่อลูกค้า : {this.props.navigation.state.params.Cusname} </Text>
 
-                    <View style={{ margin: 10 }}>
-
-                        <Text>รหัสบิล : {this.props.navigation.state.params.id}</Text>
-                        <Text >ห้าง : {this.props.navigation.state.params.Zone} </Text>
-                        <Text >ชื่อลูกค้า : {this.props.navigation.state.params.Cusname} </Text>
-                        <TouchableOpacity  onPress={() => this.getToken(this.props.navigation.state.params.address)}>
-                         <Text style={{ fontWeight: 'bold', fontSize: 17, color: '#4682b4' }}>ที่อยู่ : {this.props.navigation.state.params.address}  <Icon name='md-locate' style={{ color: "red",marginTop:5 }}  /> </Text>
-                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => this.getToken(this.props.navigation.state.params.address)}>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.medium, color: '#4682b4' }}>ที่อยู่ : <Text style={{ fontFamily: font.light }}>{this.props.navigation.state.params.address} </Text>
+                                <Icon name='md-locate' style={{ color: "red", fontSize: normalize(24) }} />
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={{ flexDirection: 'row', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}>
-
                         <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>ชื่อ</Text>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.medium }}>ชื่อ</Text>
                         </View>
 
                         <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>จำนวน</Text>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.medium }}>จำนวน</Text>
                         </View>
                         <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>ราคา</Text>
-
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.medium }}>ราคา</Text>
                         </View>
-
                     </View>
 
                     <View>
                         {
                             this.state.showDetailWork.map((l, i) => (
-                                <View style={{ flexDirection: 'row' }}>
-
-                                    <View style={{ width: Dimensions.get('window').width / 2 }}>
-                                        <Text style={{ paddingLeft: 5 }}>{i + 1}). {l.itemName}</Text>
+                                <View style={{ flexDirection: 'row', paddingTop: normalize(3), paddingBottom: i === 0 ? 0 : normalize(3) }} key={i}>
+                                    <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center' }}>
+                                        <Text style={{ paddingLeft: normalize(16), fontSize: normalize(16), fontFamily: font.medium }}>{i + 1}). {l.itemName}</Text>
                                     </View>
                                     <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text>{l.qty - l.qtyCN}</Text>
+                                        <Text style={{ fontSize: normalize(16), fontFamily: font.medium }}>{l.qty - l.qtyCN}</Text>
                                     </View>
-                                    <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', right: 5 }}>
-                                        <Text style={{ fontWeight: 'bold', color: 'orange', right: 5, alignSelf: 'flex-end' }}>{l.amountedit} ฿</Text>
+                                    <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', right: normalize(16) }}>
+                                        <Text style={{ fontFamily: font.medium, fontSize: normalize(16), color: 'orange', alignSelf: 'flex-end' }}>{l.amountedit} ฿</Text>
                                     </View>
                                 </View>
                             ))
                         }
                     </View>
-                    <View style={{ borderTopWidth: 0.5, borderTopColor: 'gray', left: 10 }}>
+
+                    <View style={{ borderTopWidth: 0.5, borderTopColor: 'gray', marginBottom: normalize(25), marginLeft: normalize(10), }}>
                         {
                             this.state.ShowMomey.map((l, i) => (
-                                <View style={{ marginTop: 20 }} >
+                                <View style={{ marginTop: normalize(25) }} key={`showMoney${i}`} >
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ width: Dimensions.get('window').width / 3 }}>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 17 }}>ราคาทั้งหมด : </Text>
+                                            <Text style={{ color: 'orange', fontFamily: font.medium, fontSize: normalize(18) }}>ราคาทั้งหมด : </Text>
                                         </View>
                                         <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={{ color: 'orange', fontWeight: 'bold', fontSize: 17 }}> {l.SUM} ฿</Text>
+                                            <Text style={{ color: 'orange', fontFamily: font.medium, fontSize: normalize(18) }}> {l.SUM} ฿</Text>
                                         </View>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ width: Dimensions.get('window').width / 3 }}>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 17,color:"red" }}>ราคาส่วนลด : </Text>
+                                            <Text style={{ fontFamily: font.medium, fontSize: normalize(18), color: 'red' }}>ราคาส่วนลด : </Text>
                                         </View>
                                         <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={{ color: 'orange', fontWeight: 'bold', fontSize: 17,color:"red" }}> {this.state.Amount_CNZ} ฿</Text>
+                                            <Text style={{ fontFamily: font.medium, fontSize: normalize(18), color: "red" }}> {this.state.Amount_CNZ} ฿</Text>
                                         </View>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ width: Dimensions.get('window').width / 3 }}>
-                                            <Text style={{ fontWeight: 'bold', fontSize: 17,color:"#229954" }}>ราคาสุทธิ : </Text>
+                                            <Text style={{ fontFamily: font.medium, fontSize: normalize(18), color: "#229954" }}>ราคาสุทธิ : </Text>
                                         </View>
                                         <View style={{ width: Dimensions.get('window').width / 3, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={{ color: 'orange', fontWeight: 'bold', fontSize: 17,color:"#229954" }}>  {this.state.SumAmount} ฿</Text>
+                                            <Text style={{ fontFamily: font.medium, fontSize: normalize(18), color: "#229954" }}>  {this.state.SumAmount} ฿</Text>
                                         </View>
-                                    </View>
-                                    <View style={{ marginTop: 5, justifyContent: 'center' }}>
-                                        <Text style={{ fontWeight: 'bold' }}>หมายเหตุ :  </Text>
                                     </View>
                                 </View>
                             ))
                         }
                     </View>
 
-                    <View style={{ left: 10, marginTop: 10 }}>
-                        {
-                            (() => {
-                                if (this.state.statusEdit == 1) {
-                                    return (
-                                        <Badge warning style={{ alignItems: 'center', justifyContent: 'center' }} >
-                                            <Text style={{ fontSize: 14, color: 'white', fontWeight: 'bold' }}>***บิลนี้มีการแก้ไข***</Text>
-                                        </Badge>
-                                    )
-                                }
-                            })()
-                        }
-                    </View>
-               
-
+                    {this.state.statusEdit == 1 && <View style={{ marginLeft: normalize(10), marginBottom: normalize(20) }}>
+                        <Badge warning style={{ alignItems: 'center', justifyContent: 'center' }} >
+                            <Text style={{ fontSize: normalize(14), color: 'white', fontFamily: font.medium }}>***บิลนี้มีการแก้ไข***</Text>
+                        </Badge>
+                    </View>}
                 </Content>
 
-                <Footer style={{ height: 200 }}>
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                    }}>
-                        <TouchableOpacity onPress={() => {
-                                   Alert.alert(
+                <Footer style={{ height: normalize(140) }} backgroundColor={'white'}>
+                    <View>
+                        <View style={{ flex: 1, flexDirection: 'row', }}>
+                            <TouchableOpacity onPress={() => {
+                                Alert.alert(
                                     "ยืนยันที่จะลบงานนี้ออก",
                                     "ลบงานเนื้องจากงานซ้ำหรือมียอดบิลไม่ตรง",
                                     [
-                                        {
-                                            text: "ไม่", onPress: () =>
-                                             console.log('NO')
-                                        },
+                                        { text: "ไม่", onPress: () => console.log('NO') },
                                         { text: "ใช่", onPress: () => this.checkfordel() }
                                     ]
                                 )
-                        }}>
-                            <View style={{
-                                width: Dimensions.get('window').width / 2,
-                                height: 100, backgroundColor: '#FFBC66', justifyContent: 'center', alignItems: 'center'
-                            }} >
-                                <Image source={require('../../../assets/icon/recyclebin.png')}
-                                    style={{ width: 70, height: 70 }} />
-                                <Text style={{ fontWeight: 'bold', marginTop: 2 }}>ลบบิลเบิ้ล</Text>
-                            </View>
-                        </TouchableOpacity>
+                            }}>
+                                <View style={{
+                                    width: Dimensions.get('window').width / 2,
+                                    height: normalize(70), backgroundColor: '#FFBC66', justifyContent: 'center', alignItems: 'center'
+                                }} >
+                                    <Image source={require('../../../assets/icon/recyclebin.png')} style={{ width: normalize(35), height: normalize(35) }} />
+                                    <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>ลบบิลเบิ้ล</Text>
+                                </View>
+                            </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigate('EditItem', { id: this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
-                            <View style={{
-                                width: Dimensions.get('window').width / 2,
-                                height: 100, backgroundColor: '#FFFD66', justifyContent: 'center', alignItems: 'center'
-                            }} >
-                                <Image source={require('../../../assets/icon/clam.png')}
-                                    style={{ width: 70, height: 70 }} />
-                                <Text style={{ fontWeight: 'bold', marginTop: 2 }}>แก้ไขรายการ</Text>
-                            </View>
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigate('EditItem', { id: this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
+                                <View style={{
+                                    width: Dimensions.get('window').width / 2,
+                                    height: normalize(70), backgroundColor: '#FFFD66', justifyContent: 'center', alignItems: 'center'
+                                }} >
+                                    <Image source={require('../../../assets/icon/clam.png')}
+                                        style={{ width: normalize(35), height: normalize(35) }} />
+                                    <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>แก้ไขรายการ</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
 
-                    </View>
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                    }}>
-                        <TouchableOpacity onPress={() =>  navigate('CNDetail',{id:this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
-                            <View style={{ width: Dimensions.get('window').width / 2, height: 100, backgroundColor: '#66FFB3', justifyContent: 'center', alignItems: 'center' }} >
-                                <Image source={require('../../../assets/icon/check.png')}
-                                    style={{ width: 70, height: 70 }} />
-                                <Text style={{ fontWeight: 'bold', marginTop: 2 }}>CN</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <View style={{ flex: 1, flexDirection: 'row', }}>
+                            <TouchableOpacity onPress={() => navigate('CNDetail', { id: this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
+                                <View style={{ width: Dimensions.get('window').width / 2, height: normalize(70), backgroundColor: '#66FFB3', justifyContent: 'center', alignItems: 'center' }} >
+                                    <Image source={require('../../../assets/icon/check.png')}
+                                        style={{ width: normalize(35), height: normalize(35) }} />
+                                    <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>CN</Text>
+                                </View>
+                            </TouchableOpacity>
 
-                        <TouchableOpacity
-                            onPress={() =>
-                                Alert.alert(
-                                    "ยืนยันการส่งงาน",
-                                    "คุณต้องการยืนยัน การส่งงาน -สำเร็จ- หรือ -ไม่สำเร็จ- ?",
-                                    [
-                                        {
-                                            text: "ไม่", onPress: () =>
-                                                ActionSheet.show(
-                                                    {
-                                                        options: this.state.BUTTONS,
-                                                        cancelButtonIndex: this.state.CANCEL_INDEX,
-                                                        title: "รายงานการส่ง"
-                                                    },
-                                                    buttonIndex => {
-                                                        this.submitwork(this.state.BUTTONS[buttonIndex].status)
-                                                    }
-                                                )
-                                        },
-                                        { text: "ใช่", onPress: () => navigate("SubmitJob", { id: this.props.navigation.state.params.id,PAYMMODE:this.props.navigation.state.params.PAYMMODE, refresion: this._RELOAD_TO_GOBACK }) }
-                                    ]
-                                )
-                            }
-                        >
-                            <View style={{ width: Dimensions.get('window').width / 2, height: 100, backgroundColor: '#FFA566', justifyContent: 'center', alignItems: 'center' }} >
-                                <Image source={require('../../../assets/icon/file.png')}
-                                    style={{ width: 70, height: 70 }} />
-                                <Text style={{ fontWeight: 'bold', marginTop: 2 }}>ส่งงาน</Text>
-                            </View>
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    Alert.alert(
+                                        "ยืนยันการส่งงาน",
+                                        "คุณต้องการยืนยัน การส่งงาน -สำเร็จ- หรือ -ไม่สำเร็จ- ?",
+                                        [
+                                            {
+                                                text: "ไม่", onPress: () =>
+                                                    ActionSheet.show({
+                                                        options: BUTTONS,
+                                                        title: "รายงานการส่ง",
+                                                        itemStyle: { fontFamily: font.regular, fontSize: normalize(16), lineHeight: normalize(20) },
+                                                        titleStyle: { fontFamily: font.semi, fontSize: normalize(18) }
+                                                    }, (buttonIndex) => ((buttonIndex || buttonIndex === 0) && buttonIndex !== 7) && this.submitwork(BUTTONS[buttonIndex].status))
+                                            },
+                                            { text: "ใช่", onPress: () => this.onConfirm() }
+                                        ]
+                                    )}>
+                                <View style={{ width: Dimensions.get('window').width / 2, height: normalize(70), backgroundColor: '#FFA566', justifyContent: 'center', alignItems: 'center' }} >
+                                    <Image source={require('../../../assets/icon/file.png')}
+                                        style={{ width: normalize(35), height: normalize(35) }} />
+                                    <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginLeft: normalize(8) }}>ส่งงาน</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </Footer>
             </Container>
@@ -609,23 +447,6 @@ class DetailWork extends Component {
 
     }
 }
-const styles = StyleSheet.create({
-    signature: {
-        flex: 1,
-        borderColor: '#000033',
-        borderWidth: 0.5,
-    },
-    buttonStyle: {
-        flex: 1, justifyContent: "center", alignItems: "center", height: 50,
-        backgroundColor: "#eeeeee",
-        margin: 50
-    },
-    horizontal: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 10
-      }
-});
 
 const GraphQL = compose(DetailWork)
 

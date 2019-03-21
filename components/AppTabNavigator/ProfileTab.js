@@ -1,159 +1,98 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView } from 'react-native'
+import { Text, StyleSheet, View } from 'react-native'
 
-import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Separator, ListItem } from 'native-base';
+import { Container, Content, Separator } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
+import { normalize } from '../../functions/normalize';
+import { Empty } from '../../comp/FlatList';
 
 class ProfileTab extends Component {
-    
+
   constructor(props) {
     super(props);
     this.state = {
       showDetailBill_A: [],
       showinvoicebill_A: []
     }
-   // this.props.client.resetStore();
+  }
+
+  componentDidMount = () => {
     this.detailsummoney();
     this.checkinvoicebill();
   }
 
   detailsummoney = () => {
-    console.log("detailsummoney")
-
     this.props.client.query({
       query: DTblacklist,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.DTblacklist)
-      this.setState({
-        showDetailBill_A: result.data.DTblacklist
-      })
+      this.setState({ showDetailBill_A: result.data.DTblacklist })
     }).catch((err) => {
       console.log(err)
     });
   }
 
   checkinvoicebill = () => {
-    console.log("queryZone")
-
     this.props.client.query({
       query: blacklist,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.blacklist)
-      this.setState({
-        showinvoicebill_A: result.data.blacklist
-      })
+      this.setState({ showinvoicebill_A: result.data.blacklist })
     }).catch((err) => {
       console.log(err)
     });
   }
 
-
-    // static navigationOptions = {
-    //     tabBarLabel: "BlackList",
-    //     tabBarIcon: ({ tintColor }) => (
-    //         <Icon name="ios-list-box" style={{ color:
-    //         tintColor }} />
-    //     )
-    // }
-    
   render() {
-    const { navigate } = this.props.navigation
     return (
-        
-        <Container>
-       <Header >
-       <Left>
-       <Button transparent
-       onPress={() => {navigate("MainMenu")}}>
-              <Icon name='arrow-back' />
-            </Button>
-          </Left>
-            <Body>
-              <Title>รายชื่อลูกค้าไม่โอนเงินตามกำหนด</Title>
-            </Body>
-            <Right />
-          </Header>
-          
-          <Content >
+      <Container>
+        <Content >
           <View>
             {
-              this.state.showinvoicebill_A.map(val => (
-                <View>
-                  <Separator bordered>
-                    <Text style={styles.storeLabel}>{" "}{val.CustomerName}</Text>
-                  </Separator>
-
-                  <View>
-                    {
-                      this.state.showDetailBill_A.map(l => {
-                        if (l.CustomerID == val.CustomerID) {
-                          return (
-                            <View style={styles.detailContent}>
-                              <View style={{ backgroundColor: 'white',paddingLeft: 0 }}>
-                                {/* <View style={{  justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderBottomColor: 'gray', borderBottomWidth: 0.5  }}> */}
-                                  <View style={{paddingLeft:5, flexDirection: 'row' }}>
-                                    <Text style={{fontSize:14}} >{l.invoiceNumber}</Text>
-                                  </View>
-                                 
-                              
-                                {/* </View> */}
-                              </View>
-                            </View>
-
-                          )
-                        }
-                      })
-                    }
+              this.state.showinvoicebill_A.length > 0 ?
+                this.state.showinvoicebill_A.map((val, i) => (
+                  <View key={`blacklist${i}`}>
+                    <Separator bordered>
+                      <Text style={styles.storeLabel}>{" "}{val.CustomerName}</Text>
+                    </Separator>
+                    <View>
+                      {
+                        this.state.showDetailBill_A.map((el, k) => {
+                          return this.renderBlackList(el, val, k)
+                        })
+                      }
+                    </View>
                   </View>
-                </View>
-
-
-              )
-              )
+                )) : <Empty title={'ไม่มีรายการลูกค้า'} />
             }
-
           </View>
-         
-         
-               
-
-            </Content>
-     
-         
-        </Container>
+        </Content>
+      </Container>
     );
   }
 
-  
+  renderBlackList(el, val, k) {
+    if (el.CustomerID == val.CustomerID) {
+      return (
+        <View style={styles.detailContent} key={`detail${k}`}>
+          <View style={{ backgroundColor: 'white', paddingLeft: 0 }}>
+            <View style={{ paddingLeft: normalize(5), flexDirection: 'row' }}>
+              <Text style={{ fontSize: normalize(16) }} >{el.invoiceNumber}</Text>
+            </View>
+          </View>
+        </View>
+      )
+    }
+  }
 }
-const GraphQL = compose(ProfileTab)
+
 export default withApollo(ProfileTab)
 
 
-const detailsummoney = gql`
-query detailsummoney($MessengerID:String!){
-  detailsummoney(MessengerID: $MessengerID){
-    invoiceNumber
-    qty
-    amount
-    itemName
-    
-  }
-}
-`
-const checkinvoicebill = gql`
-  query checkinvoicebill($MessengerID:String!){
-    checkinvoicebill(MessengerID: $MessengerID){
-      invoiceNumber
-      }
-  }
-`
 const DTblacklist = gql`
 query DTblacklist($MessengerID:String!){
   DTblacklist(MessengerID: $MessengerID){
@@ -184,10 +123,10 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   storeLabel: {
-    fontSize: 18,
+    fontSize: normalize(18),
     color: 'black'
   },
   detailContent: {
-    marginLeft:5
+    marginLeft: normalize(5)
   }
 })

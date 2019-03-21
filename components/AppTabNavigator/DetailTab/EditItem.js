@@ -3,6 +3,8 @@ import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, 
 import { gql, withApollo, compose } from 'react-apollo'
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Item, Input, Form, Textarea } from 'native-base';
 import Modal from "react-native-modal";
+import { normalize } from '../../../functions/normalize';
+import font from '../../../resource/font';
 // const update = React.addons.update;
 
 class EditItem extends Component {
@@ -13,26 +15,20 @@ class EditItem extends Component {
             text_arr: [],
             showWorkEdit: [],
             item_arr: [],
-            id:[],
+            id: [],
             inputvalue: [],
             visibleModal: null,
             reason: "",
             latitude: 1,
             longitude: 1,
             error: null,
-            testset:[],
-            cn_amount:[],
-            cn_add :0,
+            cn_amount: [],
         };
+    }
+
+    componentDidMount = () => {
         this.props.client.resetStore();
         this.subDetail();
-        this. setest();
-    }
-    setest = ()=>{
-        this.setState({
-            cn_add:0,
-            testset:"bird"
-        })
     }
 
     subDetail = () => {
@@ -42,18 +38,13 @@ class EditItem extends Component {
                 "invoiceNumber": this.props.navigation.state.params.id
             }
         }).then((result) => {
-            this.setState({
-                showWorkEdit: result.data.subDetail,
-               // testset:"bird"
-            })
+            this.setState({ showWorkEdit: result.data.subDetail })
         }).catch((err) => {
             console.log("ERR OF EDIT WORK", err)
         });
     }
 
-    editsubwork = (q_CN, it_C, reason,id) => {
-        console.log("editsubwork")
-        console.log(q_CN, it_C, reason)
+    editsubwork = (q_CN, it_C, reason, id) => {
         this.props.client.mutate({
             mutation: editsubwork_new,
             variables: {
@@ -61,13 +52,11 @@ class EditItem extends Component {
                 "qtyCN": q_CN,
                 "itemCode": it_C,
                 "ReasonCN": reason,
-                "id":id,
+                "id": id,
             }
         }).then((result) => {
-            if (result.data.editsubwork.status) {
+            if (result.data.editsubwork && result.data.editsubwork.status) {
                 this.insertedit(it_C)
-            } else {
-                console.log("no")
             }
         }).catch((err) => {
             console.log(err)
@@ -75,18 +64,11 @@ class EditItem extends Component {
     }
 
     insertedit = (it_C) => {
-        console.log("insertedit")
         this.props.client.mutate({
             mutation: insertedit,
             variables: {
                 "invoiceNumber": this.props.navigation.state.params.id,
                 "itemCode": it_C,
-            }
-        }).then((result) => {
-            if (result.data.insertedit.status) {
-                console.log("yes")
-            } else {
-                console.log("no")
             }
         }).catch((err) => {
             console.log(err)
@@ -94,8 +76,6 @@ class EditItem extends Component {
     }
 
     tracking = () => {
-        console.log("tracking")
-
         this.props.client.mutate({
             mutation: tracking,
             variables: {
@@ -105,10 +85,9 @@ class EditItem extends Component {
                 "lat": this.state.latitude,
                 "long": this.state.longitude,
             }
-        }).then((result) => {
-            console.log("Tracking ", result.data.tracking.status)
-            this.props.navigation.state.params.refresion()
+        }).then(() => {
             this.props.navigation.goBack()
+            this.props.navigation.state.params.refresion()
         }).catch((err) => {
             console.log("ERR OF TRACKING", err)
         });
@@ -117,14 +96,14 @@ class EditItem extends Component {
     _renderButton = (text, onPress) => (
         <TouchableOpacity onPress={onPress}>
             <View style={styles.button}>
-                <Text>{text}</Text>
+                <Text style={{ fontSize: normalize(18), fontFamily: font.regular }}>{text}</Text>
             </View>
         </TouchableOpacity>
     );
 
     _renderModalContent = () => (
         <View style={styles.modalContent}>
-            <Text style={{ fontSize: 16, fontWeight: '900' }}>สาเหตุที่แก้ไขรายการ</Text>
+            <Text style={{ fontSize: normalize(18), fontFamily: font.semi }}>สาเหตุที่แก้ไขรายการ</Text>
             <Form style={{ width: Dimensions.get('window').width / 1.3 }}>
                 <Textarea
                     rowSpan={5}
@@ -132,6 +111,7 @@ class EditItem extends Component {
                     placeholder="เหตุผล..."
                     maxLength={255}
                     keyboardType='default'
+                    style={{ fontFamily: font.regular, fontSize: normalize(16) }}
                     onChangeText={(text) => this.setState({ reason: text })}
                 />
             </Form>
@@ -140,135 +120,101 @@ class EditItem extends Component {
                 {this._renderButton('ตกลง', () => {
                     this.state.text_arr.map((p, i) => {
                         if (p != '') {
-                            this.editsubwork(parseInt(p), this.state.item_arr[i], this.state.reason,this.state.id[i])
+                            this.editsubwork(parseInt(p), this.state.item_arr[i], this.state.reason, this.state.id[i])
                         }
-                        console.log(i)
                         this.setState({ visibleModal: null })
                         this.tracking()
-                        // navigator.geolocation.getCurrentPosition(
-                        //     (position) => {
-                        //         console.log("wokeeey");
-                        //         console.log(position);
-                        //         this.setState({
-                        //             latitude: position.coords.latitude,
-                        //             longitude: position.coords.longitude,
-                        //             error: null,
-                        //         }, () => {
-                        //             this.tracking()
-                        //         });
-                        //     },
-                        //     (error) => this.setState({ error: error.message }),
-                        //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 },
-                        // );
                     })
                 })}
             </View>
         </View>
     );
 
+    onChangeText = (text, l, i) => {
+        if (parseInt(text) > l.qty || parseInt(text) < 0) {
+            Alert.alert(
+                "คุณใส่ค่าเกินจำนวน",
+                "กรุณาใส่ค่าใหม่อีกครั้ง",
+                [
+                    {
+                        text: 'OK', onPress: () => {
+                            let v = this.state.inputvalue.slice();
+                            v[i] = ''
+                            this.setState({ inputvalue: v })
+                        }
+                    }
+                ]
+            )
+        } else {
+            let a = this.state.text_arr.slice();
+            let b = this.state.item_arr.slice();
+            let v = this.state.inputvalue.slice();
+            let line = this.state.id.slice();
+            b[i] = l.itemCode
+            a[i] = text
+            v[i] = text
+            line[i] = l.id
+            this.setState({
+                text_arr: a,
+                item_arr: b,
+                inputvalue: v,
+                id: line
+            })
+
+        }
+    }
+
     render() {
-
-        const { navigate } = this.props.navigation
-
         return (
-
             <Container>
-                <Header style={{ backgroundColor: '#66c2ff' }}>
-                    <Left>
-                        <Button transparent
-                            onPress={() => navigate('DetailWork')}>
-                            <Icon name='arrow-back' />
-                        </Button>
-                    </Left>
-                    <Body>
-                        <Title>แก้ไขรายละเอียด</Title>
-                    </Body>
-                    <Right />
-                </Header>
-
                 <Content style={{ backgroundColor: 'white' }}>
 
-                    <View style={{ margin: 10 }}>
-                        <Text style={{ fontWeight: 'bold', color: 'black' }}>รหัสบิล : {this.props.navigation.state.params.id}</Text>
+                    <View style={{ margin: normalize(10) }}>
+                        <Text style={{ fontFamily: font.semi, color: 'black', fontSize: normalize(17) }}>รหัสบิล : {this.props.navigation.state.params.id}</Text>
                     </View>
 
+
                     <View style={{ justifyContent: 'space-around', flexDirection: 'row' }}>
-
                         <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>ชื่อ</Text>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.semi }}>ชื่อ</Text>
                         </View>
                         <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>จำนวนตามบิล</Text>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.semi }}>จำนวนตามบิล</Text>
                         </View>
                         <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text>จำนวนที่CN</Text>
+                            <Text style={{ fontSize: normalize(17), fontFamily: font.semi }}>จำนวนที่CN</Text>
                         </View>
-
                     </View>
 
                     <View>
                         {
                             this.state.showWorkEdit.map((l, i) => (
-                                <View style={{ flexDirection: 'row' }}>
-
+                                <View style={{ flexDirection: 'row', paddingTop: normalize(3), paddingBottom: i === 0 ? 0 : normalize(3) }} key={i}>
                                     <View style={{ width: Dimensions.get('window').width / 2, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{paddingLeft: 5}}>{i+1}.) {l.itemName}</Text>
+                                        <Text style={{ paddingLeft: normalize(16), fontSize: normalize(16), fontFamily: font.medium }}>{i + 1}.) {l.itemName}</Text>
                                     </View>
                                     <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text>{l.qty}</Text>
+                                        <Text style={{ fontSize: normalize(16), fontFamily: font.medium }}>{l.qty}</Text>
                                     </View>
                                     <Item style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center' }}>
                                         <Input keyboardType='numeric'
                                             placeholder={l.qtyCN.toString()}
                                             placeholderTextColor="gray"
                                             underlineColorAndroid='white'
+                                            style={{
+                                                textAlign: 'center', fontSize: normalize(16), fontFamily: font.medium,
+                                                paddingBottom: 0, marginBottom: 0, paddingTop: 0, marginTop: 0, marginRight: normalize(16),
+                                            }}
                                             value={this.state.inputvalue[i]}
-                                          //value = {this.state.testset}
-                                            onChangeText={
-                                                (text) => {
-                                                    if (parseInt(text) > l.qty || parseInt(text) < 0) {
-                                                        Alert.alert(
-                                                            "คุณใส่ค่าเกินจำนวน",
-                                                            "กรุณาใส่ค่าใหม่อีกครั้ง",
-                                                            [
-                                                                {
-                                                                    text: 'OK', onPress: () => {
-                                                                        let v = this.state.inputvalue.slice();
-                                                                        v[i] = ''
-                                                                        this.setState({ inputvalue: v })
-                                                                    }
-                                                                }
-                                                            ]
-                                                        )
-                                                    }
-                                                    else {
-                                                        let a = this.state.text_arr.slice();
-                                                        let b = this.state.item_arr.slice();
-                                                        let v = this.state.inputvalue.slice();
-                                                        let line = this.state.id.slice();
-                                                        b[i] = l.itemCode
-                                                        a[i] = text
-                                                        v[i] = text
-                                                        line[i] = l.id
-                                                        this.setState({
-                                                            text_arr: a,
-                                                            item_arr: b,
-                                                            inputvalue: v,
-                                                            id:line
-                                                        })
-
-                                                    }
-                                                }
-                                            } />
+                                            onChangeText={(text) => this.onChangeText(text, l, i)}
+                                        />
                                     </Item>
                                 </View>
                             ))
                         }
                     </View>
-             
-                
                 </Content>
-         
+
 
                 <View>
                     <Modal isVisible={this.state.visibleModal === 1}>
@@ -284,7 +230,7 @@ class EditItem extends Component {
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         <Button success
                             style={{
-                                width: 200,
+                                width: normalize(200),
                                 height: '80%',
                                 justifyContent: 'center',
                                 alignItems: 'center'
@@ -297,7 +243,7 @@ class EditItem extends Component {
                                 }
                             }}
                         >
-                            <Text style={{ color: 'white', fontWeight: 'bold' }}>ยืนยันการแก้ไข</Text>
+                            <Text style={{ color: 'white', fontFamily: font.semi, fontSize: normalize(20) }}>ยืนยันการแก้ไข</Text>
                         </Button>
                     </View>
                 </Footer>
@@ -307,37 +253,6 @@ class EditItem extends Component {
 
     }
 }
-
-// onPress={() => {
-//     if (this.state.text_arr.length == 0) {
-//         console.log("null")
-//         console.log("ARRAY_TEXT", this.state.text_arr)
-//         console.log("ARRAY_ITEM", this.state.item_arr)
-//     }
-//     else {
-//         console.log("notnull")
-
-//         console.log("ARRAY_TEXT", this.state.text_arr)
-//         console.log("ARRAY_ITEM", this.state.item_arr)
-//         this.state.text_arr.map(p => {
-//             if(p == '')
-//             {
-//                 console.log("yes '' ")
-//             }
-//         })
-//     }
-// }}
-
-// if (this.state.text_arr.length == 0) {
-//     this.setState({ promptVisible: false });
-// } else {
-//     this.state.text_arr.map((p,i) => {
-//         // if (p != '') {
-//         //     this.editsubwork(parseInt(p),this.state.item_arr[i])
-//         // }
-//         console.log(i)
-//     })
-// }
 
 const GraphQL = compose(EditItem)
 export default withApollo(GraphQL)
@@ -350,8 +265,8 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: 'lightblue',
-        padding: 12,
-        margin: 16,
+        padding: normalize(12),
+        margin: normalize(16),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 4,
@@ -359,7 +274,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: 'white',
-        padding: 22,
+        padding: normalize(22),
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 4,

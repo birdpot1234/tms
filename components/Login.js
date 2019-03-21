@@ -1,15 +1,12 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert, ImageBackground, StatusBar } from 'react-native'
-import { gql, withApollo, compose } from 'react-apollo'
-// import {gql} from 'apollo-boost'
-// import gql from 'graphql-tag'
+import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert, ImageBackground, StatusBar, NetInfo } from 'react-native'
+import { gql, withApollo, compose } from 'react-apollo';
+import IMEI from 'react-native-imei';
+import { normalize } from '../functions/normalize';
+import font from '../resource/font'
 
-import { Icon, Container, Header, Left, Body, Right, Content, Button } from 'native-base'
-
-// import MSSQL from 'react-native-mssql'; //connect to db
-
+import { Container, Button } from 'native-base'
 class Login extends Component {
-
     static navigationOptions = {
         header: null
     }
@@ -19,33 +16,43 @@ class Login extends Component {
         this.state = {
             text: '',
             mess: "",
-            status: false
+            status: false,
+            selected1: null,
+            addressIMEI: '',
+            loading: false,
+            error: false
         };
     }
 
+
+    componentDidMount() {
+        NetInfo.getConnectionInfo().then(connectionInfo => {
+            if (connectionInfo.type.toLocaleLowerCase() !== "none") {
+                this.user();
+            } else {
+                this.setState({ loading: true, error: true })
+            }
+        })
+    }
+
     confirmLogin = () => {
-        const IMEI = require('react-native-imei');
+        let { addressIMEI } = this.state
         const { navigate } = this.props.navigation
-        console.log('imeeeeeeeeeeeeeeeeeeeeeeeee')
-        console.log(IMEI.getImei())
         this.props.client.query({
             query: loginQuery,
             variables: {
-                "IMEI": IMEI.getImei(),
+                "IMEI": addressIMEI,
                 "Password": this.state.text
             }
         }).then((result) => {
-             console.log(result.data.loginQuery.status)
-             
             if (result.data.loginQuery.status) {
                 navigate("mainScreen")
-                // console.log("name Mess",this.state.mess)
             } else {
                 Alert.alert("เข้าสู่ระบบไม่สำเร็จ", "กรุณาเข้าสู่ระบบอีกครั้ง(Test)",
-                 [
-                    { text: 'ตกลง', onPress: ()  => console.log("ok") },
-                ]
-            )
+                    [
+                        { text: 'ตกลง', onPress: () => console.log("ok") },
+                    ]
+                )
             }
 
         }).catch((err) => {
@@ -54,88 +61,107 @@ class Login extends Component {
     }
 
     user = () => {
-        const IMEI = require('react-native-imei');
-
+        let imei = IMEI.getImei();
         this.props.client.query({
             query: beforeloginQuery,
             variables: {
                 "imei": IMEI.getImei()
             }
         }).then((result) => {
-            // console.log(result.data.beforeloginQuery[0].IDMess)
-            this.setState({ mess: result.data.beforeloginQuery[0].IDMess })
+            this.setState({ mess: result.data.beforeloginQuery[0].IDMess, addressIMEI: imei, loading: true })
         }).catch((err) => {
-            console.log(err)
+            this.setState({ error: false, loading: true })
         });
     }
 
-    componentWillMount() {
-        this.user();
-    }
-
     render() {
-
+        let { mess, loading, error } = this.state
         const { navigate } = this.props.navigation
-
-        // this.user();
-
         return (
-
             <Container>
-
-                <StatusBar backgroundColor="#33adff"
-                    barStyle="light-content" hidden={false} />
-
+                <StatusBar backgroundColor={"transparent"} translucent barStyle="light-content" />
                 <ImageBackground style={styles.container}
                     source={require('../assets/loader.png')}>
-                    <View style={{ marginBottom: 20 }}>
-                        <Image source={require('../assets/dplus.png')}
-                            style={{ width: 160, height: 160 }}
-                        />
-                    </View>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', fontStyle: 'italic', color: 'white' }}>
-                        {this.state.mess}
-                    </Text>
-                    <View style={{ flexDirection: 'row', marginTop: 50, justifyContent: 'center' }}>
-                        <Image source={require('../assets/icon/lock.png')}
-                            style={{ width: 32, height: 32 }}
-                        />
-                        <TextInput
+                    {mess ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ marginBottom: normalize(20) }}>
+                            <Image source={require('../assets/dplus.png')}
+                                style={{ width: normalize(160), height: normalize(160), borderRadius: 15, }}
+                            />
+                        </View>
+                        {/* <Text style={{ fontSize: 24, fontWeight: 'bold', fontStyle: 'italic', color: 'white' }}>
+                            {this.state.mess}
+                        </Text> */}
+                        <View style={[styles.containerLogin, { marginTop: normalize(30), }]}>
+                            <Image source={require('../resource/man.png')} style={{ width: normalize(30), height: normalize(30), tintColor: '#0086b3' }} resizeMode={'contain'} />
+                            <TextInput
+                                value={mess}
+                                editable={false}
+                                style={{
+                                    width: normalize(200),
+                                    padding: normalize(10),
+                                    paddingLeft: normalize(20),
+                                    backgroundColor: 'rgba(0,0,0,0)',
+                                    fontSize: normalize(18),
+                                    fontFamily: font.regular,
+                                    color: '#0086b3',
+                                }}
+                                keyboardType='default'
+                                placeholder='กรุณากรอกรหัสผ่าน'
+                                placeholderTextColor="#0086b3"
+                                underlineColorAndroid='transparent'
+                            />
+                        </View>
+
+                        {/*####################### PASSWORD #######################*/}
+                        <View style={[styles.containerLogin, { marginTop: normalize(10) }]}>
+                            <Image source={require('../assets/icon/lock.png')} style={{ width: normalize(30), height: normalize(30), tintColor: '#0086b3' }} resizeMode={'contain'} />
+                            <TextInput
+                                style={{
+                                    width: normalize(200),
+                                    padding: normalize(10),
+                                    paddingLeft: normalize(20),
+                                    backgroundColor: 'rgba(0,0,0,0)',
+                                    fontSize: normalize(18),
+                                    fontFamily: font.regular,
+                                    color: '#0086b3',
+                                }}
+                                keyboardType='default'
+                                placeholder='กรุณากรอกรหัสผ่าน'
+                                placeholderTextColor="#0086b3"
+                                secureTextEntry={true}
+                                underlineColorAndroid='transparent'
+                                onChangeText={(text) => this.setState({ text })}
+                            />
+                        </View>
+
+                        <View style={{ justifyContent: 'center', marginTop: normalize(20) }}>
+                            <Button transparent
+                                style={{ height: normalize(20) }}
+                                onPress={() => navigate('ForgetPassword')}
+                            >
+                                <Text style={{ color: 'white', fontSize: normalize(16) }}>ลืมรหัสผ่าน?</Text>
+                            </Button>
+                        </View>
+
+                        <TouchableOpacity onPress={this.confirmLogin.bind(this)}
                             style={{
-                                height: 45,
-                                width: 200,
-                                padding: 10,
-                                backgroundColor: 'rgba(0,0,0,0)'
-                            }}
-                            keyboardType='default'
-                            placeholder='กรุณากรอกรหัสผ่าน'
-                            placeholderTextColor="white"
-                            secureTextEntry={true}
-                            underlineColorAndroid='white'
-                            onChangeText={(text) => this.setState({ text })}
-                        />
-                    </View>
+                                marginTop: normalize(20), backgroundColor: 'white', paddingVertical: normalize(5),
+                                width: normalize(200), borderRadius: normalize(5),
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingHorizontal: normalize(10),
+                                borderColor: '#0086b3',
+                                borderWidth: normalize(2)
+                            }}>
+                            <Text style={{ color: '#0086b3', fontFamily: font.semi, fontSize: normalize(20) }}>เข้าสู่ระบบ</Text>
+                        </TouchableOpacity>
 
-                    <View style={{ justifyContent: 'center', marginTop: 20 }}>
-                        <Button transparent
-                            style={{ height: 20 }}
-                            onPress={() => navigate('ForgetPassword')}
-                        >
-                            <Text style={{ color: 'white' }}>ลืมรหัสผ่าน?</Text>
-                        </Button>
-                    </View>
-                    <TouchableOpacity onPress={this.confirmLogin.bind(this)}
-                        style={{ marginTop: 20 }}>
-                        <Button rounded
-                            style={{ width: 200, backgroundColor: 'white', justifyContent: 'center' }}
-                        >
-                            <Text style={{ color: '#0086b3', fontWeight: 'bold' }}>เข้าสู่ระบบ</Text>
-                        </Button>
-                    </TouchableOpacity>
+                        <Text style={{ marginTop: normalize(10), fontSize: normalize(16), color: 'white' }}>เวอร์ชั่น 1.0.0</Text>
+                    </View> : loading ?
+                            !error ?
+                                <Text style={{ fontFamily: font.regular, fontSize: normalize(18), color: 'white', textAlign: 'center' }}>โทรศัพท์ของท่านยังไม่ได้ลงทะเบียน โปรดติดต่อผู้พัฒนา</Text> :
+                                <Text style={{ fontFamily: font.regular, fontSize: normalize(18), color: 'white', textAlign: 'center' }}>โปรดเช็คสัญญาณมือถือของท่านใหม่ หรือรีสตาร์ทอุปกรณ์มือถือของท่าน</Text> :
+                            <View />}
                 </ImageBackground>
-
-
-
             </Container>
         )
     }
@@ -162,8 +188,6 @@ const loginQuery = gql`
 const GraphQL = compose(Login)
 export default withApollo(GraphQL)
 
-// const Login = graphql(beforeloginQuery)(LoginEIEI)
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -171,5 +195,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         flexDirection: 'column'
+    },
+    containerLogin: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        borderWidth: 1,
+        backgroundColor: 'white',
+        borderRadius: normalize(5),
+        borderColor: 'white',
+        alignItems: 'center',
+        paddingVertical: normalize(3),
+        paddingHorizontal: normalize(10)
     }
 })

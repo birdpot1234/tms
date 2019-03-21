@@ -15,7 +15,7 @@ import SubmitJob from './AppTabNavigator/DetailTab/SubmitJob';
 import History from './AppTabNavigator/DetailTab/History';
 import DetailCN from './AppTabNavigator/DetailTab/DetailCN';
 import AddCN from './AppTabNavigator/DetailTab/AddCN';
-import SearchView  from './AppTabNavigator/DetailTab/SearchView';
+import SearchView from './AppTabNavigator/DetailTab/SearchView';
 import AutoSearch from './AppTabNavigator/SearchTab/AutoSearch';
 import Submit_TSC from './AppTabNavigator/SubmitWork/Submit_TSC';
 import SubmitAll_TSC from './AppTabNavigator/SubmitWork/SubmitAll_TSC';
@@ -88,7 +88,7 @@ const Working = StackNavigator({
         navigationOptions: () => ({
             header: null
         }),
-    },  
+    },
     DetailWork: {
         screen: DetailWork,
         navigationOptions: () => ({
@@ -143,7 +143,7 @@ const AppTabNavigator = TabNavigator({
     },
     AddMediaTab: {
         screen: StackNavigator({
-            AddMediaTab:{
+            AddMediaTab: {
                 screen: AddMediaTab,
                 navigationOptions: () => ({
                     header: null
@@ -155,7 +155,7 @@ const AppTabNavigator = TabNavigator({
                     header: null
                 }),
             },
-             AddCN: {
+            AddCN: {
                 screen: AddCN,
                 navigationOptions: () => ({
                     header: null
@@ -185,7 +185,7 @@ const AppTabNavigator = TabNavigator({
                     header: null
                 }),
             },
-         
+
             navigationOptions: () => ({
                 tabBarLabel: "งานพิเศษ",
                 tabBarIcon: ({ tintColor }) => (
@@ -195,13 +195,13 @@ const AppTabNavigator = TabNavigator({
                     }} />
                 )
             }),
-        
-      
+
+
         }),
     },
     LikesTab: {
         screen: StackNavigator({
-            Like:{
+            Like: {
                 screen: LikesTab,
                 navigationOptions: () => ({
                     header: null
@@ -213,8 +213,8 @@ const AppTabNavigator = TabNavigator({
                     header: null
                 }),
             },
-        
-      
+
+
         }),
         navigationOptions: () => ({
             tabBarLabel: "ประวัติ",
@@ -229,16 +229,16 @@ const AppTabNavigator = TabNavigator({
     },
     ProfileTab: {
         screen: StackNavigator({
-            ProfileTab:{
+            ProfileTab: {
                 screen: ProfileTab,
                 navigationOptions: () => ({
                     header: null
                 }),
             }
-        
-      
+
+
         }),
-           navigationOptions: () => ({
+        navigationOptions: () => ({
             tabBarLabel: "BlackList",
             tabBarIcon: ({ tintColor }) => (
                 <Icon name="paper" style={{
@@ -248,7 +248,7 @@ const AppTabNavigator = TabNavigator({
             )
         }),
         path: 'profile'
-      
+
     }
 }, {
         animationEnabled: true,

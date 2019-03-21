@@ -1,4 +1,4 @@
-package com.transportdplusproject;
+package com.transportdplusproject.DL;
 
 import com.facebook.react.ReactActivity;
 

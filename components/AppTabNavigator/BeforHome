@@ -1,0 +1,115 @@
+
+
+    /*####################### ?????????????? #######################*/
+    // roundout = () => {
+    //     const { navigate } = this.props.navigation
+    //     this.props.client.mutate({
+    //         mutation: roundout,
+    //         variables: {
+    //             "MessengerID": global.NameOfMess
+    //         }
+    //     }).then((result) => {
+    //         navigate('Search')
+    //     }).catch((err) => {
+    //         console.log("error", err)
+    //     });
+    // }
+
+    // checkinvoice = () => {
+    //     const { navigate } = this.props.navigation
+    //     this.props.client.query({
+    //         query: checkinvoice,
+    //         variables: {
+    //             "MessengerID": global.NameOfMess
+    //         }
+    //     }).then((result) => {
+    //         this.setState({ showINVOICE_ID: result.data.checkinvoice })
+    //         if (this.state.showINVOICE_ID.length > 0) {
+    //             //  this.billTOapp();
+    //         } else {
+    //             this.roundout();
+    //         }
+    //     }).catch((err) => {
+    //         console.log("err of checkinvoice", err)
+    //     });
+    // }
+
+    // billTOapp = () => {
+    //     const { navigate } = this.props.navigation
+    //     console.log("billTOapp")
+    //     this.props.client.mutate({
+    //         mutation: billTOapp,
+    //         variables: {
+    //             "MessengerID": global.NameOfMess
+    //         }
+    //     }).then((result) => {
+    //         // this.state.showINVOICE_ID.map(l => {
+    //         //     this.detailtoapp(l.INVOICEID);
+    //         // });
+    //         this.detailtoapp_v2()
+    //         Alert.alert(
+    //             "คุณมีรายการอื่นที่ยังไม่ได้ตรวจ",
+    //             "ต้องการกลับไปตรวจหรือออกรอบเลย",
+    //             [
+    //                 { text: "ยกเลิก", onPress: () => this._Re_worklist_query() },
+    //                 { text: "ยืนยัน", onPress: () => this.roundout() }
+    //             ]
+    //         )
+
+    //     }).catch((err) => {
+    //         console.log("error of billTOapp", err)
+    //     });
+    // }
+    // detailtoapp_v2 = () => {
+
+    //     this.props.client.mutate({
+    //         mutation: billTOappDetail_new,
+    //         variables: {
+    //             "MessengerID": global.NameOfMess
+    //         }
+    //     }).then((result) => {
+    //         this.state.showINVOICE_ID.map(l => {
+    //             //this.detailtoapp(l.INVOICEID);
+    //             this.tracking2(l.INVOICEID, "4", global.NameOfMess, this.state.latitude, this.state.longitude);
+    //         });
+
+    //         console.log("success")
+    //     }).catch((err) => {
+    //         console.log("error", err)
+    //     });
+    // }
+
+
+    // detailtoapp = (id) => {
+    //     console.log("detailtoapp")
+
+    //     this.props.client.mutate({
+    //         mutation: detailtoapp,
+    //         variables: {
+    //             "INVOICEID": id
+    //         }
+    //     }).then((result) => {
+    //         this.tracking2(id, "4", global.NameOfMess, this.state.latitude, this.state.longitude);
+    //     }).catch((err) => {
+    //         console.log("error", err)
+    //     });
+    // }
+
+    // tracking2 = (invoice, status, messID, lat, long) => {
+    //     console.log("tracking")
+
+    //     this.props.client.mutate({
+    //         mutation: tracking,
+    //         variables: {
+    //             "invoice": invoice,
+    //             "status": status,
+    //             "messengerID": messID,
+    //             "lat": lat,
+    //             "long": long,
+    //         }
+    //     }).then((result) => {
+    //         console.log("Tracking ", result.data.tracking.status)
+    //     }).catch((err) => {
+    //         console.log(err)
+    //     });
+    // }

@@ -1,26 +1,15 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert} from 'react-native'
+import { Text, StyleSheet, View, Image, Alert, TouchableOpacity } from 'react-native'
 
-import { Icon, Container, Header, Left, Body, Right, Content, Button, Form, Item, Label, Input } from 'native-base'
+import { Container, Button, Form, Item, Label, Input } from 'native-base'
+import { normalize } from '../functions/normalize';
+import font from '../resource/font';
 
 console.disableYellowBox = true;
 
 class ForgetPassword extends Component {
-
-    static navigationOptions = {
-        headerTitle: () => (
-            <View>
-                <Text style={{ fontSize: 16, color: "black", color: 'white' }}>Forget Password</Text>
-            </View>
-        ),
-        // headerTintColor: "blue", //สีลูกศร
-        headerStyle: {
-            backgroundColor:"#66c2ff"
-        }
-    }
-
-    eiei = () =>{
-        Alert.alert("Test Change Password","Ok")
+    eiei = () => {
+        Alert.alert("Test Change Password", "Ok")
         // console.log("test")
     }
 
@@ -29,66 +18,58 @@ class ForgetPassword extends Component {
         return (
 
             <Container style={{ backgroundColor: 'white' }}>
-                
-                <Form style={{ paddingHorizontal: 10 }}>
+
+                <Form style={{ paddingHorizontal: normalize(10) }}>
                     <View style={{ flexDirection: 'row', }}>
-                        <Image source={require('../assets/icon/phone-call.png')} 
-                        style={{ width: 20, height: 20, marginTop: 40 }}/>
-                        <Item floatingLabel style={{ flex:1 }}>
-                            <Label>Phone Number</Label>
-                            <Input keyboardType= 'numeric' />
+                        <Image source={require('../assets/icon/phone-call.png')} style={{ width: normalize(20), height: normalize(20), marginTop: normalize(40) }} />
+                        <Item floatingLabel style={{ flex: 1 }}>
+                            <Label style={{ fontSize: normalize(18) }}>Phone Number</Label>
+                            <Input keyboardType='numeric' style={{ fontSize: normalize(18) }} />
                         </Item>
                     </View>
                     <View style={{ flexDirection: 'row', }}>
-                        <Image source={require('../assets/icon/id.png')} 
-                        style={{ width: 20, height: 20, marginTop: 40 }}/>
-                        <Item floatingLabel style={{ flex:1 }}>
-                            <Label>Emplyee ID</Label>
-                            <Input />
+                        <Image source={require('../assets/icon/id.png')} style={{ width: normalize(20), height: normalize(20), marginTop: normalize(40) }} />
+                        <Item floatingLabel style={{ flex: 1 }}>
+                            <Label style={{ fontSize: normalize(18) }}>Emplyee ID</Label>
+                            <Input style={{ fontSize: normalize(18) }} />
                         </Item>
                     </View>
                     <View style={{ flexDirection: 'row', }}>
-                        <Image source={require('../assets/icon/key.png')} 
-                        style={{ width: 20, height: 20, marginTop: 40 }}/>
-                        <Item floatingLabel style={{ flex:1 }}>
-                            <Label>New Password</Label>
-                            <Input secureTextEntry={true} />
+                        <Image source={require('../assets/icon/key.png')} style={{ width: normalize(20), height: normalize(20), marginTop: normalize(40) }} />
+                        <Item floatingLabel style={{ flex: 1 }}>
+                            <Label style={{ fontSize: normalize(18) }}>New Password</Label>
+                            <Input secureTextEntry={true} style={{ fontSize: normalize(18) }} />
                         </Item>
                     </View>
                     <View style={{ flexDirection: 'row', }}>
-                        <Image source={require('../assets/icon/key.png')} 
-                        style={{ width: 20, height: 20, marginTop: 40 }}/>
-                        <Item floatingLabel style={{ flex:1 }}>
-                            <Label>Retype New Password</Label>
-                            <Input secureTextEntry={true} />
+                        <Image source={require('../assets/icon/key.png')} style={{ width: normalize(20), height: normalize(20), marginTop: normalize(40) }} />
+                        <Item floatingLabel style={{ flex: 1 }}>
+                            <Label style={{ fontSize: normalize(18) }}>Retype New Password</Label>
+                            <Input secureTextEntry={true} style={{ fontSize: normalize(18) }} />
                         </Item>
                     </View>
                 </Form>
 
-                <View style={{ margin: 20}} />
+                <TouchableOpacity
+                    style={{
+                        marginTop: normalize(20), backgroundColor: '#0086b3', paddingVertical: normalize(5),
+                        width: normalize(200), borderRadius: normalize(5),
+                        justifyContent: 'center', alignItems: 'center',
+                        paddingHorizontal: normalize(10),
+                        borderColor: '#0086b3',
+                        borderWidth: normalize(2),
+                        alignSelf: 'center'
+                    }}
 
-                <View style={{ margin: 10 }}>
-                    <Button full
-                    style={{ backgroundColor: '#66c2ff' }} 
                     onPress={this.eiei.bind(this)}>
-                        <Text style={{ color: 'white', fontWeight: 'bold'}}>Change Password</Text>
-                    </Button>
-                </View>
-                
+                    <Text style={{ color: 'white', fontFamily: font.semi, fontSize: normalize(18) }}>บันทึกรหัสผ่าน</Text>
+                </TouchableOpacity>
             </Container>
 
         )
-    } 
+    }
 }
 
 export default ForgetPassword
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#66c2ff',
-        flexDirection: 'column'
-      }
-})
+

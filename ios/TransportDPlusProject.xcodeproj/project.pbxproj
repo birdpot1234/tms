@@ -53,6 +53,15 @@
 		0F2031A55FF94128A7C5CC39 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55C8428449694FF3A503C871 /* SimpleLineIcons.ttf */; };
 		2D52DA8AE6E44B81A21442F4 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DCCFEF6DF7014460B1B98CA2 /* Zocial.ttf */; };
 		A0BEA46BD8924EB69A9410F6 /* libRSSignatureCapture.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A97954C11F5244EAA8A3B328 /* libRSSignatureCapture.a */; };
+		0A884E5AE4A54E4A8461A403 /* Athiti-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4456E7BA80DE4578AC3162F7 /* Athiti-Bold.ttf */; };
+		D05783374F5641EDA438B3CE /* Athiti-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4E1E792B4E9241869B9748F1 /* Athiti-ExtraLight.ttf */; };
+		6FE26689C2124B36B3594238 /* Athiti-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8E3E0B0BC904618AAB60CD5 /* Athiti-Light.ttf */; };
+		BA79CBC7091E49ACB1A7A8B5 /* Athiti-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 26C8927777DC4C2489097EF3 /* Athiti-Medium.ttf */; };
+		4108421D16444698B0FA461E /* Athiti-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 318A61DF73E94BA2A726E7D2 /* Athiti-Regular.ttf */; };
+		0F959283F7F04071AD681B70 /* Athiti-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ADBEBD69A4B0435E939BE0FE /* Athiti-SemiBold.ttf */; };
+		60EA45E4C76047EEAEB013BF /* THSarabunNew Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5FCC03844EF44428AAED89B1 /* THSarabunNew Bold.ttf */; };
+		537D3D4759BE498EB3630C0C /* THSarabunNew.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1576292991A547CD8F10297B /* THSarabunNew.ttf */; };
+		6F97EC02CC5D42659AA3B392 /* THSarabunNewBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 24EE8AF0733041D6840C12F9 /* THSarabunNewBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -386,6 +395,15 @@
 		DCCFEF6DF7014460B1B98CA2 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/native-base/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		00EE3524E5EC43DE80C8C022 /* RSSignatureCapture.xcodeproj */ = {isa = PBXFileReference; name = "RSSignatureCapture.xcodeproj"; path = "../node_modules/react-native-signature-capture/ios/RSSignatureCapture.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A97954C11F5244EAA8A3B328 /* libRSSignatureCapture.a */ = {isa = PBXFileReference; name = "libRSSignatureCapture.a"; path = "libRSSignatureCapture.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		4456E7BA80DE4578AC3162F7 /* Athiti-Bold.ttf */ = {isa = PBXFileReference; name = "Athiti-Bold.ttf"; path = "../assets/fonts/Athiti-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4E1E792B4E9241869B9748F1 /* Athiti-ExtraLight.ttf */ = {isa = PBXFileReference; name = "Athiti-ExtraLight.ttf"; path = "../assets/fonts/Athiti-ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D8E3E0B0BC904618AAB60CD5 /* Athiti-Light.ttf */ = {isa = PBXFileReference; name = "Athiti-Light.ttf"; path = "../assets/fonts/Athiti-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		26C8927777DC4C2489097EF3 /* Athiti-Medium.ttf */ = {isa = PBXFileReference; name = "Athiti-Medium.ttf"; path = "../assets/fonts/Athiti-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		318A61DF73E94BA2A726E7D2 /* Athiti-Regular.ttf */ = {isa = PBXFileReference; name = "Athiti-Regular.ttf"; path = "../assets/fonts/Athiti-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		ADBEBD69A4B0435E939BE0FE /* Athiti-SemiBold.ttf */ = {isa = PBXFileReference; name = "Athiti-SemiBold.ttf"; path = "../assets/fonts/Athiti-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5FCC03844EF44428AAED89B1 /* THSarabunNew Bold.ttf */ = {isa = PBXFileReference; name = "THSarabunNew Bold.ttf"; path = "../assets/fonts/THSarabunNew Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		1576292991A547CD8F10297B /* THSarabunNew.ttf */ = {isa = PBXFileReference; name = "THSarabunNew.ttf"; path = "../assets/fonts/THSarabunNew.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		24EE8AF0733041D6840C12F9 /* THSarabunNewBold.ttf */ = {isa = PBXFileReference; name = "THSarabunNewBold.ttf"; path = "../assets/fonts/THSarabunNewBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -679,6 +697,15 @@
 				333A9501F6C648BEA162793F /* Octicons.ttf */,
 				55C8428449694FF3A503C871 /* SimpleLineIcons.ttf */,
 				DCCFEF6DF7014460B1B98CA2 /* Zocial.ttf */,
+				4456E7BA80DE4578AC3162F7 /* Athiti-Bold.ttf */,
+				4E1E792B4E9241869B9748F1 /* Athiti-ExtraLight.ttf */,
+				D8E3E0B0BC904618AAB60CD5 /* Athiti-Light.ttf */,
+				26C8927777DC4C2489097EF3 /* Athiti-Medium.ttf */,
+				318A61DF73E94BA2A726E7D2 /* Athiti-Regular.ttf */,
+				ADBEBD69A4B0435E939BE0FE /* Athiti-SemiBold.ttf */,
+				5FCC03844EF44428AAED89B1 /* THSarabunNew Bold.ttf */,
+				1576292991A547CD8F10297B /* THSarabunNew.ttf */,
+				24EE8AF0733041D6840C12F9 /* THSarabunNewBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1154,6 +1181,15 @@
 				A7C5D8CFEBA945FFA903D3E6 /* Octicons.ttf in Resources */,
 				0F2031A55FF94128A7C5CC39 /* SimpleLineIcons.ttf in Resources */,
 				2D52DA8AE6E44B81A21442F4 /* Zocial.ttf in Resources */,
+				0A884E5AE4A54E4A8461A403 /* Athiti-Bold.ttf in Resources */,
+				D05783374F5641EDA438B3CE /* Athiti-ExtraLight.ttf in Resources */,
+				6FE26689C2124B36B3594238 /* Athiti-Light.ttf in Resources */,
+				BA79CBC7091E49ACB1A7A8B5 /* Athiti-Medium.ttf in Resources */,
+				4108421D16444698B0FA461E /* Athiti-Regular.ttf in Resources */,
+				0F959283F7F04071AD681B70 /* Athiti-SemiBold.ttf in Resources */,
+				60EA45E4C76047EEAEB013BF /* THSarabunNew Bold.ttf in Resources */,
+				537D3D4759BE498EB3630C0C /* THSarabunNew.ttf in Resources */,
+				6F97EC02CC5D42659AA3B392 /* THSarabunNewBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

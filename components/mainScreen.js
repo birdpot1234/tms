@@ -28,8 +28,54 @@ import Submit_TSC from './AppTabNavigator/SubmitWork/Submit_TSC';
 import SubmitAll_TSC from './AppTabNavigator/SubmitWork/SubmitAll_TSC';
 import RecieveWork from './AppTabNavigator/SpecialWork/RecieveWork'
 import CNDetail from './AppTabNavigator/CN_DL/CNDetail'
-import { StackNavigator, TabNavigator } from "react-navigation";
+import { createStackNavigator, createBottomTabNavigator } from "react-navigation";
 import customButton from './AppTabNavigator/testComponent/customButton'
+import { normalize, width } from '../functions/normalize';
+import font from '../resource/font';
+
+import { HeaderTitle, HeaderBack } from '../comp/Header'
+
+export const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? normalize(30) : StatusBar.currentHeight;
+export function paddingStatus() {
+    return Platform.OS === 'ios' ? { height: (height > 812 || width > 812) ? normalize(60) : normalize(50) } :
+        Platform.Version >= 20 ?
+            { height: StatusBar.currentHeight + normalize(55), borderTopColor: "#66c2ff", borderTopWidth: normalize(20) } : null
+}
+
+export const navigationOptions = {
+    headerStyle: {
+        backgroundColor: "#66c2ff",
+        shadowColor: 'transparent',
+        shadowRadius: 0,
+        shadowOffset: {
+            height: 0,
+        },
+        borderColor: 'transparent',
+        borderWidth: 0,
+        elevation: 0,
+        paddingVertical: normalize(8),
+        ...paddingStatus()
+    },
+    headerTitleStyle: {
+        alignItems: 'center',
+        textAlign: 'center',
+        alignSelf: 'center',
+        fontFamily: font.medium,
+        width
+    },
+    headerTextStyle: {
+        textAlign: 'center',
+        flexGrow: 1
+    },
+    drawerLockMode: 'locked-open',
+    gesturesEnabled: false,
+    headerMode: 'screen',
+    mode: Platform.OS === 'ios' ? 'modal' : 'card',
+    cardStack: {
+        gesturesEnabled: false
+    },
+    // drawerLockMode: 'locked-closed'
+}
 
 
 class mainScreen extends Component {
@@ -41,112 +87,137 @@ class mainScreen extends Component {
     render() {
 
         return (
-            <Container>
-                {/* <StatusBar backgroundColor="#33adff"
-                    barStyle="light-content" hidden={false} /> */}
-                <AppStackNavigator />
-            </Container>
+            <AppStackNavigator />
         );
     }
 }
 
 export default mainScreen;
 
-const AppStackNavigator = StackNavigator({
+const AppStackNavigator = createStackNavigator({
     MainMenu: {
-        screen: MainMenu
-        
+        screen: MainMenu,
+        navigationOptions: {
+            headerRight: <View />,
+            headerTitle: <View style={{ flex: 1 }}>
+                <Image source={require('../assets/dplus.png')} resizeMode={'contain'} style={{ borderRadius: 15, width: normalize(40), height: normalize(40), alignSelf: 'center' }} />
+            </View>,
+            headerLeft: <View />,
+            ...navigationOptions
+        }
     },
-    // *** routeแยกหน้า
-    // TabPage: { 
-    //     screen: ({navigation}) => <TabPage screenProps={{ rootNavigation: navigation }} />,
-    //     navigationOptions: () => ({
-    //         header: null
-    //       }),
-    // },
-    
+
     TabPageLink: {
-     
-        screen: TabNavigator({
+        screen: createBottomTabNavigator({
             HomeTab: {
-                screen: StackNavigator({
+                screen: createStackNavigator({
                     Home: {
                         screen: HomeTab,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ตรวจงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     CheckWork: {
                         screen: CheckWork,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียด'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     RecieveWork: {
                         screen: RecieveWork,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียดงานพิเศษ'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     }
                 }),
                 navigationOptions: () => ({
                     tabBarLabel: "ตรวจ",
                     tabBarIcon: ({ tintColor }) => (
-                        <Icon name="ios-create" style={{
-                            color:
-                                tintColor
-                        }} />
+                        <Icon name="ios-create" style={{ color: tintColor, fontSize: normalize(30) }} />
                     )
                 })
             },
             SearchTab: {
-                screen: StackNavigator({
+                screen: createStackNavigator({
                     Search: {
                         screen: SearchTab,
                         navigationOptions: () => ({
-                            header: null,
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ส่งงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     SubmitALLJob: {
                         screen: SubmitALLJob,
                         navigationOptions: () => ({
-                            header: null,
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ยืนยันการส่งงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     DetailWork: {
                         screen: DetailWork,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียดบิล'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     EditItem: {
                         screen: EditItem,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'แก้ไขรายละเอียด'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     CNDetail: {
                         screen: CNDetail,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ทำรายการส่วนลด'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     SubmitJob: {
                         screen: SubmitJob,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ยืนยันการส่งงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     SumBill: {
                         screen: SumBill,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'สรุปยอดเงิน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     DetailBill: {
                         screen: DetailBill,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียดยอดเงิน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     customButton: {
@@ -159,33 +230,39 @@ const AppStackNavigator = StackNavigator({
                 navigationOptions: () => ({
                     tabBarLabel: "ส่งงาน",
                     tabBarIcon: ({ tintColor }) => (
-                        <Icon name="md-car" style={{
-                            color:
-                                tintColor
-                        }} />
+                        <Icon name="md-car" style={{ color: tintColor, fontSize: normalize(30) }} />
                     )
                 }),
                 path: 'search'
             },
             AddMediaTab: {
-                
-                screen: StackNavigator({
-                    AddMediaTab:{
+
+                screen: createStackNavigator({
+                    AddMediaTab: {
                         screen: AddMediaTab,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'งานพิเศษ'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     DetailCN: {
                         screen: DetailCN,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียดงานพิเศษ'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     AddCN: {
                         screen: AddCN,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'สร้างงาน CN'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     SearchView: {
@@ -197,7 +274,10 @@ const AppStackNavigator = StackNavigator({
                     AutoSearch: {
                         screen: AutoSearch,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ค้นหาชุดเอกสาร'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     ProfileTab: {
@@ -209,24 +289,26 @@ const AppStackNavigator = StackNavigator({
                     Submit_TSC: {
                         screen: Submit_TSC,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ยืนยันการส่งงานพิเศษ'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     SubmitAll_TSC: {
                         screen: SubmitAll_TSC,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ยืนยันการส่งงานพิเศษ'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
-               
-        
-                
-              
                 }),
                 navigationOptions: () => ({
                     tabBarLabel: "งานพิเศษ",
                     tabBarIcon: ({ tintColor }) => (
-                        <Icon name ="shuffle"  style={{
+                        <Icon name="shuffle" style={{
                             color:
                                 tintColor
                         }} />
@@ -234,21 +316,25 @@ const AppStackNavigator = StackNavigator({
                 }),
             },
             LikesTab: {
-                screen: StackNavigator({
-                    Like:{
+                screen: createStackNavigator({
+                    Like: {
                         screen: LikesTab,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'ประวัติการส่งงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
                     History: {
                         screen: History,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายละเอียดการส่งงาน'} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
                     },
-                
-              
                 }),
                 navigationOptions: () => ({
                     tabBarLabel: "ประวัติ",
@@ -262,26 +348,31 @@ const AppStackNavigator = StackNavigator({
                 path: 'like'
             },
             ProfileTab: {
-                screen: StackNavigator({
-                    ProfileTab:{
+                screen: createStackNavigator({
+                    ProfileTab: {
                         screen: ProfileTab,
                         navigationOptions: () => ({
-                            header: null
+                            ...navigationOptions,
+                            headerTitle: <HeaderTitle title={'รายชื่อลูกค้าไม่โอนเงินตามกำหนด'} titleStyle={{ fontSize: normalize(18) }} />,
+                            headerLeft: <HeaderBack />,
+                            headerRight: <View />
                         }),
-                    }}),
-                    navigationOptions: () => ({
-                        tabBarLabel: "Blacklist",
-                        tabBarIcon: ({ tintColor }) => (
-                            <Icon name ="paper"  style={{
-                                color:
-                                    tintColor
-                            }} />
-                        )
-                    }),
+                    }
+                }),
+                navigationOptions: () => ({
+                    tabBarLabel: "Blacklist",
+                    tabBarIcon: ({ tintColor }) => (
+                        <Icon name="paper" style={{
+                            color:
+                                tintColor
+                        }} />
+                    )
+                }),
             }
         }, {
                 animationEnabled: false,
                 swipeEnabled: false,
+                lazy: true,
                 tabBarPosition: "bottom",
                 tabBarOptions: {
                     style: {
@@ -289,8 +380,14 @@ const AppStackNavigator = StackNavigator({
                             android: {
                                 backgroundColor: 'white'
                             }
-                        })
-                    }, indicatorStyle: {
+                        }),
+                        margin: 0,
+                        height: normalize(60)
+                    },
+                    labelStyle: {
+                        fontSize: normalize(14),
+                    },
+                    indicatorStyle: {
                         backgroundColor: '#00BFFF'
                     },
                     activeTintColor: '#000',
@@ -298,10 +395,10 @@ const AppStackNavigator = StackNavigator({
                     showLabel: true,
                     showIcon: true,
                 },
+                backBehavior: 'none'
             }),
         navigationOptions: () => ({
             header: null,
-            // statusBarBackgroundColor: '#33adff'
         })
     }
 },
@@ -309,22 +406,3 @@ const AppStackNavigator = StackNavigator({
         initialRouteName: 'MainMenu',
         // statusBarBackgroundColor: '#33adff'
     });
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerWrapper: {
-        flex: 1,
-        alignItems: "center"
-    },
-    headerText: {
-        textAlign: 'center',
-        alignSelf: 'center',
-        fontSize: 20,
-        color: 'black'
-    }
-});

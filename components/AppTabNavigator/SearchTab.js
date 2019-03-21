@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Dimensions, RefreshControl, CheckBox, Alert, TouchableOpacity } from 'react-native'
-import { Icon, Container, Header, Left, Body, Title, Right, Tab, Tabs, TabHeading, Button, Subtitle, ListItem, Content, Badge, Accordion, Footer, ActionSheet } from 'native-base';
+import { Text, StyleSheet, View, Dimensions, RefreshControl, CheckBox, Alert, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native'
+import { Icon, Container, Tab, Tabs, TabHeading, ListItem, Content, Badge, Accordion, Footer, ActionSheet } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
-import Swipeout from 'react-native-swipeout'
-import NumberFormat from 'react-number-format'
-// var BUTTONS = [
-//   { text: "ลูกค้ากดผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B1" },
-//   { text: "ร้านปิด", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B2" },
-//   { text: "Order ซ้ำ", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B3" },
-//   { text: "สินค้าผิด", icon: "md-arrow-dropright", iconColor: "#fa213b", status: "B4" },
-//   { text: "เซลล์ key ผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B5" },
-//   { text: "ลูกค้าสั่งร้านอื่นมาแล้ว", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B6" },
-//   { text: "เซลล์บอกราคาลูกค้าผิด", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B7" },
-//   { text: "Cancel", icon: "close", iconColor: "#25de5b" }
-// ];
-var CANCEL_INDEX = 9;
+import { normalize } from '../../functions/normalize';
+import { Empty, RenderWork } from '../../comp/FlatList'
+import font from '../../resource/font';
+import { StatusWork, Paymode } from '../../comp/Badge';
+var BUTTONS = [
+  { text: "ลูกค้ากดผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B1" },
+  { text: "ร้านปิด", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B2" },
+  { text: "Order ซ้ำ", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B3" },
+  { text: "สินค้าผิด", icon: "md-arrow-dropright", iconColor: "#fa213b", status: "B4" },
+  { text: "เซลล์ key ผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B5" },
+  { text: "ลูกค้าสั่งร้านอื่นมาแล้ว", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B6" },
+  { text: "เซลล์บอกราคาลูกค้าผิด", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B7" },
+  { text: "Cancel", icon: "close", iconColor: "#25de5b", status: "" }
+];
 
 class SearchTab extends Component {
 
@@ -27,93 +28,70 @@ class SearchTab extends Component {
       refreshing_2: false,
       CF_ALL_INVOICE: [],
       stack_IVOICE: [],
-      stack_tran:[],
+      stack_tran: [],
       status_CHECKBOX: false,
-      activeRowKey:null,
-      indexRow:null,
-      status_checkBillRework:null,
       showWork_CN: [],
-      BUTTONS:[],
-      CANCEL_INDEX:null,
-      
-
+      loading: false
     }
-    //this.props.client.resetStore();
-    //this.logss();
+  }
+
+  componentDidMount = () => {
     this.queryZONE();
-    this.worksub();
+    this.worksub(); // 
     this.sucesswork();
     this.worksub_CN();
-    this.reason();
-    //this._RELOAD_MAIN2();
- //   this.logss();
   }
-  
 
   _RELOAD_MAIN2 = () => {
     this.props.client.resetStore();
     this.setState({ refreshing_2: true });
     this.queryZONE();
     this.worksub();
-    this.worksub_CN();
     this.sucesswork();
-    this.setState({ CF_ALL_INVOICE: [], stack_IVOICE: [],stack_tran:[] })
-    this.setState({ refreshing_2: false });
+    this.worksub_CN();
   }
 
   checkDATA = (e) => {
     return (e == null) || (e == false)
   }
 
-  reason = () => {
-    console.log('worksub')
 
+  queryZONE = () => {
     this.props.client.query({
-      query: reasonfail,
+      query: queryZONE,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log("workSub.................")
-      console.log(result.data.reasonfail.length)
-      this.setState({
-        BUTTONS: result.data.reasonfail,
-       // CANCEL_INDEX:result.data.reasonfail.length-1
-      })
-      console.log(this.state.BUTTONS)
+      this.setState({ showZone: result.data.queryZONE })
     }).catch((err) => {
       console.log(err)
     });
   }
-  worksub = () => {
-    console.log('worksub')
 
+  worksub = () => {
     this.props.client.query({
       query: worksub_DL,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log("workSub.................")
-      console.log(result.data.worksub_DL)
       this.setState({
-        showWork: result.data.worksub_DL
+        showWork: result.data.worksub_DL,
+        loading: true,
       })
     }).catch((err) => {
-      console.log(err)
+      console.log('worksub', err)
     });
   }
-  worksub_CN = () => {
-    console.log('worksub_CN')
 
+  worksub_CN = () => {
     this.props.client.query({
       query: tsc_worklist,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log("worksub_CN.................")
-      console.log(result.data.worksub_CN)
       this.setState({
         showWork_CN: result.data.tsc_worklist
       })
@@ -121,37 +99,36 @@ class SearchTab extends Component {
       console.log(err)
     });
   }
-  checkBillRework = (inb) => {
 
-console.log(inb)
+  sucesswork = () => {
+    this.props.client.query({
+      query: sucessworkV2,
+      variables: {
+        "MessengerID": global.NameOfMess
+      }
+    }).then((result) => {
+      this.setState({ show_SUC: result.data.sucessworkV2, refreshing_2: false, CF_ALL_INVOICE: [], stack_IVOICE: [], stack_tran: [], loading: true, })
+    }).catch((err) => {
+      console.log(err)
+    });
+  }
+
+  checkBillRework = (inb) => {
     this.props.client.query({
       query: checkBillRework,
       variables: {
         "invoiceNumber": inb
       }
     }).then((result) => {
-      console.log(result.data.checkBillRework.status)
-      this.setState({
-        status_checkBillRework: result.data.checkBillRework.status
-      })
-      if(!result.data.checkBillRework.status)
-      {
-        Alert.alert(
-          'ไม่สามารถถอยบิลนี้ได้ ',
-          'บิล :'+inb+' ได้ถูกสรุปยอดไปแล้ว'
-         
-        )
-      }
-      else{
+      if (!result.data.checkBillRework.status) {
+        Alert.alert('ไม่สามารถถอยบิลนี้ได้ ', 'บิล :' + inb + ' ได้ถูกสรุปยอดไปแล้ว')
+      } else {
         Alert.alert(
           "คุณต้องการถอยบิล",
-          'คุณต้องการถอยบิล:'+inb+'' ,
+          'คุณต้องการถอยบิล:' + inb + '',
           [
-            {
-              text: "ไม่", 
-               
-            },
-            { text: "ถอย", onPress: () =>this.AlertBillRework(inb)}
+            { text: "ไม่", },
+            { text: "ถอย", onPress: () => this.AlertBillRework(inb) }
           ]
         )
       }
@@ -159,703 +136,247 @@ console.log(inb)
       console.log(err)
     });
   }
+
   AlertBillRework = (inb) => {
     this.del_blacklist(inb)
     this.props.client.mutate({
       mutation: Rework,
       variables: {
-       
         "invoiceNumber": inb
-      
       }
-    }).then((result) => {
+    }).then(() => {
       this._RELOAD_MAIN2()
     }).catch((err) => {
-      console.log("err of submitwork", err)
+      console.log("err of AlertBillRework", err)
     });
-
-
   }
+
   del_blacklist = (inb) => {
-    
     this.props.client.mutate({
       mutation: del_Blacklist,
       variables: {
-       
         "invoice": inb,
         "messengerID": global.NameOfMess
       }
-    }).then((result) => {
-      //this._RELOAD_MAIN2()
     }).catch((err) => {
-      console.log("err of submitwork", err)
-    });
-
-
-  }
-
-
-  queryZONE = () => {
-    console.log("queryZone")
-
-    this.props.client.query({
-      query: queryZONE,
-      variables: {
-        "MessengerID": global.NameOfMess
-      }
-    }).then((result) => {
-      console.log(result.data.queryZONE)
-      this.setState({
-        showZone: result.data.queryZONE
-      })
-    }).catch((err) => {
-      console.log(err)
-    });
-  }
-
-  sucesswork = () => {
-    console.log("sucesswork")
-
-    this.props.client.query({
-      query: sucessworkV2,
-      variables: {
-        "MessengerID": global.NameOfMess
-      }
-    }).then((result) => {
-      console.log(result.data.sucessworkV2)
-      this.setState({
-        show_SUC: result.data.sucessworkV2
-      })
-    }).catch((err) => {
-      console.log(err)
+      console.log("err of del_blacklist", err)
     });
   }
 
   submitwork = (s, in_V, n) => {
-    if(s =='B8')
-    {
-      console.log('ลูกค้าไม่โอน',in_V)
+    if (s == 'B8') {
       this.props.client.mutate({
         mutation: Blacklist,
         variables: {
           "status": s,
           "invoice": in_V,
-          "messengerID":global.NameOfMess
+          "messengerID": global.NameOfMess
         }
-      }).then((result) => {
-        console.log(result.data.Blacklist.status)
       }).catch((err) => {
-        console.log("err of submitwork", err)
+        console.log("err of Blacklist", err)
       });
-    
-
     }
-    console.log(s)
+
     this.props.client.mutate({
       mutation: submitworkV2_nonsig,
       variables: {
         "status": s,
         "invoiceNumber": in_V
       }
-    }).then((result) => {
-      if (n == 0) {
-        console.log("submitwork ")
-      } else if (n == 1) {
+    }).then(() => {
+      if (n == 1) {
         this._RELOAD_MAIN2()
       }
-     // this.submiitdetail(s, in_V, n)
     }).catch((err) => {
       console.log("err of submitwork", err)
     });
   }
 
-  submiitdetail = (s, in_V, n) => {
-    this.props.client.mutate({
-      mutation: submiitdetail,
-      variables: {
-        "invoiceNumber": in_V
-      }
-    }).then((result) => {
-      this.tracking(s, in_V, n)
-    }).catch((err) => {
-      console.log("err of submiitdetail", err)
-    });
-  }
-
-  tracking = (s, in_V, n) => {
-    console.log("tracking")
-
-    this.props.client.mutate({
-      mutation: tracking,
-      variables: {
-        "invoice": in_V,
-        "status": s,
-        "messengerID": global.NameOfMess,
-        "lat": 1,
-        "long": 1,
-      }
-    }).then((result) => {
-      if (n == 0) {
-        console.log("Tracking ", result.data.tracking.status)
-      } else if (n == 1) {
-        this._RELOAD_MAIN2()
-      }
-    }).catch((err) => {
-      console.log("ERR OF TRACKING", err)
-    });
-  }
+  // สรุปยอดเงิน
   checksubmitbill = () => {
     const { navigate } = this.props.navigation
-    console.log("tracking")
-    console.log(this.state.showWork.length)
-
-    if(this.state.showWork.length>0)
-    {
+    if (this.state.showWork.length > 0) {
       Alert.alert(
         'ไม่สามารถสรุปยอดได้ ',
-        'คุณยังมีงานค้างส่งอีก :'+this.state.showWork.length+'  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
-       
+        'คุณยังมีงานค้างส่งอีก :' + this.state.showWork.length + '  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
       )
-    }
-    else if(this.state.showWork_CN.length>0)
-    {
+    } else if (this.state.showWork_CN.length > 0) {
       Alert.alert(
         'ไม่สามารถสรุปยอดได้ ',
-        'คุณยังมีงานพิเศษค้างส่งอีก :'+this.state.showWork_CN.length+'  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
-       
+        'คุณยังมีงานพิเศษค้างส่งอีก :' + this.state.showWork_CN.length + '  งาน                             กรุณาส่งงานให้หมดทุกงานก่อน'
       )
-    }
-    else{
+    } else {
       navigate('SumBill')
     }
- 
   }
-  OnhandSelect =(inb)=>{
-    this.setState({
-      indexRow:inb,
+
+  onConfirm = () => {
+    let { CF_ALL_INVOICE } = this.state
+    if (CF_ALL_INVOICE.every(this.checkDATA)) {
+      Alert.alert(
+        'ไม่สามารถส่งงานได้',
+        'กรุณาเลือกงานที่จะส่ง'
+      )
+    } else {
+      Alert.alert("ยืนยันการส่งงาน", "คุณต้องการยืนยัน การส่งงาน -สำเร็จ- หรือ -ไม่สำเร็จ- ?",
+        [
+          {
+            text: "ไม่สำเร็จ", onPress: () =>
+              ActionSheet.show({
+                options: BUTTONS,
+                title: "รายงานการส่ง",
+                itemStyle: { fontFamily: font.regular, fontSize: normalize(16), lineHeight: normalize(20) },
+                titleStyle: { fontFamily: font.semi, fontSize: normalize(18) }
+              },
+                buttonIndex => ((buttonIndex || buttonIndex === 0) && buttonIndex !== 7) && this.onFailed(buttonIndex))
+          },
+          { text: "สำเร็จ", onPress: () => this.onSubmitAll() }
+        ]
+      )
+    }
+  }
+
+  onFailed = (buttonIndex) => {
+    let { stack_IVOICE } = this.state;
+    let filter = stack_IVOICE.filter(el => el);
+    filter.forEach(async (el, i) => {
+      let stop = ((i + 1) !== filter.length) ? 0 : 1;
+      await this.submitwork(BUTTONS[buttonIndex].status, el, stop)
     })
-    const inb_text = this.state.indexRow
-
-    console.log(inb)
   }
-  
 
+  onSubmitAll = () => {
+    let newArr = this.state.stack_IVOICE.filter(el => el !== null)
+    let findArr = this.state.showWork.find(el => el.invoiceNumber === newArr[0])
+    this.onCheckEmail(findArr)
+  }
+
+  onCheckEmail = async (findArr) => {
+    try {
+      let { customerID, customerName } = findArr
+      const { navigate } = this.props.navigation
+      navigate("SubmitALLJob", {
+        check_box: this.state.CF_ALL_INVOICE,
+        in_V: this.state.stack_IVOICE,
+        PAYMMODE: this.state.stack_tran,
+        refresionTO: this._RELOAD_MAIN2,
+        customerID,
+        Cusname: customerName,
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  onValueChangeCheckAll = () => {
+    let { showWork } = this.state
+    let n = this.state.CF_ALL_INVOICE;
+    let s = this.state.stack_IVOICE;
+    let t = this.state.stack_tran;
+    showWork.forEach((el, i) => {
+      n[i] = !this.state.status_CHECKBOX
+      s[i] = el.invoiceNumber
+      t[i] = el.PAYMMODE
+    })
+
+    this.setState({
+      status_CHECKBOX: !this.state.status_CHECKBOX,
+      CF_ALL_INVOICE: n,
+      stack_IVOICE: s,
+      stack_tran: t
+    })
+  }
+
+  /**
+  * index
+  */
+  onValueChange = (work, index) => {
+    let n = this.state.CF_ALL_INVOICE.slice();
+    let s = this.state.stack_IVOICE.slice();
+    let t = this.state.stack_tran.slice();
+    n[index] = !this.state.CF_ALL_INVOICE[index]
+    s[index] = !this.state.CF_ALL_INVOICE[index] ? work.invoiceNumber : null
+    t[index] = this.state.CF_ALL_INVOICE[index] ? 'Default' : work.PAYMMODE
+    this.setState({ CF_ALL_INVOICE: n, stack_IVOICE: s, stack_tran: t })
+  }
 
   render() {
-
-    const { navigate } = this.props.navigation
-    const swipeSetting = {
-      autoClose : true,
-      onClose:(secId,rowId,direction)=>{
-        if(this.state.activeRowKey != null)
-        {
-          this.setState({
-            activeRowKey:null
-          })
-        }
-      },
-      onOpen:(secId,rowId,direction) =>{
-        console.log(rowId)
-        this.setState({
-          activeRowKey: ''
-        })
-      },
-      right:[
-        {
-          onPress:() =>{
-             const delInv = this.state.activeRowKey
-            Alert.alert(
-              'ถอยงาน',
-              'คุณยืนยันที่จะถอยงานใช่หรือไม่',
-              [
-                {text:'ไม่',onPress:()=>console.log('cancel Presed'),style:'cancel'},
-                {text:'ใช่',onPress:()=>{
-                  
-console.log('INV',delInv)
-
-                }},
-              ],
-              {cancelable:true}
-            );
-          },
-          text:'ถอยงาน',type :'delete'
-        }
-      ],
-      rowId:this.props.index,
-      selectionId:1,
-
-    }
+    let { loading } = this.state
     return (
-
       <Container>
-        <Header style={{ backgroundColor: '#66c2ff' }}>
-          <Left>
-            <Button transparent
-              onPress={() => { this.props.client.resetStore(); navigate("MainMenu") }}>
-              <Icon name='arrow-back' />
-            </Button>
-          </Left>
-          <Body>
-            <Title>ส่งงาน</Title>
-          </Body>
-          <Right />
-        </Header>
-
         <Tabs locked>
-          <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}><Icon name="md-cart" /><Text style={{ color: 'white' }}>  รายการส่ง</Text></TabHeading>}>
-            <Content
-              refreshControl={
-                <RefreshControl
-                  refreshing={this.state.refreshing_2}
-                  onRefresh={this._RELOAD_MAIN2}
-                />
-              }
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
-                <CheckBox
-                  value={this.state.status_CHECKBOX}
-                  onValueChange={() => {
-                    this.setState({ status_CHECKBOX: !this.state.status_CHECKBOX })
-                    this.state.showWork.map((i, k) => {
-                      let n = this.state.CF_ALL_INVOICE;
-                      let s = this.state.stack_IVOICE;
-                      let t = this.state.stack_tran;
-                      n[k] = !this.state.status_CHECKBOX
-                      s[k] = i.invoiceNumber
-                      t[k] = i.PAYMMODE
-                      this.setState({
-                        CF_ALL_INVOICE: n,
-                        stack_IVOICE: s,
-                        stack_tran:t
-                      })
-                    })
-                  }} />
-                <Text>เลือกทั้งหมด</Text>
-              </View>
-
-              {
-                (() => {
-                  if (this.state.showWork.length > 0) {
-                    return (
-                      <View>
-                        {
-                          this.state.showZone.map((val, j) => (
-                            <Accordion
-                              dataArray={[{ test: "test" }]}
-                              renderHeader={(expanded) => (
-                                <View
-                                  style={{ flexDirection: "row", padding: 10, justifyContent: "space-between", alignItems: "center", backgroundColor: "#E2E2E1" }}
-                                >
-                                  <Text style={{ fontWeight: "600" }}>
-                                    {"  "}{val.Zone}
-                                  </Text>
-                                  {expanded
-                                    ? <Icon style={{ fontSize: 18 }} name="remove-circle" />
-                                    : <Icon style={{ fontSize: 18 }} name="add-circle" />}
-                                </View>
-                              )}
-                              renderContent={() => this.state.showWork.map((l, i) => {
-                                if (l.Zone == val.Zone) {
-                                  return (
-                                    <View style={styles.detailContent}>
-                                      <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                        <CheckBox
-                                          value={this.state.CF_ALL_INVOICE[i]}
-                                          onValueChange={() => {
-                                            if (this.state.CF_ALL_INVOICE[i] == true) {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
-                                              let t = this.state.stack_tran.slice();
-                                              n[i] = false
-                                              s[i] = l.invoiceNumber
-                                              t[i]=l.PAYMMODE
-                                              this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s,
-                                                stack_tran:t
-                                              }, () => {
-                                                console.log("if 1 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
-                                                console.log("if 1 CF", this.state.stack_tran)
-                                              })
-
-                                            }
-                                            else if (this.state.CF_ALL_INVOICE[i] == false) {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
-                                              let t = this.state.stack_tran.slice();
-                                              n[i] = true
-                                              s[i] = l.invoiceNumber
-                                              t[i] = l.PAYMMODE
-                                              this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s,
-                                                stack_tran: t
-                                              }, () => {
-                                                console.log("if 2 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
-                                              })
-
-                                            }
-                                            else {
-                                              let n = this.state.CF_ALL_INVOICE.slice();
-                                              let s = this.state.stack_IVOICE.slice();
-                                              let t = this.state.stack_tran.slice();
-                                              n[i] = true
-                                              s[i] = l.invoiceNumber
-                                              t[i] = l.PAYMMODE
-                                              this.setState({
-                                                CF_ALL_INVOICE: n,
-                                                stack_IVOICE: s,
-                                                stack_tran: t
-                                              }, () => {
-                                                console.log("if 3 CF", this.state.CF_ALL_INVOICE)
-                                                console.log("if 1 CF", this.state.stack_IVOICE)
-                                              })
-
-                                            }
-
-                                          }} />
-                                        <TouchableOpacity style={{ position: 'absolute', left: "8%", right: 0, justifyContent: 'center' }} onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME,PAYMMODE:l.PAYMMODE,index:l.id, refresion: this._RELOAD_MAIN2 })}>
-                                          {
-                                            (() => {
-                                              if (l.PAYMMODE == "CHEQUE") {
-                             
-                                                return (
-                                                  // <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
-                                                  //   <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                  //     <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                                  //       <Text style={{ fontSize: 12, color: 'white' }}>ส่งสำเร็จ</Text>
-                                                  //     </TouchableOpacity>
-                                                  //   </Badge>
-                                                  // </View>
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{l.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>เครดิต</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              } else if
-                                              (l.PAYMMODE == "TRANSFER") {
-                                                return (
-                                                  // <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
-                                                  //   <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                  //     <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                                  //       <Text style={{ fontSize: 12, color: 'white' }}>ส่งสำเร็จ</Text>
-                                                  //     </TouchableOpacity>
-                                                  //   </Badge>
-                                                  // </View>
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{l.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>โอนบริษัท</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              }
-                                              else if
-                                              (l.PAYMMODE == "CASH") {
-                                                return (
-                                                  // <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
-                                                  //   <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                  //     <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                                  //       <Text style={{ fontSize: 12, color: 'white' }}>ส่งสำเร็จ</Text>
-                                                  //     </TouchableOpacity>
-                                                  //   </Badge>
-                                                  // </View>
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{l.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center',backgroundColor: 'orange' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>เงินสด</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              }
-                                              
-                                              else {
-                                                return (
-                                                  // <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
-                                                  //   <Badge style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                  //     <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                                  //       <Text style={{ fontSize: 12, color: 'white' }}>ส่งไม่สำเร็จ</Text>
-                                                  //     </TouchableOpacity>
-                                                  //   </Badge>
-                                                  // </View>
-                                                  <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                  <Text style={styles.storeLabel}>{l.invoiceNumber} </Text>
-                                                  {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                  {/* <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                  
-                                                      <Text style={{ fontSize: 12, color: 'white' }}>เงินสด</Text>
-                                                    
-                                                  </Badge> */}
-                                                </View>
-                                                )
-                                              }
-                                            })()
-                                          }
-                                              
-
-                                   
-                                     
-                                          <View style={{ paddingLeft: 0, flexDirection: 'row', marginBottom: 5 }}>
-                                            <Text style={{ fontSize: 12 }}>{l.DELIVERYNAME}</Text>
-                                          </View>
-                                        </TouchableOpacity>
-                                      </View>
-
-
-                                      <View style={{ position: 'absolute', right: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME, refresion: this._RELOAD_MAIN2 })}>
-                                          <Text style={{ fontWeight: 'bold', fontSize: 13, color: 'orange', paddingHorizontal: 5 }}>{l.SUM} ฿ </Text>
-                                          <Button transparent
-                                            onPress={() => navigate('DetailWork', { id: l.invoiceNumber, Zone: l.Zone, address: l.addressShipment, Cusname: l.DELIVERYNAME,PAYMMODE:l.PAYMMODE, refresion: this._RELOAD_MAIN2 })}
-                                          >
-                                            <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
-                                          </Button>
-                                        </TouchableOpacity>
-                                      </View>
-                                    </View>
-                                  )
-                                }
-                              })}
-                            />
-                          ))
-                        }
-                      </View>
-                    )
-                  } else {
-                    return (
-                      <View style={{ alignItems: 'center', marginTop: 20, borderColor: 'gray', borderWidth: 0.5 }}>
-                        <Text>คุณไม่มีงานที่ต้องส่ง</Text>
-                        <Text> หรือ </Text>
-                        <Text>กรุณาลากลงเพื่อทำการรีโหลด</Text>
-                      </View>
-                    )
+          <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}>
+            <Icon name="md-cart" style={{ fontSize: normalize(24) }} />
+            <Text style={{ color: 'white', fontSize: normalize(18) }}>  รายการส่ง</Text>
+          </TabHeading>}>
+            {loading ?
+              <View style={{ flex: 1 }}>
+                <Content
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={this.state.refreshing_2}
+                      onRefresh={this._RELOAD_MAIN2}
+                    />
                   }
-                })()
-              }
+                >
+                  {this.state.showZone.length > 0 && <View style={{
+                    flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, borderBottomColor: 'gray', borderBottomWidth: 0.5,
+                    marginBottom: normalize(5),
+                    paddingVertical: normalize(10),
+                    paddingLeft: normalize(10)
+                  }}>
+                    <CheckBox value={this.state.status_CHECKBOX} onValueChange={() => this.onValueChangeCheckAll()} />
+                    <Text style={{ fontSize: normalize(16) }}>เลือกทั้งหมด</Text>
+                  </View>}
+
+                  {this.state.showZone.length > 0 ?
+                    this.state.showZone.map((item, index) => {
+                      return this.renderShowZone(item, index)
+                    }) : <Empty title={'ไม่มีรายการส่งงาน'} />}
 
 
-            </Content>
-            <TouchableOpacity onPress={() => {
-              if (this.state.CF_ALL_INVOICE.every(this.checkDATA)) {
-                Alert.alert(
-                  'ไม่สามารถส่งงานได้',
-                  'กรุณาเลือกงานที่จะส่ง'
-                )
-              } else {
-                Alert.alert(
-                  "ยืนยันการส่งงาน",
-                  "คุณต้องการยืนยัน การส่งงาน -สำเร็จ- หรือ -ไม่สำเร็จ- ?",
-                  [
-                    {
-                      text: "ไม่สำเร็จ", onPress: () =>
-                        ActionSheet.show(
-                          {
-                            options: this.state.BUTTONS,
-                            cancelButtonIndex: CANCEL_INDEX,
-                            title: "รายงานการส่ง"
-                          },
-                          buttonIndex => {
-                            this.state.CF_ALL_INVOICE.map((val, i) => {
-                              if ((val == true) && ((i + 1) != this.state.CF_ALL_INVOICE.length)) {
-                                this.submitwork(this.state.BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 0)
-                              
-                              }
-                              else if ((val == true) && ((i + 1) == this.state.CF_ALL_INVOICE.length)) {
-                                this.submitwork(this.state.BUTTONS[buttonIndex].status, this.state.stack_IVOICE[i], 1)
-                             
-                              }
-                            });
-
-                          }
-                        )
-                    },
-                    { text: "สำเร็จ", onPress: () => navigate("SubmitALLJob", { check_box: this.state.CF_ALL_INVOICE, in_V: this.state.stack_IVOICE,PAYMMODE:this.state.stack_tran, refresionTO: this._RELOAD_MAIN2 }) }
-                  ]
-                )
-              }
-            }}>
-              <Footer style={{
-                backgroundColor: '#ff6c00',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>ยืนยันการส่งงาน</Text>
-                </View>
-              </Footer>
-            </TouchableOpacity>
+                </Content>
+                <TouchableOpacity onPress={this.onConfirm}>
+                  <Footer style={{
+                    backgroundColor: '#ff6c00',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <Text style={{ color: 'white', fontFamily: font.semi, fontSize: normalize(20) }}>ยืนยันการส่งงาน</Text>
+                  </Footer>
+                </TouchableOpacity>
+              </View> : <ActivityIndicator size={'small'} style={{ marginTop: normalize(10) }} />}
           </Tab>
 
           {/* ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
 
-          <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}><Icon name="md-checkbox-outline" /><Text style={{ color: 'white' }}>  ส่งสำเร็จ</Text></TabHeading>}>
+          <Tab heading={<TabHeading style={{ backgroundColor: '#66c2ff' }}>
+            <Icon name="md-checkbox-outline" style={{ fontSize: normalize(24) }} />
+            <Text style={{ color: 'white', fontSize: normalize(18) }}>  ส่งสำเร็จ</Text>
+          </TabHeading>}>
             <Content
               refreshControl={
                 <RefreshControl
                   refreshing={this.state.refreshing_2}
                   onRefresh={this._RELOAD_MAIN2}
                 />
-              }
-            >
-              {
-                this.state.show_SUC.map(k => (
-               
-                           <ListItem style={{ paddingTop: 5 }}>
-                    
-                    <View  >
-               
-                    <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                    {
-                                            (() => {
-                                              if (k.paymentType == "CHEQUE") {
-                             
-                                                return (
-                                          
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{k.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>เครดิต</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              } else if
-                                              (k.paymentType == "TRANSFER") {
-                                                return (
-                                              
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{k.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>โอนบริษัท</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              }
-                                              else if
-                                              (k.paymentType == "CASH") {
-                                                return (
-                                             
-                                                         <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                         <Text style={styles.storeLabel}>{k.invoiceNumber} </Text>
-                                                         {/* <Text style={styles.storeLabel}>เครดิต </Text> */}
-                                                         <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center',backgroundColor: 'orange' }} >
-                                                         
-                                                             <Text style={{ fontSize: 12, color: 'white' }}>เงินสด</Text>
-                                                           
-                                                         </Badge>
-                                                       </View>
-                                                )
-                                              }
-                                              
-                                              else {
-                                                return (
-                                            
-                                                  <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                                                  <Text style={styles.storeLabel}>{k.invoiceNumber} </Text>
-                                             
-                                                </View>
-                                                )
-                                              }
-                                            })()
-                                          }
-                      {/* <View style={{ paddingLeft: 0, flexDirection: 'row' }}>
-                     
-                        <Text style={styles.storeLabel}>{k.invoiceNumber}</Text>
-                    
-                      </View> */}
-                      <View style={{ paddingLeft: 0, flexDirection: 'row', paddingEnd: 0 }}>
-                        <Text style={{ fontSize: 12 }}>{k.DELIVERYNAME}</Text>
-                      </View>
-                        
-                    </TouchableOpacity>
-                    </View>
-                    <View style={{ position: 'absolute', right: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                      {/* <Text style={{ fontSize: 13, color: 'orange', paddingHorizontal: 30 }}>{k.SUM} ฿ </Text> */}
-                      <NumberFormat
-                                        value={k.SUM}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        fixedDecimalScale={true}
-                                        decimalScale={2}
-                                        renderText={value => <Text style={{ fontSize: 13, color: 'orange', paddingHorizontal: 30 }}>{value} ฿</Text>}
-                                    /> 
-                      </TouchableOpacity>
-                      {
-                        (() => {
-                          if (k.status == "A1") {
-                            return (
-                              <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
-                                <Badge success style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                  <Text style={{ fontSize: 12, color: 'white' }}>ส่งสำเร็จ</Text>
-                                  </TouchableOpacity>
-                                </Badge>
-                              </View>
-                            )
-                          } else if (k.status == "A2") {
-                            return (
+              }>
 
-                              <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5  }} >
-                                <Badge warning style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                  <Text style={{ fontSize: 12, color: 'white' }}>มีการแก้ไข</Text>
-                                  </TouchableOpacity>
-                                </Badge>
-                              </View>
-
-                            )
-                          } else {
-                            return (
-                              <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5  }} >
-                                <Badge style={{ height: 19, alignItems: 'center', justifyContent: 'center' }} >
-                                <TouchableOpacity onPress={() => this.checkBillRework(k.invoiceNumber)}>
-                                  <Text style={{ fontSize: 12, color: 'white' }}>ส่งไม่สำเร็จ</Text>
-                                  </TouchableOpacity>
-                                </Badge>
-                              </View>
-                            )
-                          }
-                        })()
-                      }
-                    </View>
-                  </ListItem>
-               
-           
-                ))
-              }
+              <FlatList
+                data={this.state.show_SUC}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => this.renderWorkSuccess(item, index)}
+                ListEmptyComponent={<Empty title={'ไม่มีรายการส่งสำเร็จ'} />}
+              />
             </Content>
 
-
-            {/* <TouchableOpacity onPress={() => navigate('SumBill')}> */}
             <TouchableOpacity onPress={() => this.checksubmitbill()}>
               <Footer style={{
                 backgroundColor: '#ff6c00',
                 justifyContent: 'center',
                 alignItems: 'center'
               }} >
-
-                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>สรุปยอดเงิน</Text>
-
-
+                <Text style={{ color: 'white', fontFamily: font.semi, fontSize: normalize(20) }}>สรุปยอดเงิน</Text>
               </Footer>
             </TouchableOpacity>
           </Tab>
@@ -866,25 +387,71 @@ console.log('INV',delInv)
     );
   }
 
+  renderShowZone = (item, index) => {
+    let itemZone = item
+    return <Accordion
+      key={index}
+      dataArray={[{ Zone: item.Zone }]}
+      renderHeader={(expanded) => (
+        <View style={{ flexDirection: "row", padding: normalize(10), justifyContent: "space-between", alignItems: "center", backgroundColor: "#E2E2E1" }}>
+          <Text style={{ fontFamily: font.semi, fontSize: normalize(18), paddingLeft: normalize(10), color: 'black' }}>{item.Zone}</Text>
+          {expanded
+            ? <Icon style={{ fontSize: normalize(18) }} name="remove-circle" />
+            : <Icon style={{ fontSize: normalize(18) }} name="add-circle" />}
+        </View>
+      )}
+      renderContent={() =>
+        <FlatList
+          data={this.state.showWork}
+          extraData={[this.state.CF_ALL_INVOICE, this.state.status_CHECKBOX]}
+          keyExtractor={(item, index) => index.toString()}
+          removeClippedSubviews={false}
+          renderItem={({ item, index }) => this.renderWork(item, index, itemZone)}
+        />
+      }
+    />
+  }
 
+  /**
+   * item => showZone
+   */
+  renderWork = (work, index, item) => {
+    const { navigate } = this.props.navigation
+    if (work.Zone === item.Zone) {
+      return <RenderWork
+        work={work}
+        index={index}
+        navigate={navigate}
+        checked={this.state.CF_ALL_INVOICE[index]}
+        onValueChange={(work, index) => this.onValueChange(work, index)}
+        refresion={() => this._RELOAD_MAIN2()}
+      />
+    }
+  }
+
+  renderWorkSuccess = (item, index) => {
+    return <ListItem style={{ paddingTop: normalize(5), marginLeft: 0 }} key={index}>
+      <View style={{ paddingLeft: normalize(10) }}>
+        <TouchableOpacity onPress={() => this.checkBillRework(item.invoiceNumber)}>
+          <Paymode item={item} />
+          <Text style={{ fontSize: normalize(16) }}>{item.DELIVERYNAME}</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ position: 'absolute', right: normalize(10), top: normalize(7), flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity onPress={() => this.checkBillRework(item.invoiceNumber)}>
+          <Text style={{ fontFamily: font.semi, fontSize: normalize(16), color: 'orange', paddingHorizontal: normalize(5) }}>{item.SUM} ฿ </Text>
+        </TouchableOpacity>
+
+        <StatusWork item={item} checkBillRework={(invoiceNumber) => this.checkBillRework(invoiceNumber)} />
+      </View>
+    </ListItem>
+  }
 }
 
 const GraphQL = compose(SearchTab)
 export default withApollo(GraphQL)
 
 
-const worksub = gql`
-    query worksub($MessengerID:String!){
-            worksub(MessengerID: $MessengerID){
-            invoiceNumber
-            customerName
-          DELIVERYNAME
-          Zone
-          addressShipment
-          SUM
-      }
-  }
-`
 
 const worksub_DL = gql`
     query worksub_DL($MessengerID:String!){
@@ -923,17 +490,6 @@ const queryZONE = gql`
           }
         `
 
-const sucesswork = gql`
-  query sucesswork($MessengerID:String!){
-            sucesswork(MessengerID: $MessengerID){
-            invoiceNumber
-          status
-          DELIVERYNAME
-          SUM
-          paymentType
-      }
-  }
-`
 const sucessworkV2 = gql`
   query sucessworkV2($MessengerID:String!){
     sucessworkV2(MessengerID: $MessengerID){
@@ -948,13 +504,6 @@ const sucessworkV2 = gql`
 
 
 
-const submitwork = gql`
-    mutation submitwork($status:String!, $invoiceNumber:String!){
-            submitwork(status: $status, invoiceNumber: $invoiceNumber){
-            status
-          }
-          }
-      `
 const submitworkV2_nonsig = gql`
       mutation submitworkV2_nonsig($status:String!, $invoiceNumber:String!){
         submitworkV2_nonsig(status: $status, invoiceNumber: $invoiceNumber){
@@ -962,35 +511,9 @@ const submitworkV2_nonsig = gql`
             }
             }
         `
-  
 
-const submiitdetail = gql`
-    mutation submiitdetail($invoiceNumber:String!){
-            submiitdetail(invoiceNumber: $invoiceNumber){
-            status
-          }
-          }
-      `
 
-const tracking = gql`
-          mutation tracking(
-              $invoice:String!,
-              $status:String!,
-              $messengerID:String!,
-              $lat:Float!,
-              $long:Float!
-    ){
-            tracking(
-              invoice: $invoice,
-          status: $status,
-          messengerID: $messengerID,
-          lat: $lat,
-          long: $long
-        ){
-            status
-          }
-          }
-      `
+
 const Blacklist = gql`
           mutation Blacklist(
               $invoice:String!,
@@ -1007,7 +530,7 @@ const Blacklist = gql`
           }
           }
       `
-  const del_Blacklist = gql`
+const del_Blacklist = gql`
           mutation del_Blacklist(
               $invoice:String!,
           
@@ -1022,7 +545,7 @@ const Blacklist = gql`
           }
           }
       `
-  const tsc_worklist = gql`
+const tsc_worklist = gql`
     query tsc_worklist($MessengerID:String!){
       tsc_worklist(MessengerID: $MessengerID){
             invoiceNumber
@@ -1036,17 +559,6 @@ const Blacklist = gql`
   }
 `
 
-const reasonfail = gql`
-    query reasonfail($MessengerID:String!){
-      reasonfail(MessengerID: $MessengerID){
-        
-        text
-        icon
-        iconColor
-        status
-      }
-  }
-`
 
 
 const styles = StyleSheet.create({
@@ -1057,19 +569,34 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   storeLabel: {
-    fontSize: 18,
+    fontSize: normalize(18),
     color: 'black'
   },
   detailContent: {
     width: Dimensions.get('window').width,
     backgroundColor: 'white',
     borderColor: 'gray',
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
-    borderTopWidth: 0.5,
-    borderBottomWidth: 0.5,
-    paddingBottom: 5,
-    height: 50,
+    borderRightWidth: Math.floor(normalize(2)),
+    borderLeftWidth: Math.floor(normalize(2)),
+    borderTopWidth: Math.floor(normalize(1)),
+    borderBottomWidth: Math.floor(normalize(1)),
+    height: normalize(50),
     justifyContent: 'center'
+  },
+  detailContentGREEN: {
+    width: Dimensions.get('window').width,
+    borderColor: 'gray',
+    borderRightWidth: Math.floor(normalize(2)),
+    borderLeftWidth: Math.floor(normalize(2)),
+    borderTopWidth: Math.floor(normalize(1)),
+    borderBottomWidth: Math.floor(normalize(1)),
+    height: normalize(50),
+    justifyContent: 'center',
+    backgroundColor: '#77F156'
+  },
+  horizontal: {
+    flexDirection: 'row',
+    padding: normalize(10),
+    justifyContent: "center"
   }
 })
