@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, CheckBox, TouchableOpacity } from 'react-native';
-import { Icon, Body, Right, Button, ListItem, Badge } from 'native-base';
+import { Icon, Body, Right, Button, ListItem, Badge, SwipeRow } from 'native-base';
 import { normalize } from '../functions/normalize';
 import font from '../resource/font';
 export const ListCheckJob = ({ item, index, onValueChange = (index) => { } }) => {
@@ -45,7 +45,7 @@ export const Development = ({ title }) => {
 export class RenderWork extends React.Component {
 
     shouldComponentUpdate = (nextProps, nextState) => {
-        if (nextProps.checked !== this.props.checked) {
+        if (nextProps.checked !== this.props.checked || nextProps.refreshing_2 !== this.props.refreshing_2) {
             return true
         }
 
@@ -75,35 +75,48 @@ export class RenderWork extends React.Component {
     }
 
     render() {
-        let { work, index, checked, onValueChange } = this.props
-        return <View style={styles.detailContent}>
-            <View style={{ backgroundColor: 'white', flexDirection: 'row', flex: 1, alignItems: 'center' }}>
-                <CheckBox value={checked} onValueChange={() => onValueChange(work, index)} />
-                <TouchableOpacity style={{ position: 'absolute', left: "8%", right: 0, justifyContent: 'center' }} onPress={() => this.goDetailWork(work)}>
-                    {this.renderPaymode(work)}
-                    <Text style={{ fontSize: normalize(16) }} numberOfLines={1}>{work.DELIVERYNAME}</Text>
-                </TouchableOpacity>
-            </View>
+        let { work, index, checked, onValueChange, del_amount, checkforDel } = this.props
+        return <SwipeRow
+            style={{ height: normalize(70) }}
+            leftOpenValue={75}
+            rightOpenValue={-75}
+            left={
+                < Button warning onPress={() => del_amount(work.invoiceNumber)}>
+                    <Icon active name="md-create" style={{ color: "white" }} />
+                </Button >
+            }
+            body={< View style={styles.detailContent} >
+                <View style={{ backgroundColor: 'white', flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+                    <CheckBox value={checked} onValueChange={() => onValueChange(work, index)} />
+                    <TouchableOpacity style={{ position: 'absolute', left: "8%", right: 0, justifyContent: 'center' }} onPress={() => this.goDetailWork(work)}>
+                        {this.renderPaymode(work)}
+                        <Text style={{ fontSize: normalize(16) }} numberOfLines={1}>{work.DELIVERYNAME}</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <View style={{ position: 'absolute', right: normalize(10), flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => this.goDetailWork(work)}>
-                    <Text style={{ marginTop: -normalize(27), fontFamily: font.semi, fontSize: normalize(16), color: 'orange', paddingHorizontal: normalize(5) }}>{work.SUM} ฿ </Text>
-                    <Button transparent onPress={() => this.goDetailWork(work)}>
-                        <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
-                    </Button>
-                </TouchableOpacity>
-            </View>
-        </View>
+                <View style={{ position: 'absolute', right: normalize(10), flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => this.goDetailWork(work)}>
+                        <Text style={{ marginTop: -normalize(27), fontFamily: font.semi, fontSize: normalize(16), color: 'orange', paddingHorizontal: normalize(5) }}>{work.SUM} ฿ </Text>
+                        <Button transparent onPress={() => this.goDetailWork(work)}>
+                            <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
+                        </Button>
+                    </TouchableOpacity>
+                </View>
+            </View >}
+            right={
+                < Button style={{ height: normalize(7) }} danger onPress={() => checkforDel(work.invoiceNumber, work.id)}>
+                    <Icon active name="trash" />
+                </Button >
+            }
+        />
     }
 }
 
 export class RenderWorkSpecial extends React.Component {
-
     shouldComponentUpdate = (nextProps, nextState) => {
         if (nextProps.checked !== this.props.checked) {
             return true
         }
-
         return false
     }
 

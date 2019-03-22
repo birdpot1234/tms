@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { View, FlatList, TouchableOpacity, StyleSheet, TextInput, Text } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 import { gql, withApollo, compose } from 'react-apollo'
@@ -89,8 +89,8 @@ class AutoSearch extends Component {
             <TouchableOpacity onPress={() => { navigate('AddCN', { id: item }) }}>
               <ListItem
                 roundAvatar
-                title={`${item.invoiceNumber}`}
-                subtitle={item.customerName}
+                title={<Text style={{ fontSize: normalize(18), fontFamily: font.medium, color: 'black' }}>{item.invoiceNumber}</Text>}
+                subtitle={<Text style={{ fontSize: normalize(16), fontFamily: font.regular }}>{item.customerName}</Text>}
                 containerStyle={{ borderBottomWidth: 0 }}
               />
             </TouchableOpacity>

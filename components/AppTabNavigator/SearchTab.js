@@ -303,6 +303,71 @@ class SearchTab extends Component {
     this.setState({ CF_ALL_INVOICE: n, stack_IVOICE: s, stack_tran: t })
   }
 
+  checkfordel = (invoiceNumber, id) => {
+    this.props.client.query({
+      query: countinv_DL,
+      variables: {
+        "invoiceNumber": invoiceNumber,
+        "MessengerID": global.NameOfMess,
+      }
+    }).then((result) => {
+      if (result.data.countinv_DL[0].count_inv > 1) {
+        this.delinvoice(invoiceNumber, id)
+      } else {
+        Alert.alert(
+          "ไม่สามารถลบได้",
+          "ลบไม่ได้เนื่องจากบิลนี้มีเพียง " + result.data.countinv_DL[0].count_inv + " บิล",
+          [
+            { text: "OK", onPress: () => console.log('') }
+          ]
+        )
+      }
+    }).catch((err) => {
+      console.log("err of submitedit", err)
+    });
+  }
+
+  delinvoice = (invoiceNumber, id) => {
+    this.props.client.mutate({
+      mutation: delinvoice,
+      variables: {
+        "invoiceNumber": invoiceNumber,
+        "id": id,
+      }
+    }).then(() => {
+      this._RELOAD_MAIN2()
+    }).catch((err) => {
+      console.log("ERR OF TRACKING", err)
+    });
+  }
+
+  del_amount = (invoice) => {
+    this.props.client.mutate({
+      mutation: del_amount,
+      variables: {
+        "invoice": invoice,
+      }
+    }).then(() => {
+      this.edit_amount(invoice)
+    }).catch((err) => {
+      console.log("ERR OF TRACKING", err)
+    });
+  }
+
+  edit_amount = (invoice) => {
+    this.props.client.mutate({
+      mutation: edit_amount,
+      variables: {
+        "invoice": invoice,
+      }
+    }).then(() => {
+      this._RELOAD_MAIN2()
+    }).catch((err) => {
+      console.log("ERR OF TRACKING", err)
+    });
+
+  }
+
   render() {
     let { loading } = this.state
     return (
@@ -406,7 +471,7 @@ class SearchTab extends Component {
       renderContent={() =>
         <FlatList
           data={this.state.showWork}
-          extraData={[this.state.CF_ALL_INVOICE, this.state.status_CHECKBOX]}
+          extraData={[this.state.CF_ALL_INVOICE, this.state.status_CHECKBOX, this.state.refreshing_2]}
           keyExtractor={(item, index) => index.toString()}
           removeClippedSubviews={false}
           renderItem={({ item, index }) => this.renderWork(item, index, itemZone)}
@@ -425,8 +490,11 @@ class SearchTab extends Component {
         work={work}
         index={index}
         navigate={navigate}
+        refreshing_2={this.state.refreshing_2}
         checked={this.state.CF_ALL_INVOICE[index]}
         onValueChange={(work, index) => this.onValueChange(work, index)}
+        del_amount={(invoiceNumber) => this.del_amount(invoiceNumber)}
+        checkforDel={(invoiceNumber, id) => this.checkfordel(invoiceNumber, id)}
         refresion={() => this._RELOAD_MAIN2()}
       />
     }
@@ -562,44 +630,34 @@ const tsc_worklist = gql`
   }
 `
 
+const delinvoice = gql`
+    mutation delinvoice($invoiceNumber:String!,$id:String!){
+        delinvoice(invoiceNumber: $invoiceNumber,id:$id){
+            status
+        }
+    }
+`
 
+const countinv_DL = gql`
+    query countinv_DL($invoiceNumber:String!,$MessengerID:String!){
+        countinv_DL(invoiceNumber: $invoiceNumber,MessengerID: $MessengerID){
+            count_inv
+        }
+    }
+`
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  storeLabel: {
-    fontSize: normalize(18),
-    color: 'black'
-  },
-  detailContent: {
-    width: Dimensions.get('window').width,
-    backgroundColor: 'white',
-    borderColor: 'gray',
-    borderRightWidth: Math.floor(normalize(2)),
-    borderLeftWidth: Math.floor(normalize(2)),
-    borderTopWidth: Math.floor(normalize(1)),
-    borderBottomWidth: Math.floor(normalize(1)),
-    height: normalize(50),
-    justifyContent: 'center'
-  },
-  detailContentGREEN: {
-    width: Dimensions.get('window').width,
-    borderColor: 'gray',
-    borderRightWidth: Math.floor(normalize(2)),
-    borderLeftWidth: Math.floor(normalize(2)),
-    borderTopWidth: Math.floor(normalize(1)),
-    borderBottomWidth: Math.floor(normalize(1)),
-    height: normalize(50),
-    justifyContent: 'center',
-    backgroundColor: '#77F156'
-  },
-  horizontal: {
-    flexDirection: 'row',
-    padding: normalize(10),
-    justifyContent: "center"
-  }
-})
+const del_amount = gql`
+    mutation del_amount( $invoice:String!){
+          del_amount(invoice: $invoice){
+          status
+        }
+        }
+    `
+
+const edit_amount = gql`
+    mutation edit_amount( $invoice:String!){
+          edit_amount(invoice: $invoice){
+          status
+        }
+        }
+    `

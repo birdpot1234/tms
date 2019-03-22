@@ -378,25 +378,6 @@ class DetailWork extends Component {
                 <Footer style={{ height: normalize(140) }} backgroundColor={'white'}>
                     <View>
                         <View style={{ flex: 1, flexDirection: 'row', }}>
-                            <TouchableOpacity onPress={() => {
-                                Alert.alert(
-                                    "ยืนยันที่จะลบงานนี้ออก",
-                                    "ลบงานเนื้องจากงานซ้ำหรือมียอดบิลไม่ตรง",
-                                    [
-                                        { text: "ไม่", onPress: () => console.log('NO') },
-                                        { text: "ใช่", onPress: () => this.checkfordel() }
-                                    ]
-                                )
-                            }}>
-                                <View style={{
-                                    width: Dimensions.get('window').width / 2,
-                                    height: normalize(70), backgroundColor: '#FFBC66', justifyContent: 'center', alignItems: 'center'
-                                }} >
-                                    <Image source={require('../../../assets/icon/recyclebin.png')} style={{ width: normalize(35), height: normalize(35) }} />
-                                    <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>ลบบิลเบิ้ล</Text>
-                                </View>
-                            </TouchableOpacity>
-
                             <TouchableOpacity onPress={() => navigate('EditItem', { id: this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
                                 <View style={{
                                     width: Dimensions.get('window').width / 2,
@@ -407,9 +388,7 @@ class DetailWork extends Component {
                                     <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>แก้ไขรายการ</Text>
                                 </View>
                             </TouchableOpacity>
-                        </View>
 
-                        <View style={{ flex: 1, flexDirection: 'row', }}>
                             <TouchableOpacity onPress={() => navigate('CNDetail', { id: this.props.navigation.state.params.id, refresion: this._RELOAD_DETAILWORK })} >
                                 <View style={{ width: Dimensions.get('window').width / 2, height: normalize(70), backgroundColor: '#66FFB3', justifyContent: 'center', alignItems: 'center' }} >
                                     <Image source={require('../../../assets/icon/check.png')}
@@ -417,7 +396,9 @@ class DetailWork extends Component {
                                     <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginTop: normalize(2) }}>CN</Text>
                                 </View>
                             </TouchableOpacity>
+                        </View>
 
+                        <View style={{ flex: 1, flexDirection: 'row', }}>
                             <TouchableOpacity
                                 onPress={() =>
                                     Alert.alert(
@@ -436,7 +417,7 @@ class DetailWork extends Component {
                                             { text: "ใช่", onPress: () => this.onConfirm() }
                                         ]
                                     )}>
-                                <View style={{ width: Dimensions.get('window').width / 2, height: normalize(70), backgroundColor: '#FFA566', justifyContent: 'center', alignItems: 'center' }} >
+                                <View style={{ width: Dimensions.get('window').width, height: normalize(70), backgroundColor: '#FFA566', justifyContent: 'center', alignItems: 'center' }} >
                                     <Image source={require('../../../assets/icon/file.png')}
                                         style={{ width: normalize(35), height: normalize(35) }} />
                                     <Text style={{ fontFamily: font.semi, fontSize: normalize(16), marginLeft: normalize(8) }}>ส่งงาน</Text>
