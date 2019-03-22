@@ -3,123 +3,84 @@ import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, 
 
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Separator, ListItem } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
-class DetailBill extends Component {
+import { normalize } from '../../../functions/normalize'
+import font from '../../../resource/font'
 
+class DetailBill extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showDetailBill: [],
-      showinvoicebill: []
+      showinvoicebill: [],
+      loading: false
     }
-   // this.props.client.resetStore();
+  }
+
+  componentDidMount = () => {
     this.detailsummoney();
     this.checkinvoicebill();
   }
 
   detailsummoney = () => {
-    console.log("detailsummoney")
-
     this.props.client.query({
       query: detailsummoney,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.detailsummoney)
-      this.setState({
-        showDetailBill: result.data.detailsummoney
-      })
+      this.setState({ showDetailBill: result.data.detailsummoney, loading: true })
     }).catch((err) => {
       console.log(err)
     });
   }
 
   checkinvoicebill = () => {
-    console.log("queryZone")
-
     this.props.client.query({
       query: checkinvoicebill,
       variables: {
         "MessengerID": global.NameOfMess
       }
     }).then((result) => {
-      console.log(result.data.checkinvoicebill)
-      this.setState({
-        showinvoicebill: result.data.checkinvoicebill
-      })
+      this.setState({ showinvoicebill: result.data.checkinvoicebill })
     }).catch((err) => {
       console.log(err)
     });
   }
+
   render() {
-
-    const { navigate } = this.props.navigation
-
+    let { loading } = this.state
     return (
-
       <Container style={{ backgroundColor: 'white' }}>
-        <Header style={{ backgroundColor: '#66c2ff' }}>
-          <Left>
-            <Button transparent
-              onPress={() => navigate('SumBill')}>
-              <Icon name='arrow-back' />
-            </Button>
-          </Left>
-          <Body>
-            <Title>รายละเอียดยอดเงิน</Title>
-          </Body>
-          <Right />
-        </Header>
+        {loading ? <Content>
+          {
+            this.state.showinvoicebill.map((val, i) => (
+              <View key={`invoice${i}`} style={{ flex: 1 }}>
+                <Separator bordered>
+                  <Text style={styles.storeLabel}> {val.invoiceNumber}</Text>
+                </Separator>
 
-        <Content>
-
-          <View>
-            {
-              this.state.showinvoicebill.map(val => (
                 <View>
-                  <Separator bordered>
-                    <Text style={styles.storeLabel}>{" "}{val.invoiceNumber}</Text>
-                  </Separator>
-
-                  <View>
-                    {
-                      this.state.showDetailBill.map(l => {
-                        if (l.invoiceNumber == val.invoiceNumber) {
-                          return (
-                            <View style={styles.detailContent}>
-                              <View style={{ backgroundColor: 'white',paddingLeft: 0 }}>
-                                <View style={{  justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderBottomColor: 'gray', borderBottomWidth: 0.5  }}>
-                                  <View style={{paddingLeft:5, width: Dimensions.get('window').width / 2, alignItems: 'center', flexDirection: 'row' }}>
-                                    <Text style={{fontSize:12}} >{l.itemName}</Text>
-                                  </View>
-                                  <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                                    <Text style={{fontSize:12}}  >{l.qty}</Text>
-                                    <Text style={{fontSize:12}} >ชิ้น</Text>
-                                  </View>
-                                  <View style={{ width: Dimensions.get('window').width / 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                                    <Text style={{ color: 'orange', fontWeight: 'bold',fontSize:12 }} >{l.amount}</Text>
-                                    <Text  style={{ color: 'orange', fontWeight: 'bold',fontSize:12 }}>฿</Text>
-                                  </View>
-                                </View>
-                              </View>
-                            </View>
-
-                          )
-                        }
-                      })
-                    }
-                  </View>
+                  {this.state.showDetailBill.length > 0 ?
+                    this.state.showDetailBill.map((item, index) => {
+                      if (item.invoiceNumber == val.invoiceNumber) {
+                        return (
+                          <View style={styles.detailContent} key={index}>
+                            <Text style={{ flex: 2, fontSize: normalize(16), fontFamily: font.medium }}>{item.itemName}</Text>
+                            <Text style={{ fontSize: normalize(16), fontFamily: font.medium }}>{item.qty} ชิ้น</Text>
+                            <Text style={{ flex: 1, fontSize: normalize(16), fontFamily: font.medium, color: 'orange', textAlign: 'right' }}>{item.amount} ฿</Text>
+                          </View>
+                        )
+                      }
+                    })
+                    : <Empty title={'ไม่มีรายละเอียดยอดเงิน'} />
+                  }
                 </View>
+              </View>
 
 
-              )
-              )
-            }
-
-          </View>
-        </Content>
-
-
+            ))
+          }
+        </Content> : <View />}
       </Container>
 
     )
@@ -158,11 +119,11 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   storeLabel: {
-    fontSize: 18,
+    fontSize: normalize(18),
     color: 'black'
   },
   detailContent: {
-    width: Dimensions.get('window').width,
+    flex: 1,
     backgroundColor: 'white',
     borderColor: 'white',
     borderRightWidth: 2,
@@ -171,6 +132,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 5,
+    paddingVertical: normalize(5),
+    flexDirection: 'row', borderBottomColor: 'gray',
+    paddingHorizontal: normalize(10)
   }
 })

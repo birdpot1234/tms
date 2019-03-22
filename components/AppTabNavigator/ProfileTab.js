@@ -81,7 +81,7 @@ class ProfileTab extends Component {
         <View style={styles.detailContent} key={`detail${k}`}>
           <View style={{ backgroundColor: 'white', paddingLeft: 0 }}>
             <View style={{ paddingLeft: normalize(5), flexDirection: 'row' }}>
-              <Text style={{ fontSize: normalize(16) }} >{el.invoiceNumber}</Text>
+              <Text style={{ fontSize: normalize(18), color: 'black' }} >{el.invoiceNumber}</Text>
             </View>
           </View>
         </View>

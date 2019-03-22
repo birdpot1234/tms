@@ -66,7 +66,6 @@ class LikesTab extends Component {
 
   render() {
     let { loading } = this.state
-    const { navigate } = this.props.navigation
     return (
       <Container>
         <Tabs locked>
@@ -88,7 +87,7 @@ class LikesTab extends Component {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => this.renderHistoryWork(item, index)}
                   ListEmptyComponent={<Empty title={'ไม่มีประวัติการส่งงาน'} />}
-                /> : <View />}
+                /> : <ActivityIndicator size={'small'} style={{ marginTop: normalize(10) }} />}
             </Content >
           </Tab >
 
@@ -186,7 +185,7 @@ class LikesTab extends Component {
       <View style={{ position: 'absolute', right: normalize(8), top: normalize(7), flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
         {
           (() => {
-            if (item.Status == "A1") {
+            if (item.status_finish == "A1") {
               return (
                 <View style={{ alignItems: 'center', justifyContent: 'center', }} >
                   <Badge success style={{ height: normalize(19), alignItems: 'center', justifyContent: 'center' }} >
@@ -194,7 +193,7 @@ class LikesTab extends Component {
                   </Badge>
                 </View>
               )
-            } else if (item.Status == "A2") {
+            } else if (item.status_finish == "A2") {
               return (
                 <View style={{ alignItems: 'center', justifyContent: 'center', }} >
                   <Badge warning style={{ height: normalize(19), alignItems: 'center', justifyContent: 'center' }} >

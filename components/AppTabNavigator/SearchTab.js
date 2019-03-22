@@ -14,6 +14,9 @@ var BUTTONS = [
   { text: "เซลล์ key ผิด", icon: "md-arrow-dropright", iconColor: "#2c8ef4", status: "B5" },
   { text: "ลูกค้าสั่งร้านอื่นมาแล้ว", icon: "md-arrow-dropright", iconColor: "#f42ced", status: "B6" },
   { text: "เซลล์บอกราคาลูกค้าผิด", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B7" },
+
+  { text: "ลูกค้าไม่โอนเงิน", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B8" },
+  { text: "ลูกค้าไม่มีเงินจ่าย", icon: "md-arrow-dropright", iconColor: "#ea943b", status: "B9" },
   { text: "Cancel", icon: "close", iconColor: "#25de5b", status: "" }
 ];
 
@@ -164,7 +167,7 @@ class SearchTab extends Component {
   }
 
   submitwork = (s, in_V, n) => {
-    if (s == 'B8') {
+    if (s == 'B8' || s == 'B9') {
       this.props.client.mutate({
         mutation: Blacklist,
         variables: {
@@ -228,7 +231,7 @@ class SearchTab extends Component {
                 itemStyle: { fontFamily: font.regular, fontSize: normalize(16), lineHeight: normalize(20) },
                 titleStyle: { fontFamily: font.semi, fontSize: normalize(18) }
               },
-                buttonIndex => ((buttonIndex || buttonIndex === 0) && buttonIndex !== 7) && this.onFailed(buttonIndex))
+                buttonIndex => ((buttonIndex || buttonIndex === 0) && buttonIndex !== 9) && this.onFailed(buttonIndex))
           },
           { text: "สำเร็จ", onPress: () => this.onSubmitAll() }
         ]

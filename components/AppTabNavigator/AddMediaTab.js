@@ -423,7 +423,7 @@ class AddMediaTab extends Component {
               return (
                 <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
                   <Badge warning style={{ height: normalize(19), alignItems: 'center', justifyContent: 'center' }} >
-                    <TouchableOpacity onPress={() => this.checkBillRework(item.invoiceNumber)}>
+                    <TouchableOpacity onPress={() => this.checkBillRework(item.tsc_document)}>
                       <Text style={{ fontSize: normalize(15), color: 'white' }}>มีการแก้ไข</Text>
                     </TouchableOpacity>
                   </Badge>
@@ -433,7 +433,7 @@ class AddMediaTab extends Component {
               return (
                 <View style={{ alignItems: 'center', justifyContent: 'center', width: Dimensions.get('window').width / 5.5 }} >
                   <Badge style={{ height: normalize(19), alignItems: 'center', justifyContent: 'center' }} >
-                    <TouchableOpacity onPress={() => this.checkBillRework(item.invoiceNumber)}>
+                    <TouchableOpacity onPress={() => this.checkBillRework(item.tsc_document)}>
                       <Text style={{ fontSize: normalize(15), color: 'white' }}>ส่งไม่สำเร็จ</Text>
                     </TouchableOpacity>
                   </Badge>
