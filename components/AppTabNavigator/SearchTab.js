@@ -213,9 +213,17 @@ class SearchTab extends Component {
     }
   }
 
+  isEmpty(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key))
+        return false;
+    }
+    return true;
+  }
+
   onConfirm = () => {
     let { CF_ALL_INVOICE } = this.state
-    if (CF_ALL_INVOICE.every(this.checkDATA)) {
+    if (this.isEmpty(CF_ALL_INVOICE)) {
       Alert.alert(
         'ไม่สามารถส่งงานได้',
         'กรุณาเลือกงานที่จะส่ง'
@@ -276,11 +284,17 @@ class SearchTab extends Component {
     let n = this.state.CF_ALL_INVOICE;
     let s = this.state.stack_IVOICE;
     let t = this.state.stack_tran;
-    showWork.forEach((el, i) => {
-      n[i] = !this.state.status_CHECKBOX
-      s[i] = el.invoiceNumber
-      t[i] = el.PAYMMODE
-    })
+    if (this.state.status_CHECKBOX) {
+      n = [];
+      s = [];
+      t = [];
+    } else {
+      showWork.forEach((el, i) => {
+        n[el.invoiceNumber] = true
+        s.push(el.invoiceNumber)
+        t.push(el.PAYMMODE)
+      })
+    }
 
     this.setState({
       status_CHECKBOX: !this.state.status_CHECKBOX,
@@ -294,12 +308,24 @@ class SearchTab extends Component {
   * index
   */
   onValueChange = (work, index) => {
-    let n = this.state.CF_ALL_INVOICE.slice();
-    let s = this.state.stack_IVOICE.slice();
-    let t = this.state.stack_tran.slice();
-    n[index] = !this.state.CF_ALL_INVOICE[index]
-    s[index] = !this.state.CF_ALL_INVOICE[index] ? work.invoiceNumber : null
-    t[index] = this.state.CF_ALL_INVOICE[index] ? 'Default' : work.PAYMMODE
+    let n = this.state.CF_ALL_INVOICE;
+    let s = this.state.stack_IVOICE;
+    let t = this.state.stack_tran;
+
+    if (this.state.CF_ALL_INVOICE[work.invoiceNumber]) {
+      delete n[work.invoiceNumber]
+      let findIndex = s.findIndex(el => el === work.invoiceNumber)
+      s.splice(findIndex, 1)
+      t.splice(findIndex, 1)
+    } else {
+      n[work.invoiceNumber] = !this.state.CF_ALL_INVOICE[work.invoiceNumber]
+      t.push(work.PAYMMODE)
+      s.push(work.invoiceNumber)
+    }
+
+    // n[index] = !this.state.CF_ALL_INVOICE[index]
+    // s[index] = !this.state.CF_ALL_INVOICE[index] ? work.invoiceNumber : null
+    // t[index] = this.state.CF_ALL_INVOICE[index] ? 'Default' : work.PAYMMODE
     this.setState({ CF_ALL_INVOICE: n, stack_IVOICE: s, stack_tran: t })
   }
 
@@ -457,8 +483,9 @@ class SearchTab extends Component {
 
   renderShowZone = (item, index) => {
     let itemZone = item
+    let showWork = this.state.showWork.filter(el => el.Zone === itemZone.Zone)
     return <Accordion
-      key={index}
+      key={item.Zone}
       dataArray={[{ Zone: item.Zone }]}
       renderHeader={(expanded) => (
         <View style={{ flexDirection: "row", padding: normalize(10), justifyContent: "space-between", alignItems: "center", backgroundColor: "#E2E2E1" }}>
@@ -470,9 +497,9 @@ class SearchTab extends Component {
       )}
       renderContent={() =>
         <FlatList
-          data={this.state.showWork}
+          data={showWork}
           extraData={[this.state.CF_ALL_INVOICE, this.state.status_CHECKBOX, this.state.refreshing_2]}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => item.id}
           removeClippedSubviews={false}
           renderItem={({ item, index }) => this.renderWork(item, index, itemZone)}
         />
@@ -485,19 +512,19 @@ class SearchTab extends Component {
    */
   renderWork = (work, index, item) => {
     const { navigate } = this.props.navigation
-    if (work.Zone === item.Zone) {
-      return <RenderWork
-        work={work}
-        index={index}
-        navigate={navigate}
-        refreshing_2={this.state.refreshing_2}
-        checked={this.state.CF_ALL_INVOICE[index]}
-        onValueChange={(work, index) => this.onValueChange(work, index)}
-        del_amount={(invoiceNumber) => this.del_amount(invoiceNumber)}
-        checkforDel={(invoiceNumber, id) => this.checkfordel(invoiceNumber, id)}
-        refresion={() => this._RELOAD_MAIN2()}
-      />
-    }
+    // if (work.Zone === item.Zone) {
+    return <RenderWork
+      work={work}
+      index={index}
+      navigate={navigate}
+      refreshing_2={this.state.refreshing_2}
+      checked={this.state.CF_ALL_INVOICE[work.invoiceNumber]}
+      onValueChange={(work, index) => this.onValueChange(work, index)}
+      del_amount={(invoiceNumber) => this.del_amount(invoiceNumber)}
+      checkforDel={(invoiceNumber, id) => this.checkfordel(invoiceNumber, id)}
+      refresion={() => this._RELOAD_MAIN2()}
+    />
+    // }
   }
 
   renderWorkSuccess = (item, index) => {

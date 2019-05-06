@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, TouchableOpacity, RefreshControl, CheckBox, ActivityIndicator, FlatList } from 'react-native'
 import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, List, ListItem, Item, TabHeading, Tab, Tabs } from 'native-base';
-// import { List, ListItem } from 'react-native-elements';
+import { post } from '../services'
 import { gql, withApollo, compose } from 'react-apollo'
 import { Empty } from '../../comp/FlatList'
 import { normalize } from '../../functions/normalize';
@@ -23,6 +23,7 @@ class HomeTab extends Component {
             CF_ALL_INVOICE: [],
             stack_IVOICE: [],
             stack_box: [],
+            id: [],
             status_CHECKBOX: false,
             loading: false,
             loadingSpecial: true,
@@ -104,7 +105,7 @@ class HomeTab extends Component {
 
     _Re_worklist_query = () => {
         this.props.client.resetStore();
-        this.setState({ refreshing_1: true });
+        this.setState({ refreshing_1: true, status_CHECKBOX: false });
 
         this.worklist_query();
         this.selectwork();
@@ -158,27 +159,31 @@ class HomeTab extends Component {
 
     GET_LOCATE = () => {
         try {
+            let { stack_IVOICE, id } = this.state
+            let filter = stack_IVOICE.filter(el => el);
+            let filterId = id.filter(el => el)
+
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     let { latitude, longitude } = position.coords
-                    let { stack_IVOICE, stack_box } = this.state
-                    let filter = stack_IVOICE.filter(el => el);
-                    let boxfilter = stack_box.filter(el => el);
-                    filter.forEach(async (val, i) => {
-                        let stop = ((i + 1) !== filter.length) ? 0 : 1 // เช็คว่าตัวสุดท้ายหรือเปล่า
-                        await this.tracking(val, boxfilter[i], stop, latitude, longitude)
-                    })
+                    await this.confirmworksome(filter, filterId)
+                    await this.tracking(filter, latitude, longitude)
+                    // let boxfilter = stack_box.filter(el => el);
+                    // filter.forEach(async (val, i) => {
+                    //     let stop = ((i + 1) !== filter.length) ? 0 : 1 // เช็คว่าตัวสุดท้ายหรือเปล่า
+                    //     await this.tracking(val, boxfilter[i], stop, latitude, longitude)
+                    // })
                 },
-                (error) => {
+                async (error) => {
                     this.setState({ refreshing_1: false })
                     console.log(error)
-                    let { stack_IVOICE, stack_box } = this.state
-                    let filter = stack_IVOICE.filter(el => el);
-                    let boxfilter = stack_box.filter(el => el);
-                    filter.forEach(async (val, i) => {
-                        let stop = ((i + 1) !== filter.length) ? 0 : 1 // เช็คว่าตัวสุดท้ายหรือเปล่า
-                        await this.tracking(val, boxfilter[i], stop, -1, -1)
-                    })
+                    await this.confirmworksome(filter, filterId)
+                    await this.tracking(filter, -1, -1)
+                    // let boxfilter = stack_box.filter(el => el);
+                    // filter.forEach(async (val, i) => {
+                    //     let stop = ((i + 1) !== filter.length) ? 0 : 1 // เช็คว่าตัวสุดท้ายหรือเปล่า
+                    //     await this.tracking(val, boxfilter[i], stop, -1, -1)
+                    // })
                 },
             );
         } catch (error) {
@@ -187,55 +192,43 @@ class HomeTab extends Component {
         }
     }
 
-    tracking = (inV, box, i, latitude, longitude) => {
-        console.log(box)
-        this.props.client.mutate({
-            mutation: tracking_DL,
-            variables: {
-                "invoice": inV,
-                "status": "5",
-                "messengerID": global.NameOfMess,
-                "lat": latitude,
-                "long": longitude,
-                "box": box
-            }
-        }).then(() => {
-            this.confirmworksome(inV, box, i)
-        }).catch((err) => {
-            this.setState({ refreshing_1: false })
-            console.log("ERR OF TRACKING", err)
-        });
+    tracking = async (invoiceNumber, latitude, longitude) => {
+        try {
+            await post(":3499/tms/api/tracking", JSON.stringify({ invoiceNumber, mess_id: global.NameOfMess, latitude, longitude, status: "5" }))
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 
-    confirmworksome = (inV, box, i) => {
-        this.props.client.mutate({
-            mutation: confirmworksomeAll_DL,
-            variables: {
-                "invoiceNumber": inV,
-                "numBox": box,
-                "MessengerID": global.NameOfMess
-            }
-        }).then((result) => {
-            if (!result.data.confirmworksomeAll_DL.status) {
+    confirmworksome = async (inV, _id) => {
+        try {
+            let invoicenumber = inV.filter((v, i) => inV.indexOf(v) === i)
+            let id = _id.filter((v, i) => _id.indexOf(v) === i);
+            let result = await post(":3499/tms/api/confirmsome", JSON.stringify({ invoicenumber, mess_id: global.NameOfMess, id }))
+            if (result.success) {
+                setTimeout(() => {
+                    console.log('refresh worklist')
+                    this._Re_worklist_query();
+                }, 100)
+            } else {
                 Alert.alert(
                     'ตรวจงานไม่สำเร็จ',
                     'มีการตรวจงานไปแล้ว',
                     [
-                        { text: 'ตกลง', onPress: () => this.setState({ refreshing_1: false }) },
+                        {
+                            text: 'ตกลง', onPress: () =>
+                                setTimeout(() => {
+                                    console.log('refresh worklist')
+                                    this._Re_worklist_query();
+                                }, 100)
+                        },
                     ]
                 )
-            } else {
-                if (i == 1) {
-                    setTimeout(() => {
-                        this._Re_worklist_query();
-                    }, 100)
-                }
             }
-        }).catch((err) => {
-            this.setState({ refreshing_1: false })
-            console.log(err)
-        });
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 
@@ -245,36 +238,43 @@ class HomeTab extends Component {
     onValueChange = (item, i) => {
         let n = this.state.CF_ALL_INVOICE.slice();
         let s = this.state.stack_IVOICE.slice();
-        let b = this.state.stack_box.slice();
+        let id = this.state.id.slice()
 
         if (this.state.CF_ALL_INVOICE[i] == true) {
             n[i] = false
             s[i] = null
-            b[i] = item.NumBox
+            id[i] = null
         } else {
             n[i] = true
             s[i] = item.invoiceNumber
-            b[i] = item.NumBox
+            id[i] = item.id
         }
-        this.setState({ CF_ALL_INVOICE: n, stack_IVOICE: s, stack_box: b })
+        this.setState({ CF_ALL_INVOICE: n, stack_IVOICE: s, id })
     }
 
     onValueChangeCheckAll = () => {
         let { showTable } = this.state
         let n = this.state.CF_ALL_INVOICE;
         let s = this.state.stack_IVOICE;
-        let b = this.state.stack_box;
-        showTable.forEach((el, i) => {
-            n[i] = !this.state.status_CHECKBOX
-            s[i] = el.invoiceNumber
-            b[i] = el.NumBox
-        })
+        let id = this.state.id;
+
+        if (this.state.status_CHECKBOX) {
+            n = []
+            s = []
+            id = []
+        } else {
+            showTable.forEach((el, i) => {
+                n[i] = !this.state.status_CHECKBOX
+                s[i] = el.invoiceNumber
+                id[i] = el.id
+            })
+        }
 
         this.setState(prev => ({
             status_CHECKBOX: !prev.status_CHECKBOX,
             CF_ALL_INVOICE: n,
             stack_IVOICE: s,
-            stack_box: b
+            id
         }))
     }
 
@@ -598,6 +598,7 @@ class HomeTab extends Component {
         if (showTable.length > 0) {
             return (
                 <TouchableOpacity
+                    disabled={this.state.refreshing_1}
                     onPress={() => {
                         if (CF_ALL_INVOICE.every(this.checkDATA)) {
                             Alert.alert(
@@ -663,6 +664,7 @@ const querywork_DL = gql`
             DELIVERYNAME
             QtyBox
             NumBox
+            id
                 }
             }
         `

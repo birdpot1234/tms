@@ -265,12 +265,6 @@ const AppStackNavigator = createStackNavigator({
                             headerRight: <View />
                         }),
                     },
-                    SearchView: {
-                        screen: SearchView,
-                        navigationOptions: () => ({
-                            header: null
-                        }),
-                    },
                     AutoSearch: {
                         screen: AutoSearch,
                         navigationOptions: () => ({
@@ -278,12 +272,6 @@ const AppStackNavigator = createStackNavigator({
                             headerTitle: <HeaderTitle title={'ค้นหาชุดเอกสาร'} />,
                             headerLeft: <HeaderBack />,
                             headerRight: <View />
-                        }),
-                    },
-                    ProfileTab: {
-                        screen: ProfileTab,
-                        navigationOptions: () => ({
-                            header: null
                         }),
                     },
                     Submit_TSC: {

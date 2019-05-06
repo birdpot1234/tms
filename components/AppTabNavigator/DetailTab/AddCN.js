@@ -39,12 +39,14 @@ class AddCN extends Component {
                 'กรุณากรอกข้อมูลให้ครบ'
             )
         } else {
+
             this.getMoviesFromApiAsync()
         }
     }
 
     getMoviesFromApiAsync() {
         let url = "http://www.dplus-system.com:3499/web-api/special-circles/add-task"
+        console.log(`submitCN`, this.props.navigation.state.params);
         fetch(url, {
             method: "POST",
             headers: {
@@ -92,6 +94,7 @@ class AddCN extends Component {
         })
             .then((resp) => resp.json())
             .then((respJSON) => {
+                console.log(`response CN`, respJSON);
                 if (respJSON.status == 200) {
                     this.props.navigation.state.params.refresion()
                     this.props.navigation.goBack()

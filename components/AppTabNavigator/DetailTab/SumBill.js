@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, StatusBar, Alert, View, Platform, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, Alert, View, Dimensions, TouchableOpacity } from 'react-native'
 
-import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Footer, Input, Item, Grid, Col, Badge } from 'native-base';
+import { Container, Content, Footer, Badge } from 'native-base';
 import { gql, withApollo, compose } from 'react-apollo'
 import { normalize } from '../../../functions/normalize'
 import font from '../../../resource/font'
+import { post } from '../../services';
 //  import {CurrencyFormat} from 'react-currency-format';
 
 class SumBill extends Component {
@@ -19,6 +20,7 @@ class SumBill extends Component {
             showbillbyTransfer: [],
             countSpecail_success: '',
             countSpecail_fail: '',
+            status_clear: false
         }
     }
 
@@ -88,6 +90,7 @@ class SumBill extends Component {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
+            console.log(result)
             this.setState({ showsummoney: result.data.summoney_cash })
         }).catch((err) => {
             console.log(err)
@@ -131,34 +134,36 @@ class SumBill extends Component {
                 "MessengerID": global.NameOfMess
             }
         }).then((result) => {
-            this.setState({ showinvoicedetail_ID: result.data.checkinvoicereport })
-            if (this.state.showinvoicedetail_ID.length > 0) {
+            // this.setState({ showinvoicedetail_ID: result.data.checkinvoicereport })
+            if (result.data.checkinvoicereport.length > 0) {
                 Alert.alert(
                     "ยืนยันการเคลียร์งาน",
                     "ควรเคลียร์เงินกับทางบัญชีก่อนการกดเคลียร์",
                     [
-                        { text: "ยกเลิก", onPress: () => console.log("Cancle") },
-                        { text: "ยืนยัน", onPress: () => this.Clear() }
-                    ]
+                        { text: "ยกเลิก", onPress: () => this.setState({ status_clear: false }) },
+                        { text: "ยืนยัน", onPress: () => this.Clear(result.data.checkinvoicereport) }
+                    ],
+                    { cancelable: false }
                 )
             } else {
                 Alert.alert(
                     "เคลียร์งานไม่สำเร็จ",
                     "คุณได้เคลียร์งานไปแล้ว",
                     [
-                        { text: "OK", onPress: () => navigate('SumBill') }
+                        { text: "OK", onPress: () => this.setState({ status_clear: false }, () => navigate('SumBill')) }
                     ],
                     { cancelable: false }
                 )
             }
 
         }).catch((err) => {
+            this.setState({ status_clear: false })
             console.log("err of checkinvoicereport", err)
         });
     }
 
-    Clear = () => {
-        this.reportsubmitwork()
+    Clear = (checkinvoicereport) => {
+        this.reportsubmitwork(checkinvoicereport)
         this.TMS_report()
     }
 
@@ -173,28 +178,46 @@ class SumBill extends Component {
         });
     }
 
-    reportsubmitwork = () => {
+    reportsubmitwork = async (checkinvoicereport) => {
         const { navigate } = this.props.navigation
-        this.props.client.mutate({
-            mutation: reportsubmitwork,
-            variables: {
-                "MessengerID": global.NameOfMess
+        let invoiceNumber = checkinvoicereport.map(el => el.invoiceNumber);
+        try {
+            let result = await post(":3499/tms/api/reportdetail", JSON.stringify({ invoiceNumber }));
+            console.log(result)
+            if (result.success) {
+                Alert.alert(
+                    "เคลียร์งานสำเร็จแล้ว",
+                    "คุณได้เคลียร์งานสำเร็จแล้ว",
+                    [
+                        { text: "OK", onPress: () => this.setState({ status_clear: false }, () => navigate('MainMenu')) }
+                    ],
+                    { cancelable: false }
+                )
             }
-        }).then(() => {
-            this.state.showinvoicedetail_ID.map(l => (
-                this.reportdetail(l.invoiceNumber)
-            ));
-            Alert.alert(
-                "เคลียร์งานสำเร็จแล้ว",
-                "คุณได้เคลียร์งานสำเร็จแล้ว",
-                [
-                    { text: "OK", onPress: () => navigate('MainMenu') }
-                ],
-                { cancelable: false }
-            )
-        }).catch((err) => {
-            console.log("error of reportsubmitwork", err)
-        });
+        } catch (error) {
+            this.setState({ status_clear: false })
+            console.log(error)
+        }
+        // this.props.client.mutate({
+        //     mutation: reportsubmitwork,
+        //     variables: {
+        //         "MessengerID": global.NameOfMess
+        //     }
+        // }).then(() => {
+        //     this.state.showinvoicedetail_ID.map(l => (
+        //         this.reportdetail(l.invoiceNumber)
+        //     ));
+        //     Alert.alert(
+        //         "เคลียร์งานสำเร็จแล้ว",
+        //         "คุณได้เคลียร์งานสำเร็จแล้ว",
+        //         [
+        //             { text: "OK", onPress: () => navigate('MainMenu') }
+        //         ],
+        //         { cancelable: false }
+        //     )
+        // }).catch((err) => {
+        //     console.log("error of reportsubmitwork", err)
+        // });
     }
 
     reportdetail = (id) => {
@@ -209,10 +232,11 @@ class SumBill extends Component {
     }
 
     _PRESS_SearchTab = () => {
-        this.checkinvoicereport();
+        this.setState({ status_clear: true }, () => this.checkinvoicereport())
     }
 
     render() {
+        let { status_clear } = this.state
         const { navigate } = this.props.navigation
         return (
             <Container>
@@ -227,9 +251,9 @@ class SumBill extends Component {
 
                                     <View style={{ paddingHorizontal: normalize(20), marginTop: normalize(5), justifyContent: 'center' }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                            <Text style={{ flex: 2, fontSize: normalize(17) }} >ยอดงเงินตามบิลจริง</Text>
+                                            <Text style={{ flex: 2, fontSize: normalize(17) }} >ยอดเงินตามบิลจริง</Text>
                                             <Badge success style={{ height: normalize(19), width: normalize(19), borderRadius: normalize(9.5), alignItems: 'center', justifyContent: 'center' }} >
-                                                <Text style={{ fontSize: normalize(12), color: 'white', fontFamily: font.semi }}>{l.CountBill}</Text>
+                                                <Text style={{ fontSize: normalize(12), color: 'white', fontFamily: font.semi }}>{l.CountBill_CASH}</Text>
                                             </Badge>
                                             <Text style={styles.textCon} >{l.amountBill || '0'} ฿ </Text>
                                         </View>
@@ -272,7 +296,7 @@ class SumBill extends Component {
                                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                                             <Text style={{ flex: 2, fontSize: normalize(17) }} >ยอดเงินที่เก็บได้</Text>
                                             <Badge warning style={{ height: normalize(19), width: normalize(19), borderRadius: normalize(9.5), alignItems: 'center', justifyContent: 'center' }} >
-                                                <Text style={{ fontSize: normalize(12), color: 'white', fontFamily: font.semi }}>{l.CountBill}</Text>
+                                                <Text style={{ fontSize: normalize(12), color: 'white', fontFamily: font.semi }}>{l.CountBill_CASH}</Text>
                                             </Badge>
                                             <Text style={styles.textCon} >{l.amountActual || '0'} ฿ </Text>
                                         </View>
@@ -373,7 +397,8 @@ class SumBill extends Component {
                 </Content>
 
                 <Footer style={{ backgroundColor: 'white' }}>
-                    <TouchableOpacity onPress={this._PRESS_SearchTab.bind(this)}>
+                    <TouchableOpacity disabled={status_clear}
+                        onPress={this._PRESS_SearchTab.bind(this)}>
                         <View style={{
                             width: Dimensions.get('window').width / 2,
                             height: '100%',
@@ -408,15 +433,6 @@ class SumBill extends Component {
 const GraphQL = compose(SumBill)
 export default withApollo(GraphQL)
 
-const summoney = gql`
-query summoney($MessengerID:String!){
-    summoney(MessengerID: $MessengerID){
-    amountBill
-    amountActual
-    CountBill
-}
-}
-`
 const summoney_cash = gql`
 query summoney_cash($MessengerID:String!){
     summoney_cash(MessengerID: $MessengerID){
@@ -457,13 +473,6 @@ const DelFinish = gql`
                   }
               }
           `
-const reportsubmitwork = gql`
-    mutation reportsubmitwork($MessengerID:String!){
-                    reportsubmitwork(MessengerID: $MessengerID){
-                    status
-                }
-                }
-            `
 const reportdetail = gql`
     mutation reportdetail($invoiceNumber:String!){
                     reportdetail(invoiceNumber: $invoiceNumber){
@@ -479,18 +488,6 @@ const checkinvoicereport = gql`
                 }
             `
 
-const SumBillbySale = gql`
-query SumBillbySale($MessengerID:String!){
-                     SumBillbySale(MessengerID: $MessengerID){
-                        amountBill
-                        amountActual
-                        inv_Date
-                        SaleID
-                        Sale_Name
-                        MessengerID
-            }
-            }
-        `
 
 const SumBills = gql`
 query SumBill($MessengerID:String!){
@@ -499,21 +496,6 @@ query SumBill($MessengerID:String!){
                         amountActual
                         inv_Date
                         MessengerID
-            }
-            }
-        `
-const SumBillbyTranfer = gql`
-query SumBillbyTranfer($MessengerID:String!){
-    SumBillbyTranfer(MessengerID: $MessengerID){
-                        amountBill
-                        amountActual
-                        inv_Date
-                        SaleID
-                        Sale_Name
-                        MessengerID
-                        CustomerID
-                        CustomerName
-                        invoiceNumber
             }
             }
         `

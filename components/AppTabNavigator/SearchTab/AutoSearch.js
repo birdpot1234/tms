@@ -70,6 +70,7 @@ class AutoSearch extends Component {
 
 
   render() {
+    let { navigate } = this.props.navigation
     return (<Container>
       <Content contentContainerStyle={{ flex: 1, width }}>
         <View style={styles.search}>

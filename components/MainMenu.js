@@ -27,7 +27,7 @@ class MainMenu extends Component {
                 query: beforeloginQuery,
                 variables: {
                     "imei": IMEI.getImei()
-                    // "imei": "359993095670785"
+                    // "imei": "359993095666890",
                 }
             }).then((result) => {
                 global.NameOfMess = result.data.beforeloginQuery[0].IDMess;
@@ -241,8 +241,8 @@ class MainMenu extends Component {
         }).catch((err) => {
             console.log(err)
         });
-
     }
+
     _PRESS_HOME = (n) => {
         if (n == 1) {
             this.checkwork();
@@ -315,7 +315,7 @@ class MainMenu extends Component {
                                     borderWidth: Math.floor(normalize(3)), marginBottom: normalize(10), height: Dimensions.get('window').height / 6.3,
                                 }}>
                                 <Image source={require('../assets/icon/shuffle.png')} style={{ width: normalize(55), height: normalize(55) }} resizeMode={'contain'} />
-                                <Text style={{ fontSize: normalize(20), color: '#0099CC' }}>เคลม</Text>
+                                <Text style={{ fontSize: normalize(20), color: '#0099CC' }}>งานพิเศษ</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => navigate('ProfileTab')}
@@ -324,7 +324,7 @@ class MainMenu extends Component {
                                     borderWidth: Math.floor(normalize(3)), height: Dimensions.get('window').height / 6.3,
                                 }}>
                                 <Image source={require('../assets/icon/newspaper.png')} style={{ width: normalize(55), height: normalize(55) }} resizeMode={'contain'} />
-                                <Text style={{ fontSize: normalize(20), color: '#0099CC' }}>ข่าวสาร</Text>
+                                <Text style={{ fontSize: normalize(20), color: '#0099CC' }}>BlackList</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

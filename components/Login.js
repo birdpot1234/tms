@@ -28,6 +28,7 @@ class Login extends Component {
     componentDidMount() {
         NetInfo.getConnectionInfo().then(connectionInfo => {
             if (connectionInfo.type.toLocaleLowerCase() !== "none") {
+                console.log('didmount');
                 this.user();
             } else {
                 this.setState({ loading: true, error: true })
@@ -42,6 +43,7 @@ class Login extends Component {
             query: loginQuery,
             variables: {
                 "IMEI": addressIMEI,
+                // "IMEI": "358465093919531",
                 "Password": this.state.text
             }
         }).then((result) => {
@@ -62,12 +64,15 @@ class Login extends Component {
 
     user = () => {
         let imei = IMEI.getImei();
+        console.log(imei)
         this.props.client.query({
             query: beforeloginQuery,
             variables: {
                 "imei": IMEI.getImei()
+                // "imei": "359993095628619",
             }
         }).then((result) => {
+            console.log(result, imei);
             this.setState({ mess: result.data.beforeloginQuery[0].IDMess, addressIMEI: imei, loading: true })
         }).catch((err) => {
             this.setState({ error: false, loading: true })
@@ -155,7 +160,7 @@ class Login extends Component {
                             <Text style={{ color: '#0086b3', fontFamily: font.semi, fontSize: normalize(20) }}>เข้าสู่ระบบ</Text>
                         </TouchableOpacity>
 
-                        <Text style={{ marginTop: normalize(10), fontSize: normalize(16), color: 'white' }}>เวอร์ชั่น 1.0.0</Text>
+                        <Text style={{ marginTop: normalize(10), fontSize: normalize(16), color: 'white' }}>เวอร์ชั่น 1.0.1</Text>
                     </View> : loading ?
                             !error ?
                                 <Text style={{ fontFamily: font.regular, fontSize: normalize(18), color: 'white', textAlign: 'center' }}>โทรศัพท์ของท่านยังไม่ได้ลงทะเบียน โปรดติดต่อผู้พัฒนา</Text> :

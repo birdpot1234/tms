@@ -91,18 +91,18 @@ export default class App extends React.Component {
 }
 
 const AppStackNavigator = createStackNavigator({
-  // Login: {
-  //   screen: Login
-  // },
-  // ForgetPassword: {
-  //   screen: ForgetPassword,
-  //   navigationOptions: {
-  //     ...navigationOptions,
-  //     headerTitle: <HeaderTitle title={'ลืมรหัสผ่าน'} />,
-  //     headerLeft: <HeaderBack />,
-  //     headerRight: <View />
-  //   }
-  // },
+  Login: {
+    screen: Login
+  },
+  ForgetPassword: {
+    screen: ForgetPassword,
+    navigationOptions: {
+      ...navigationOptions,
+      headerTitle: <HeaderTitle title={'ลืมรหัสผ่าน'} />,
+      headerLeft: <HeaderBack />,
+      headerRight: <View />
+    }
+  },
   mainScreen: {
     screen: mainScreen
   },
