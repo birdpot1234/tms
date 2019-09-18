@@ -550,7 +550,7 @@ class HomeTab extends Component {
             <Body style={{ marginLeft: normalize(3) }}>
                 <View style={{ left: 0, right: 0, top: 0, bottom: 0, }}>
                     <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
-                        onPress={() => navigate('CheckWork', { id: item.invoiceNumber, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 0 })}
+                        onPress={() => navigate('CheckWork', { invoiceNumber: item.invoiceNumber, id: item.id, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 0 })}
                     >
                         <Text style={styles.storeLabel}>{index + 1}). {item.invoiceNumber}</Text>
                         <Text style={{ fontSize: normalize(16) }} numberOfLines={1}>{item.DELIVERYNAME}</Text>
@@ -558,7 +558,7 @@ class HomeTab extends Component {
                 </View>
             </Body>
             <Right>
-                <Button transparent onPress={() => navigate('CheckWork', { id: item.invoiceNumber, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 0 })}>
+                <Button transparent onPress={() => navigate('CheckWork', { invoiceNumber: item.invoiceNumber, id: item.id, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 0 })}>
                     <Text style={styles.storeLabel}>{item.NumBox}/{item.QtyBox}</Text>
                     <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
                 </Button>
@@ -575,14 +575,14 @@ class HomeTab extends Component {
         return <ListItem noIndent style={{ backgroundColor: "#A9FC93", marginLeft: 0, paddingLeft: normalize(10) }}>
             <Body style={{ marginLeft: normalize(3) }}>
                 <TouchableOpacity style={{ left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' }}
-                    onPress={() => navigate('CheckWork', { id: item.invoiceNumber, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 1 })}
+                    onPress={() => navigate('CheckWork', { invoiceNumber: item.invoiceNumber, id: item.id, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 1 })}
                 >
                     <Text style={styles.storeLabel}>{index + 1}). {item.invoiceNumber}</Text>
                     <Text style={{ fontSize: normalize(16) }} numberOfLines={1}>{item.DELIVERYNAME}</Text>
                 </TouchableOpacity>
             </Body>
             <Right>
-                <Button transparent onPress={() => navigate('CheckWork', { id: item.invoiceNumber, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 1 })}>
+                <Button transparent onPress={() => navigate('CheckWork', { invoiceNumber: item.invoiceNumber, id: item.id, NumBox: item.NumBox, refresion: this._Re_worklist_query, receive_success: 1 })}>
                     <Text style={styles.storeLabel}>{item.NumBox}/{item.QtyBox}</Text>
                     <Icon name='ios-arrow-forward' style={{ color: 'gray' }} />
                 </Button>

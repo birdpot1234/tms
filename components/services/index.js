@@ -1,5 +1,5 @@
-export const ip = "http://www.dplus-system.com"
-// export const ip = "http://192.168.22.128"
+// export const ip = "http://www.dplus-system.com"
+export const ip = "http://192.168.1.168"
 
 
 export const post = (path, object) => new Promise((resolve, reject) => {

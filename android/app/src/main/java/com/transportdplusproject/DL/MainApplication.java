@@ -2,6 +2,7 @@ package com.transportdplusproject.DL;
 
 import android.app.Application;
 
+//import com.facebook.react.BuildConfig;
 import com.facebook.react.ReactApplication;
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.airbnb.android.react.maps.MapsPackage;

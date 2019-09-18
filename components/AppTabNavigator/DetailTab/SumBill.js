@@ -183,7 +183,7 @@ class SumBill extends Component {
         let invoiceNumber = checkinvoicereport.map(el => el.invoiceNumber);
         try {
             let result = await post(":3499/tms/api/reportdetail", JSON.stringify({ invoiceNumber }));
-            console.log(result)
+            console.log('report', result)
             if (result.success) {
                 Alert.alert(
                     "เคลียร์งานสำเร็จแล้ว",

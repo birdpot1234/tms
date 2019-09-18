@@ -160,7 +160,7 @@ class Login extends Component {
                             <Text style={{ color: '#0086b3', fontFamily: font.semi, fontSize: normalize(20) }}>เข้าสู่ระบบ</Text>
                         </TouchableOpacity>
 
-                        <Text style={{ marginTop: normalize(10), fontSize: normalize(16), color: 'white' }}>เวอร์ชั่น 1.0.1</Text>
+                        <Text style={{ marginTop: normalize(10), fontSize: normalize(16), color: 'white' }}>เวอร์ชั่น 1.0.2</Text>
                     </View> : loading ?
                             !error ?
                                 <Text style={{ fontFamily: font.regular, fontSize: normalize(18), color: 'white', textAlign: 'center' }}>โทรศัพท์ของท่านยังไม่ได้ลงทะเบียน โปรดติดต่อผู้พัฒนา</Text> :

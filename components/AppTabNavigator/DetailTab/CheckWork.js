@@ -4,6 +4,7 @@ import { Icon, Container, Header, Left, Body, Title, Right, Button, Content, Foo
 import { gql, withApollo, compose } from 'react-apollo'
 import { normalize } from '../../../functions/normalize';
 import font from '../../../resource/font';
+import { post } from '../../services';
 
 class CheckWork extends Component {
 
@@ -75,61 +76,90 @@ class CheckWork extends Component {
 
     }
 
-    GET_LOCATE = () => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                let { latitude, longitude } = position.coords
-                this.confirmworksome(latitude, longitude);
-            },
-            (error) => {
-                console.log(error)
-                this.confirmworksome(-1, -1)
-            }
-        );
+    GET_LOCATE = async () => {
+        try {
+            let { invoiceNumber, id } = this.props.navigation.state.params
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    let { latitude, longitude } = position.coords
+                    await this.confirmworksome(invoiceNumber, id)
+                    await this.tracking(invoiceNumber, latitude, longitude)
+                },
+                async (error) => {
+                    console.log(error)
+                    await this.confirmworksome(invoiceNumber, id)
+                    await this.tracking(invoiceNumber, -1, -1)
+                }
+            );
+        } catch (error) {
+            console.log(error)
+        }
     }
 
-    confirmworksome = (latitude, longitude) => {
-        this.props.client.mutate({
-            mutation: confirmworksome_DL,
-            variables: {
-                "invoiceNumber": this.props.navigation.state.params.id,
-                "numBox": this.props.navigation.state.params.NumBox,
-                "MessengerID": global.NameOfMess
-            }
-        }).then((result) => {
-            if (result.data.confirmworksome_DL.status) {
-                this.tracking(latitude, longitude)
-            } else {
+    confirmworksome = async (inV, id) => {
+        try {
+            let invoicenumber = inV
+            let result = await post(":3499/tms/api/confirmsome", JSON.stringify({ invoicenumber, mess_id: global.NameOfMess, id }))
+            if (!result.success) {
                 Alert.alert(
                     'ตรวจงานไม่สำเร็จ',
-                    'มีการตรวจงานนี้ไปแล้ว',
+                    'มีการตรวจงานไปแล้ว',
                     [
                         { text: 'ตกลง', onPress: () => console.log("ok") },
                     ]
                 )
             }
-        }).catch((err) => {
-            console.log(err)
-        });
+        } catch (error) {
+            console.log(error)
+        }
+        // this.props.client.mutate({
+        //     mutation: confirmworksome_DL,
+        //     variables: {
+        //         "invoiceNumber": this.props.navigation.state.params.id,
+        //         "numBox": this.props.navigation.state.params.NumBox,
+        //         "MessengerID": global.NameOfMess
+        //     }
+        // }).then((result) => {
+        //     if (result.data.confirmworksome_DL.status) {
+        //         this.tracking(latitude, longitude)
+        //     } else {
+        //         Alert.alert(
+        //             'ตรวจงานไม่สำเร็จ',
+        //             'มีการตรวจงานนี้ไปแล้ว',
+        //             [
+        //                 { text: 'ตกลง', onPress: () => console.log("ok") },
+        //             ]
+        //         )
+        //     }
+        // }).catch((err) => {
+        //     console.log(err)
+        // });
     }
 
-    tracking = (latitude, longitude) => {
-        this.props.client.mutate({
-            mutation: tracking_DL,
-            variables: {
-                "invoice": this.props.navigation.state.params.id,
-                "status": "5",
-                "messengerID": global.NameOfMess,
-                "lat": latitude,
-                "long": longitude,
-                "box": this.props.navigation.state.params.NumBox
-            }
-        }).then(() => {
+    tracking = async (latitude, longitude) => {
+        try {
+            await post(":3499/tms/api/tracking", JSON.stringify({ invoiceNumber, mess_id: global.NameOfMess, latitude, longitude, status: "5" }))
             this.props.navigation.goBack()
             this.props.navigation.state.params.refresion()
-        }).catch((err) => {
-            console.log("ERR OF TRACKING", err)
-        });
+        } catch (error) {
+            console.log(error)
+        }
+        // this.props.client.mutate({
+        //     mutation: tracking_DL,
+        //     variables: {
+        //         "invoice": this.props.navigation.state.params.id,
+        //         "status": "5",
+        //         "messengerID": global.NameOfMess,
+        //         "lat": latitude,
+        //         "long": longitude,
+        //         "box": this.props.navigation.state.params.NumBox
+        //     }
+        // }).then(() => {
+        //     this.props.navigation.goBack()
+        //     this.props.navigation.state.params.refresion()
+        // }).catch((err) => {
+        //     console.log("ERR OF TRACKING", err)
+        // });
     }
 
     render() {
